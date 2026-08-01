@@ -1,25 +1,31 @@
-import { sampleResources } from "../../data/sampleResources";
+import { interventions } from "../../data/resources/interventions";
 
 export default function InterventionsPage() {
   return (
-    <div>
-      <h1>Interventions</h1>
+    <>
+      <div className="page-header">
+        <div>
+          <span className="eyebrow">Resource Library</span>
+          <h1>Interventions</h1>
+        </div>
+      </div>
 
       <div
         style={{
           display: "grid",
-          gap: 20,
-          marginTop: 30,
+          gap: "1.5rem",
+          marginTop: "2rem",
         }}
       >
-        {sampleResources.map((resource) => (
+        {interventions.map((resource) => (
           <article
             key={resource.id}
             style={{
-              background: "white",
-              borderRadius: 18,
+              background: "#fff",
+              borderRadius: 20,
               padding: 24,
               border: "1px solid #ddd",
+              boxShadow: "0 8px 24px rgba(0,0,0,.05)",
             }}
           >
             <h2>{resource.title}</h2>
@@ -28,22 +34,15 @@ export default function InterventionsPage() {
 
             <p>
               <strong>Duration:</strong>{" "}
-              {resource.durationMinutes} minutes
+              {resource.durationMinutes} min
             </p>
 
             <p>
-              <strong>Goals</strong>
+              <strong>Telehealth:</strong>{" "}
+              {resource.telehealthFriendly ? "✓ Yes" : "No"}
             </p>
 
-            <ul>
-              {resource.goals.map((goal) => (
-                <li key={goal}>{goal}</li>
-              ))}
-            </ul>
-
-            <p>
-              <strong>Works Well When</strong>
-            </p>
+            <h3>Works Well When</h3>
 
             <ul>
               {resource.worksWellWhen.map((item) => (
@@ -51,18 +50,24 @@ export default function InterventionsPage() {
               ))}
             </ul>
 
-            <p>
-              <strong>Kids Who Like</strong>
-            </p>
+            <h3>Kids Who Like</h3>
 
             <ul>
               {resource.kidsWhoLike.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
+
+            <h3>Goals</h3>
+
+            <ul>
+              {resource.goals.map((goal) => (
+                <li key={goal}>{goal}</li>
+              ))}
+            </ul>
           </article>
         ))}
       </div>
-    </div>
+    </>
   );
 }
