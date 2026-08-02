@@ -5,6 +5,7 @@ import DashboardPage from "../features/dashboard/DashboardPage";
 import GamesPage from "../features/games/GamesPage";
 import InterventionsPage from "../features/interventions/InterventionsPage";
 import NotFoundPage from "../features/not-found/NotFoundPage";
+import PromptDeckPage from "../features/prompts/PromptDeckPage";
 import PromptsPage from "../features/prompts/PromptsPage";
 import SavedPage from "../features/saved/SavedPage";
 import SceneBuilderPage from "../features/scene-builder/SceneBuilderPage";
@@ -28,6 +29,10 @@ export const appRoutes = [
       {
         path: "prompts",
         element: <PromptsPage />,
+      },
+      {
+        path: "prompts/:deckId",
+        element: <PromptDeckPage />,
       },
       {
         path: "interventions",

@@ -1,0 +1,231 @@
+.prompts-page,
+.prompt-deck-page,
+.prompt-route-message {
+  margin: 0 auto;
+  max-width: 1240px;
+}
+
+.prompts-page__header {
+  margin-bottom: 24px;
+}
+
+.prompts-page__header h1,
+.prompt-route-message h1 {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  letter-spacing: -0.04em;
+  margin: 8px 0;
+}
+
+.prompts-page__header p:last-child,
+.prompt-route-message > p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.prompt-filters {
+  align-items: end;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(240px, 1fr) minmax(180px, 280px) auto;
+  margin-bottom: 24px;
+  padding: 18px;
+}
+
+.prompt-filters label {
+  display: grid;
+  font-size: 0.86rem;
+  font-weight: 700;
+  gap: 7px;
+}
+
+.prompt-filters input,
+.prompt-filters select {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 11px 12px;
+  width: 100%;
+}
+
+.prompt-filters input:focus,
+.prompt-filters select:focus,
+.prompt-filters button:focus-visible,
+.prompt-deck-card__link:focus-visible,
+.prompt-back-link:focus-visible,
+.prompt-session__controls button:focus-visible {
+  outline: 3px solid var(--accent-soft);
+  outline-offset: 2px;
+}
+
+.prompt-filters button,
+.prompt-session__controls button {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  display: inline-flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 11px 14px;
+}
+
+.prompt-filters button:disabled,
+.prompt-session__controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.prompts-page__summary {
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+
+.prompt-deck-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.prompt-deck-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+  padding: 20px;
+}
+
+.prompt-deck-card__meta {
+  color: var(--accent-dark);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 8px 14px;
+}
+
+.prompt-deck-card h2 {
+  font-size: 1.25rem;
+  margin: 14px 0 8px;
+}
+
+.prompt-deck-card p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+
+.prompt-deck-card__link,
+.prompt-back-link {
+  align-items: center;
+  color: var(--accent-dark);
+  display: inline-flex;
+  font-weight: 700;
+  gap: 7px;
+  margin-top: auto;
+  width: fit-content;
+}
+
+.prompt-empty-state,
+.prompt-route-message {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.prompt-empty-state h2 {
+  margin-top: 0;
+}
+
+.prompt-deck-page > .prompt-back-link {
+  margin-bottom: 18px;
+}
+
+.prompt-route-message .prompt-back-link {
+  margin: 18px auto 0;
+}
+
+.prompt-session {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  min-height: calc(100vh - 120px);
+  padding: clamp(24px, 4vw, 48px);
+}
+
+.prompt-session__header {
+  align-items: start;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.prompt-session__header h1 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  margin: 6px 0 0;
+}
+
+.prompt-session__position {
+  background: var(--accent-soft);
+  border-radius: 999px;
+  color: var(--accent-dark);
+  flex: none;
+  font-weight: 700;
+  margin: 0;
+  padding: 8px 12px;
+}
+
+.prompt-session__stage {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: clamp(300px, 50vh, 560px);
+  padding: 32px 5%;
+  text-align: center;
+}
+
+.prompt-session__stage p {
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  margin: 0;
+  max-width: 1000px;
+}
+
+.prompt-session__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.prompt-session__controls button:nth-child(2) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.prompt-session--empty {
+  min-height: 420px;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .prompt-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .prompt-session__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -6,6 +6,7 @@ import { appRoutes } from "./router";
 const paths = [
   "/",
   "/prompts",
+  "/prompts/example-deck",
   "/interventions",
   "/games",
   "/worksheets",
