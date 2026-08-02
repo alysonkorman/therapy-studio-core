@@ -14,6 +14,7 @@ result with `resourceSchema`.
 Current resource types are:
 
 - `prompt`
+- `prompt-deck`
 - `intervention`
 - `game`
 - `worksheet`
@@ -24,6 +25,56 @@ Current resource types are:
 - `whiteboard`
 
 Changing this enum is Resource architecture work and requires an explicit milestone.
+
+## Imported Prompt Decks
+
+A prompt deck is a Resource with type `prompt-deck`. The imported Therapy Toolkit JSON
+remains the neutral source artifact under `imports/`; application code accesses it
+through `src/data/resources/promptDecks.js`. That module delegates validation and
+deterministic transformation to `src/engines/prompts/importPromptDecks.js`. Pages must
+not read or transform the raw JSON directly.
+
+`promptDeckSchema` extends `resourceSchema` with:
+
+- `category`
+- `tags`
+- `prompts`
+- `legacyMetadata`
+
+The deck's imported `goals`, `diagnoses`, and `ageRanges` map directly to the shared
+Resource fields. Imported category and taxonomy strings are preserved exactly. A
+nullable description or source becomes the Resource default empty string. Imported
+decks do not use `createResource`, because that factory generates new identity and
+timestamps. Instead, their stable IDs are converted to strings and the export
+timestamp supplies deterministic lifecycle timestamps.
+
+Deck `legacyMetadata` preserves the original typed ID, color, icon ID, archived state,
+attribution, and export provenance. These fields remain available without making
+legacy presentation details part of the shared Resource contract.
+
+### Nested prompt items
+
+Individual prompts are lightweight nested records, not independent Resources.
+`promptItemSchema` includes:
+
+- required string `id` and required non-empty `text`;
+- `type`, `category`, nullable `subcategory`, and nullable `depth`;
+- `tags`, `ageRanges`, `goals`, `diagnoses`, and `settings`;
+- optional `legacyId` for repaired prompt-ID collisions;
+- normalized `source`; and
+- `legacyMetadata` containing the original typed ID, artwork, attribution, and export
+  provenance.
+
+At the model boundary, numeric and string imported IDs become `String(importedId)`.
+The original typed value remains in `legacyMetadata.originalId`. Repaired UUID IDs are
+already strings and are preserved exactly; their `legacyId` remains unchanged. The
+importer rejects duplicate deck IDs after conversion, duplicate prompt IDs within a
+deck after conversion, empty prompt text, unsupported export versions, mismatched
+declared counts, and all other Zod validation failures. It does not remove duplicate
+prompt text or normalize taxonomy values.
+
+Persistence, editing, favorites, ratings, usage history, search, and collaboration for
+prompt decks remain deferred.
 
 ## Fields
 

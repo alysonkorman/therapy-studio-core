@@ -1,0 +1,6086 @@
+{
+  "reportVersion": 1,
+  "exportedAt": "2026-08-02T17:24:31.097Z",
+  "valid": true,
+  "counts": {
+    "decks": 137,
+    "prompts": 8679
+  },
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": []
+  },
+  "duplicateIds": {
+    "rawWithinDeckGroups": 51,
+    "unresolvedAfterNormalization": 0,
+    "findings": [
+      {
+        "deckId": 1,
+        "deckTitle": "Feelings Check-In",
+        "promptIndex": 8,
+        "originalId": 4,
+        "repairedId": "bcd8ba31-7461-40db-a991-76d0a7865ae8",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 1,
+        "deckTitle": "Feelings Check-In",
+        "promptIndex": 9,
+        "originalId": 5,
+        "repairedId": "632c6466-611d-4bc8-ba82-1003273ba3b6",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 252,
+        "originalId": 300,
+        "repairedId": "0dfe6b8c-1a2e-4c78-bc7d-43d2377bb4d9",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 253,
+        "originalId": 301,
+        "repairedId": "c56ed1f4-2b33-44db-91e0-f841753a9d0e",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 254,
+        "originalId": 302,
+        "repairedId": "d5af0970-030c-4f1c-ba23-1856ad4d48a2",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 255,
+        "originalId": 303,
+        "repairedId": "4a462d97-5388-4c79-b3f7-87df1cca8115",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 256,
+        "originalId": 304,
+        "repairedId": "1094804f-dae4-4fed-992a-92b7098f6203",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 257,
+        "originalId": 305,
+        "repairedId": "a190d19d-8c0f-410e-9141-60c32c8026cc",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 258,
+        "originalId": 306,
+        "repairedId": "6721fb50-7b7f-4fca-b5f1-088e2d137988",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 259,
+        "originalId": 307,
+        "repairedId": "263eaebc-08e6-4a8d-a7f1-32fb3161d398",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 260,
+        "originalId": 308,
+        "repairedId": "d250c9ee-1eaa-4c6f-b6e6-26e79c2e00c0",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 261,
+        "originalId": 309,
+        "repairedId": "0570689f-78ea-438e-86c6-49dd90cc3ad9",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 262,
+        "originalId": 310,
+        "repairedId": "8275fdfc-30c7-40f2-bd4a-c12a22a9a496",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 263,
+        "originalId": 311,
+        "repairedId": "e7724667-d0a0-4006-9a61-c85b851f7df7",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 264,
+        "originalId": 312,
+        "repairedId": "e104a6dd-40a5-4153-9c3a-d4766bf5a269",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 265,
+        "originalId": 313,
+        "repairedId": "69610ac2-0905-4f3a-b083-a03513908775",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 266,
+        "originalId": 314,
+        "repairedId": "7ff7917a-2349-42c1-a42f-14d17a222e55",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 267,
+        "originalId": 315,
+        "repairedId": "6337eb10-e94b-4a49-80e7-ddf75dfbad94",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 268,
+        "originalId": 316,
+        "repairedId": "1da1a1eb-dab6-45c0-8ab7-fa6ef9fa5ddc",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 269,
+        "originalId": 317,
+        "repairedId": "0d14052b-78dc-497f-8bad-195261bfb844",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 270,
+        "originalId": 318,
+        "repairedId": "a44d4e0f-10bb-4942-ab05-43d9d098ad9d",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 271,
+        "originalId": 319,
+        "repairedId": "8cd70074-c31a-48c3-bb50-70fb8979cd72",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 272,
+        "originalId": 320,
+        "repairedId": "c561c922-54cf-437a-b9aa-2d7ebb339f19",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 273,
+        "originalId": 321,
+        "repairedId": "09e6f215-26c8-4aac-b266-edf1254b34bb",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 274,
+        "originalId": 322,
+        "repairedId": "470c6f2b-d14c-4dcb-ae07-46c80f12bd4c",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 275,
+        "originalId": 323,
+        "repairedId": "dcca117e-63a5-4ce1-b145-3c286413f4d5",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 276,
+        "originalId": 324,
+        "repairedId": "058aeeb0-07ea-4eea-91c0-d3adc831c017",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 277,
+        "originalId": 325,
+        "repairedId": "2794ab83-989e-4a88-866c-b514386df901",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 278,
+        "originalId": 326,
+        "repairedId": "f6c706ba-9fb1-4c37-a86b-1f9abcb615ef",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 279,
+        "originalId": 327,
+        "repairedId": "ec71497d-e878-4b19-8bc6-800d0c179c9e",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 280,
+        "originalId": 328,
+        "repairedId": "7fa0a32f-22eb-43a9-a89e-010d60e8b208",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 281,
+        "originalId": 329,
+        "repairedId": "90cf0c8f-a30d-4f6d-a81e-01441d0df707",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 282,
+        "originalId": 330,
+        "repairedId": "091a6d5a-c9a8-4137-8a15-5b232fb6492e",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 283,
+        "originalId": 331,
+        "repairedId": "0ddcaf4a-a345-4ea1-9d15-b0e189d24f84",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 284,
+        "originalId": 332,
+        "repairedId": "4dab39ce-86e0-4932-8e3d-c9e14d796990",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 285,
+        "originalId": 333,
+        "repairedId": "d12ea544-a71a-46bc-92ff-4cfdeacb4972",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 286,
+        "originalId": 334,
+        "repairedId": "6cb8306e-311f-4540-92f5-4080eeec4ef5",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 287,
+        "originalId": 335,
+        "repairedId": "93a190ad-50d8-4d64-a2b7-17125a2b03ef",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 288,
+        "originalId": 336,
+        "repairedId": "89298f75-1928-4691-a6ba-d125e8325a33",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 289,
+        "originalId": 337,
+        "repairedId": "69830d98-36aa-43e0-a5b3-2929eb0d8a7b",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 290,
+        "originalId": 338,
+        "repairedId": "fce14c1e-08d1-4161-b946-2c35491f74c2",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 291,
+        "originalId": 339,
+        "repairedId": "2e39101d-55ed-4a9b-a171-cd3e3e6c2d0e",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 292,
+        "originalId": 340,
+        "repairedId": "12e98242-4942-42e7-85f1-77b2a517d096",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 293,
+        "originalId": 341,
+        "repairedId": "f2732240-2fb9-4965-8c79-6308d064afb0",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 294,
+        "originalId": 342,
+        "repairedId": "3dfc501a-e148-4bc5-963f-68f814ee8d82",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 295,
+        "originalId": 343,
+        "repairedId": "93749326-a5ed-4a27-859c-b6af9c5ab38a",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 296,
+        "originalId": 344,
+        "repairedId": "da0c2e47-a378-43ba-8b40-2daed8f73c02",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 297,
+        "originalId": 345,
+        "repairedId": "160906ef-5e60-4d9b-a866-ba940d36a1a2",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 298,
+        "originalId": 346,
+        "repairedId": "1053a6f3-7f70-4335-a957-c4d7e74318d3",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 299,
+        "originalId": 347,
+        "repairedId": "f3b9543c-2f51-48d8-b744-7c407503906e",
+        "method": "verified-browser-recovery-id"
+      },
+      {
+        "deckId": 6,
+        "deckTitle": "Would You Rather",
+        "promptIndex": 300,
+        "originalId": 348,
+        "repairedId": "5b6ad1b7-2630-4c5e-9285-09404ab1d8dd",
+        "method": "verified-browser-recovery-id"
+      }
+    ]
+  },
+  "duplicatePromptText": {
+    "groupCount": 284,
+    "additionalOccurrenceCount": 372,
+    "findings": [
+      {
+        "normalizedText": "how are you feeling today?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1,
+            "deckTitle": "Feelings Check-In",
+            "promptId": 1,
+            "promptIndex": 0
+          },
+          {
+            "deckId": 1,
+            "deckTitle": "Feelings Check-In",
+            "promptId": 1784735448621,
+            "promptIndex": 6
+          }
+        ]
+      },
+      {
+        "normalizedText": "where do you feel frustration in your body?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1,
+            "deckTitle": "Feelings Check-In",
+            "promptId": 4,
+            "promptIndex": 3
+          },
+          {
+            "deckId": 1,
+            "deckTitle": "Feelings Check-In",
+            "promptId": "bcd8ba31-7461-40db-a991-76d0a7865ae8",
+            "promptIndex": 8
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your disappointment had a color, what color would it be?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1,
+            "deckTitle": "Feelings Check-In",
+            "promptId": 5,
+            "promptIndex": 4
+          },
+          {
+            "deckId": 1,
+            "deckTitle": "Feelings Check-In",
+            "promptId": "632c6466-611d-4bc8-ba82-1003273ba3b6",
+            "promptIndex": 9
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does your body need right now?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1,
+            "deckTitle": "Feelings Check-In",
+            "promptId": 1784748930067,
+            "promptIndex": 20
+          },
+          {
+            "deckId": 21,
+            "deckTitle": "Body Check-In",
+            "promptId": 78,
+            "promptIndex": 77
+          },
+          {
+            "deckId": 1784753929123,
+            "deckTitle": "Distress Tolerance",
+            "promptId": 1784753935656,
+            "promptIndex": 19
+          }
+        ]
+      },
+      {
+        "normalizedText": "what are you proud of?",
+        "occurrenceCount": 5,
+        "occurrences": [
+          {
+            "deckId": 1,
+            "deckTitle": "Feelings Check-In",
+            "promptId": 1784748930094,
+            "promptIndex": 43
+          },
+          {
+            "deckId": 2,
+            "deckTitle": "Anxiety",
+            "promptId": 1784749088946,
+            "promptIndex": 112
+          },
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423806,
+            "promptIndex": 75
+          },
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564859,
+            "promptIndex": 95
+          },
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377488,
+            "promptIndex": 3
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you wish had gone differently?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1,
+            "deckTitle": "Feelings Check-In",
+            "promptId": 1784748930099,
+            "promptIndex": 48
+          },
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714052,
+            "promptIndex": 30
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840514,
+            "promptIndex": 19
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's been taking up the most space in your mind?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1,
+            "deckTitle": "Feelings Check-In",
+            "promptId": 1784748930130,
+            "promptIndex": 69
+          },
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714041,
+            "promptIndex": 19
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840508,
+            "promptIndex": 13
+          }
+        ]
+      },
+      {
+        "normalizedText": "what evidence supports your worry?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 2,
+            "deckTitle": "Anxiety",
+            "promptId": 1784749088868,
+            "promptIndex": 35
+          },
+          {
+            "deckId": 1784756993884,
+            "deckTitle": "Worry",
+            "promptId": 1784757000991,
+            "promptIndex": 26
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's your favorite coping skill?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 2,
+            "deckTitle": "Anxiety",
+            "promptId": 1784749088875,
+            "promptIndex": 42
+          },
+          {
+            "deckId": 7,
+            "deckTitle": "Coping Skills",
+            "promptId": 1784749615900,
+            "promptIndex": 4
+          }
+        ]
+      },
+      {
+        "normalizedText": "who helps you feel safe?",
+        "occurrenceCount": 6,
+        "occurrences": [
+          {
+            "deckId": 2,
+            "deckTitle": "Anxiety",
+            "promptId": 1784749088877,
+            "promptIndex": 44
+          },
+          {
+            "deckId": 18,
+            "deckTitle": "About Me",
+            "promptId": 18,
+            "promptIndex": 17
+          },
+          {
+            "deckId": 1784752722632,
+            "deckTitle": "Trauma and Triggers",
+            "promptId": 1784753002847,
+            "promptIndex": 23
+          },
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048794,
+            "promptIndex": 3
+          },
+          {
+            "deckId": 1784753929123,
+            "deckTitle": "Distress Tolerance",
+            "promptId": 1784753935677,
+            "promptIndex": 40
+          },
+          {
+            "deckId": 1784762949080,
+            "deckTitle": "Safety Planning",
+            "promptId": 1784762957278,
+            "promptIndex": 8
+          }
+        ]
+      },
+      {
+        "normalizedText": "who makes you feel accepted?",
+        "occurrenceCount": 6,
+        "occurrences": [
+          {
+            "deckId": 2,
+            "deckTitle": "Anxiety",
+            "promptId": 1784749088899,
+            "promptIndex": 65
+          },
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873929,
+            "promptIndex": 38
+          },
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048813,
+            "promptIndex": 22
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478747,
+            "promptIndex": 32
+          },
+          {
+            "deckId": 1784757158049,
+            "deckTitle": "Loneliness",
+            "promptId": 1784757166377,
+            "promptIndex": 12
+          },
+          {
+            "deckId": 1784758627704,
+            "deckTitle": "Relationships",
+            "promptId": 1784758813383,
+            "promptIndex": 10
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you feel connected?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 2,
+            "deckTitle": "Anxiety",
+            "promptId": 1784749088906,
+            "promptIndex": 72
+          },
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190716,
+            "promptIndex": 29
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does your anxiety want you to believe?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 2,
+            "deckTitle": "Anxiety",
+            "promptId": 1784749088930,
+            "promptIndex": 96
+          },
+          {
+            "deckId": 1784756886850,
+            "deckTitle": "Anxiety",
+            "promptId": 1784756901337,
+            "promptIndex": 5
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes someone a good friend?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270584,
+            "promptIndex": 4
+          },
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080522,
+            "promptIndex": 0
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes you feel appreciated?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270589,
+            "promptIndex": 9
+          },
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873943,
+            "promptIndex": 52
+          },
+          {
+            "deckId": 1784758627704,
+            "deckTitle": "Relationships",
+            "promptId": 1784758813379,
+            "promptIndex": 6
+          }
+        ]
+      },
+      {
+        "normalizedText": "who makes you laugh the most?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270590,
+            "promptIndex": 10
+          },
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873899,
+            "promptIndex": 8
+          },
+          {
+            "deckId": 1784755789746,
+            "deckTitle": "Conversation Starters",
+            "promptId": 1784755798569,
+            "promptIndex": 39
+          }
+        ]
+      },
+      {
+        "normalizedText": "what do your friends like about you?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270597,
+            "promptIndex": 17
+          },
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377491,
+            "promptIndex": 6
+          }
+        ]
+      },
+      {
+        "normalizedText": "who understands you best?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270600,
+            "promptIndex": 20
+          },
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873900,
+            "promptIndex": 9
+          }
+        ]
+      },
+      {
+        "normalizedText": "who helps you feel confident?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270601,
+            "promptIndex": 21
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478745,
+            "promptIndex": 30
+          }
+        ]
+      },
+      {
+        "normalizedText": "when do you feel like you belong?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270614,
+            "promptIndex": 34
+          },
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873920,
+            "promptIndex": 29
+          }
+        ]
+      },
+      {
+        "normalizedText": "how did that feel?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270619,
+            "promptIndex": 39
+          },
+          {
+            "deckId": 1784755892533,
+            "deckTitle": "Perspective Taking",
+            "promptId": 1784755905835,
+            "promptIndex": 22
+          },
+          {
+            "deckId": 1784755961382,
+            "deckTitle": "Assertiveness",
+            "promptId": 1784755974272,
+            "promptIndex": 23
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you forgive someone?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270630,
+            "promptIndex": 50
+          },
+          {
+            "deckId": 1784758627704,
+            "deckTitle": "Relationships",
+            "promptId": 1784758813390,
+            "promptIndex": 17
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something kind you've done for someone else?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270645,
+            "promptIndex": 65
+          },
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873933,
+            "promptIndex": 42
+          },
+          {
+            "deckId": 1784762482511,
+            "deckTitle": "Gratitude",
+            "promptId": 1784762491877,
+            "promptIndex": 19
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you feel more confident?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270657,
+            "promptIndex": 77
+          },
+          {
+            "deckId": "control-agency",
+            "deckTitle": "Control & Agency",
+            "promptId": 1784749742396,
+            "promptIndex": 43
+          },
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048854,
+            "promptIndex": 63
+          }
+        ]
+      },
+      {
+        "normalizedText": "what kind of friend do you want to be?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270674,
+            "promptIndex": 94
+          },
+          {
+            "deckId": 1784761815118,
+            "deckTitle": "Values",
+            "promptId": 1784761827083,
+            "promptIndex": 11
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you show people you care?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 3,
+            "deckTitle": "Friendship",
+            "promptId": 1784749270678,
+            "promptIndex": 98
+          },
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873914,
+            "promptIndex": 23
+          }
+        ]
+      },
+      {
+        "normalizedText": "what usually distracts you?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423749,
+            "promptIndex": 18
+          },
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564794,
+            "promptIndex": 31
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you get back on track?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423751,
+            "promptIndex": 20
+          },
+          {
+            "deckId": 1784755509772,
+            "deckTitle": "Productivity Hacks",
+            "promptId": 1784755518083,
+            "promptIndex": 12
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you stay organized?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423790,
+            "promptIndex": 59
+          },
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770455,
+            "promptIndex": 39
+          },
+          {
+            "deckId": 1784755343593,
+            "deckTitle": "Organization",
+            "promptId": 1784755374345,
+            "promptIndex": 5
+          }
+        ]
+      },
+      {
+        "normalizedText": "what are you really good at?",
+        "occurrenceCount": 5,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423803,
+            "promptIndex": 72
+          },
+          {
+            "deckId": 18,
+            "deckTitle": "About Me",
+            "promptId": 14,
+            "promptIndex": 13
+          },
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377485,
+            "promptIndex": 0
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478717,
+            "promptIndex": 2
+          },
+          {
+            "deckId": 1784762401113,
+            "deckTitle": "Characters",
+            "promptId": 1784762405741,
+            "promptIndex": 0
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes you unique?",
+        "occurrenceCount": 5,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423805,
+            "promptIndex": 74
+          },
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377487,
+            "promptIndex": 2
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478721,
+            "promptIndex": 6
+          },
+          {
+            "deckId": 1784756127381,
+            "deckTitle": "Masking",
+            "promptId": 1784756361270,
+            "promptIndex": 32
+          },
+          {
+            "deckId": 1784762401113,
+            "deckTitle": "Characters",
+            "promptId": 1784762405743,
+            "promptIndex": 2
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes you creative?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423808,
+            "promptIndex": 77
+          },
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377520,
+            "promptIndex": 35
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes you feel confident?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423812,
+            "promptIndex": 81
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478715,
+            "promptIndex": 0
+          },
+          {
+            "deckId": 1784762421421,
+            "deckTitle": "Strengths",
+            "promptId": 1784762435146,
+            "promptIndex": 4
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you keep going?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423831,
+            "promptIndex": 100
+          },
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190693,
+            "promptIndex": 6
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one goal you're working toward?",
+        "occurrenceCount": 4,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423832,
+            "promptIndex": 101
+          },
+          {
+            "deckId": "control-agency",
+            "deckTitle": "Control & Agency",
+            "promptId": 1784749742401,
+            "promptIndex": 48
+          },
+          {
+            "deckId": 1784753290469,
+            "deckTitle": "Growth Mindset",
+            "promptId": 1784753450622,
+            "promptIndex": 6
+          },
+          {
+            "deckId": 1784755789746,
+            "deckTitle": "Conversation Starters",
+            "promptId": 1784755798586,
+            "promptIndex": 56
+          }
+        ]
+      },
+      {
+        "normalizedText": "who helps you solve problems?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423837,
+            "promptIndex": 106
+          },
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048812,
+            "promptIndex": 21
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you've gotten better at?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423838,
+            "promptIndex": 107
+          },
+          {
+            "deckId": 1784762513607,
+            "deckTitle": "Wins",
+            "promptId": 1784762518633,
+            "promptIndex": 7
+          }
+        ]
+      },
+      {
+        "normalizedText": "what would your future self thank you for?",
+        "occurrenceCount": 4,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423840,
+            "promptIndex": 109
+          },
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190730,
+            "promptIndex": 43
+          },
+          {
+            "deckId": 1784761815118,
+            "deckTitle": "Values",
+            "promptId": 1784761827107,
+            "promptIndex": 35
+          },
+          {
+            "deckId": 1784761948003,
+            "deckTitle": "Change Talk",
+            "promptId": 1784761953096,
+            "promptIndex": 24
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your brain had a soundtrack today, what would it sound like?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423850,
+            "promptIndex": 119
+          },
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714074,
+            "promptIndex": 52
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you hope never changes about yourself?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 4,
+            "deckTitle": "ADHD",
+            "promptId": 1784749423862,
+            "promptIndex": 131
+          },
+          {
+            "deckId": 1784753258905,
+            "deckTitle": "Self-Compassion",
+            "promptId": 1784753402478,
+            "promptIndex": 62
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's getting in the way?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564773,
+            "promptIndex": 10
+          },
+          {
+            "deckId": 1784761899071,
+            "deckTitle": "Committed Action",
+            "promptId": 1784761921609,
+            "promptIndex": 4
+          }
+        ]
+      },
+      {
+        "normalizedText": "could you make this task even smaller?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564781,
+            "promptIndex": 18
+          },
+          {
+            "deckId": 1784755293727,
+            "deckTitle": "Task Initiation",
+            "promptId": 1784755318134,
+            "promptIndex": 11
+          }
+        ]
+      },
+      {
+        "normalizedText": "when do you have the most energy?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564790,
+            "promptIndex": 27
+          },
+          {
+            "deckId": 1784755293727,
+            "deckTitle": "Task Initiation",
+            "promptId": 1784755318147,
+            "promptIndex": 24
+          }
+        ]
+      },
+      {
+        "normalizedText": "what didn't work?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564821,
+            "promptIndex": 58
+          },
+          {
+            "deckId": 1784757903023,
+            "deckTitle": "Parent Coaching",
+            "promptId": 1784757908310,
+            "promptIndex": 5
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's the worst that could happen?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564823,
+            "promptIndex": 60
+          },
+          {
+            "deckId": 8,
+            "deckTitle": "Thought Detective",
+            "promptId": 1784749643807,
+            "promptIndex": 27
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's the best that could happen?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564824,
+            "promptIndex": 61
+          },
+          {
+            "deckId": 8,
+            "deckTitle": "Thought Detective",
+            "promptId": 1784749643809,
+            "promptIndex": 29
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's the most likely outcome?",
+        "occurrenceCount": 6,
+        "occurrences": [
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564825,
+            "promptIndex": 62
+          },
+          {
+            "deckId": 8,
+            "deckTitle": "Thought Detective",
+            "promptId": 1784749643806,
+            "promptIndex": 26
+          },
+          {
+            "deckId": 1784754352742,
+            "deckTitle": "Thinking Traps",
+            "promptId": 1784754371274,
+            "promptIndex": 14
+          },
+          {
+            "deckId": 1784754480181,
+            "deckTitle": "Behavioral Experiments",
+            "promptId": 1784754489769,
+            "promptIndex": 7
+          },
+          {
+            "deckId": 1784754558454,
+            "deckTitle": "Worry vs. Reality",
+            "promptId": 1784754566603,
+            "promptIndex": 8
+          },
+          {
+            "deckId": 1784756993884,
+            "deckTitle": "Worry",
+            "promptId": 1784757000993,
+            "promptIndex": 28
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you can control?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564849,
+            "promptIndex": 85
+          },
+          {
+            "deckId": 1784753685664,
+            "deckTitle": "Radical Acceptance",
+            "promptId": 1784754066614,
+            "promptIndex": 11
+          }
+        ]
+      },
+      {
+        "normalizedText": "what surprised you?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 5,
+            "deckTitle": "Planning",
+            "promptId": 1784749564858,
+            "promptIndex": 94
+          },
+          {
+            "deckId": 1784754480181,
+            "deckTitle": "Behavioral Experiments",
+            "promptId": 1784754489784,
+            "promptIndex": 22
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you feel safe?",
+        "occurrenceCount": 5,
+        "occurrences": [
+          {
+            "deckId": 7,
+            "deckTitle": "Coping Skills",
+            "promptId": 1784749615922,
+            "promptIndex": 26
+          },
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770445,
+            "promptIndex": 29
+          },
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048791,
+            "promptIndex": 0
+          },
+          {
+            "deckId": 1784753258905,
+            "deckTitle": "Self-Compassion",
+            "promptId": 1784753402463,
+            "promptIndex": 47
+          },
+          {
+            "deckId": 1784756993884,
+            "deckTitle": "Worry",
+            "promptId": 1784757000979,
+            "promptIndex": 14
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you feel grounded?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 7,
+            "deckTitle": "Coping Skills",
+            "promptId": 1784749615928,
+            "promptIndex": 32
+          },
+          {
+            "deckId": 1784752722632,
+            "deckTitle": "Trauma and Triggers",
+            "promptId": 1784753002846,
+            "promptIndex": 22
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you stay in the present?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 7,
+            "deckTitle": "Coping Skills",
+            "promptId": 1784749615935,
+            "promptIndex": 39
+          },
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770462,
+            "promptIndex": 46
+          }
+        ]
+      },
+      {
+        "normalizedText": "what reminds you that difficult feelings don't last forever?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 7,
+            "deckTitle": "Coping Skills",
+            "promptId": 1784749615940,
+            "promptIndex": 44
+          },
+          {
+            "deckId": 1784753929123,
+            "deckTitle": "Distress Tolerance",
+            "promptId": 1784753935642,
+            "promptIndex": 5
+          },
+          {
+            "deckId": 1784762447334,
+            "deckTitle": "Resilience",
+            "promptId": 1784762456648,
+            "promptIndex": 16
+          }
+        ]
+      },
+      {
+        "normalizedText": "who helps you calm down?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 7,
+            "deckTitle": "Coping Skills",
+            "promptId": 1784749615950,
+            "promptIndex": 54
+          },
+          {
+            "deckId": 1784756782099,
+            "deckTitle": "Anger",
+            "promptId": 1784756801324,
+            "promptIndex": 26
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you feel connected to other people?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 7,
+            "deckTitle": "Coping Skills",
+            "promptId": 1784749615963,
+            "promptIndex": 67
+          },
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770447,
+            "promptIndex": 31
+          }
+        ]
+      },
+      {
+        "normalizedText": "if you could carry one comforting object everywhere, what would it be?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 7,
+            "deckTitle": "Coping Skills",
+            "promptId": 1784749615996,
+            "promptIndex": 100
+          },
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048847,
+            "promptIndex": 56
+          }
+        ]
+      },
+      {
+        "normalizedText": "could there be another explanation?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 8,
+            "deckTitle": "Thought Detective",
+            "promptId": 1784749643790,
+            "promptIndex": 10
+          },
+          {
+            "deckId": 1784754383140,
+            "deckTitle": "Reframing Thoughts",
+            "promptId": 1784754402692,
+            "promptIndex": 12
+          },
+          {
+            "deckId": 1784754558454,
+            "deckTitle": "Worry vs. Reality",
+            "promptId": 1784754566609,
+            "promptIndex": 14
+          }
+        ]
+      },
+      {
+        "normalizedText": "if the worst happened, how would you cope?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 8,
+            "deckTitle": "Thought Detective",
+            "promptId": 1784749643808,
+            "promptIndex": 28
+          },
+          {
+            "deckId": 1784756993884,
+            "deckTitle": "Worry",
+            "promptId": 1784757000994,
+            "promptIndex": 29
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you feel regulated again?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 9,
+            "deckTitle": "Sensory Needs",
+            "promptId": 1784749669935,
+            "promptIndex": 39
+          },
+          {
+            "deckId": 1784756127381,
+            "deckTitle": "Masking",
+            "promptId": 1784756361256,
+            "promptIndex": 18
+          }
+        ]
+      },
+      {
+        "normalizedText": "show me how you take turns with a toy.",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 11,
+            "deckTitle": "Act It Out",
+            "promptId": 7,
+            "promptIndex": 6
+          },
+          {
+            "deckId": 17,
+            "deckTitle": "Choices",
+            "promptId": 35,
+            "promptIndex": 34
+          }
+        ]
+      },
+      {
+        "normalizedText": "show me how you come back after a break.",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 11,
+            "deckTitle": "Act It Out",
+            "promptId": 18,
+            "promptIndex": 17
+          },
+          {
+            "deckId": 17,
+            "deckTitle": "Choices",
+            "promptId": 27,
+            "promptIndex": 26
+          }
+        ]
+      },
+      {
+        "normalizedText": "show me how you try again after a mistake.",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 11,
+            "deckTitle": "Act It Out",
+            "promptId": 19,
+            "promptIndex": 18
+          },
+          {
+            "deckId": 17,
+            "deckTitle": "Choices",
+            "promptId": 4,
+            "promptIndex": 3
+          }
+        ]
+      },
+      {
+        "normalizedText": "stomp your feet slowly.",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 15,
+            "deckTitle": "Calm Body",
+            "promptId": 2,
+            "promptIndex": 1
+          },
+          {
+            "deckId": 20,
+            "deckTitle": "Regulation",
+            "promptId": 7,
+            "promptIndex": 6
+          }
+        ]
+      },
+      {
+        "normalizedText": "press your feet into the ground.",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 15,
+            "deckTitle": "Calm Body",
+            "promptId": 10,
+            "promptIndex": 9
+          },
+          {
+            "deckId": 20,
+            "deckTitle": "Regulation",
+            "promptId": 16,
+            "promptIndex": 15
+          }
+        ]
+      },
+      {
+        "normalizedText": "close your eyes and breathe.",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 15,
+            "deckTitle": "Calm Body",
+            "promptId": 23,
+            "promptIndex": 22
+          },
+          {
+            "deckId": 20,
+            "deckTitle": "Regulation",
+            "promptId": 25,
+            "promptIndex": 24
+          }
+        ]
+      },
+      {
+        "normalizedText": "let your shoulders drop.",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 15,
+            "deckTitle": "Calm Body",
+            "promptId": 43,
+            "promptIndex": 42
+          },
+          {
+            "deckId": 20,
+            "deckTitle": "Regulation",
+            "promptId": 81,
+            "promptIndex": 80
+          }
+        ]
+      },
+      {
+        "normalizedText": "what can you touch right now?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 16,
+            "deckTitle": "Notice",
+            "promptId": 8,
+            "promptIndex": 7
+          },
+          {
+            "deckId": 21,
+            "deckTitle": "Body Check-In",
+            "promptId": 41,
+            "promptIndex": 40
+          }
+        ]
+      },
+      {
+        "normalizedText": "what do your hands feel like right now?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 16,
+            "deckTitle": "Notice",
+            "promptId": 12,
+            "promptIndex": 11
+          },
+          {
+            "deckId": 21,
+            "deckTitle": "Body Check-In",
+            "promptId": 11,
+            "promptIndex": 10
+          }
+        ]
+      },
+      {
+        "normalizedText": "show me how you calm your body.",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 17,
+            "deckTitle": "Choices",
+            "promptId": 12,
+            "promptIndex": 11
+          },
+          {
+            "deckId": 19,
+            "deckTitle": "Action",
+            "promptId": 51,
+            "promptIndex": 50
+          }
+        ]
+      },
+      {
+        "normalizedText": "what is your favorite smell?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 18,
+            "deckTitle": "About Me",
+            "promptId": 27,
+            "promptIndex": 26
+          },
+          {
+            "deckId": 21,
+            "deckTitle": "Body Check-In",
+            "promptId": 58,
+            "promptIndex": 57
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does calm feel like in your body?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 21,
+            "deckTitle": "Body Check-In",
+            "promptId": 3,
+            "promptIndex": 2
+          },
+          {
+            "deckId": 1784756886850,
+            "deckTitle": "Anxiety",
+            "promptId": 1784756901367,
+            "promptIndex": 35
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does your breathing feel like right now?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 21,
+            "deckTitle": "Body Check-In",
+            "promptId": 5,
+            "promptIndex": 4
+          },
+          {
+            "deckId": 1784752868562,
+            "deckTitle": "Body Memories",
+            "promptId": 1784753121476,
+            "promptIndex": 4
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps your body feel calm?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 21,
+            "deckTitle": "Body Check-In",
+            "promptId": 67,
+            "promptIndex": 66
+          },
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770451,
+            "promptIndex": 35
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps your body feel safe?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 21,
+            "deckTitle": "Body Check-In",
+            "promptId": 80,
+            "promptIndex": 79
+          },
+          {
+            "deckId": 1784752868562,
+            "deckTitle": "Body Memories",
+            "promptId": 1784753121484,
+            "promptIndex": 12
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes you feel proud of yourself?",
+        "occurrenceCount": 4,
+        "occurrences": [
+          {
+            "deckId": 24,
+            "deckTitle": "Big Questions",
+            "promptId": 31,
+            "promptIndex": 30
+          },
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377496,
+            "promptIndex": 11
+          },
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825556,
+            "promptIndex": 15
+          },
+          {
+            "deckId": 1784761815118,
+            "deckTitle": "Values",
+            "promptId": 1784761827082,
+            "promptIndex": 10
+          }
+        ]
+      },
+      {
+        "normalizedText": "when do you feel most confident?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 24,
+            "deckTitle": "Big Questions",
+            "promptId": 38,
+            "promptIndex": 37
+          },
+          {
+            "deckId": 1784762401113,
+            "deckTitle": "Characters",
+            "promptId": 1784762405771,
+            "promptIndex": 30
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's been on your mind the most since we last met?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714033,
+            "promptIndex": 11
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840498,
+            "promptIndex": 3
+          }
+        ]
+      },
+      {
+        "normalizedText": "how have you been sleeping?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714044,
+            "promptIndex": 22
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840525,
+            "promptIndex": 30
+          }
+        ]
+      },
+      {
+        "normalizedText": "how has your anxiety been lately?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714046,
+            "promptIndex": 24
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840522,
+            "promptIndex": 27
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one emotion you've felt the most this week?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714048,
+            "promptIndex": 26
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840507,
+            "promptIndex": 12
+          }
+        ]
+      },
+      {
+        "normalizedText": "how have things been at home?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714061,
+            "promptIndex": 39
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840517,
+            "promptIndex": 22
+          }
+        ]
+      },
+      {
+        "normalizedText": "how have things been at school or work?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714062,
+            "promptIndex": 40
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840518,
+            "promptIndex": 23
+          }
+        ]
+      },
+      {
+        "normalizedText": "how have things been with your friends?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714063,
+            "promptIndex": 41
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840519,
+            "promptIndex": 24
+          }
+        ]
+      },
+      {
+        "normalizedText": "which coping skill helped the most?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714067,
+            "promptIndex": 45
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840528,
+            "promptIndex": 33
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you're looking forward to?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714069,
+            "promptIndex": 47
+          },
+          {
+            "deckId": 1784756957700,
+            "deckTitle": "Sadness",
+            "promptId": 1784756965727,
+            "promptIndex": 28
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your mood were weather, what would it be?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714072,
+            "promptIndex": 50
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840540,
+            "promptIndex": 45
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your feelings had a color today, what color would they be?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714073,
+            "promptIndex": 51
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840541,
+            "promptIndex": 46
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you want to leave today's session with?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in-source",
+            "deckTitle": "Session Check-In Collection",
+            "promptId": 1784749714078,
+            "promptIndex": 56
+          },
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840545,
+            "promptIndex": 50
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you've learned to do on your own?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "control-agency",
+            "deckTitle": "Control & Agency",
+            "promptId": 1784749742384,
+            "promptIndex": 31
+          },
+          {
+            "deckId": 1784753344503,
+            "deckTitle": "Accomplisments",
+            "promptId": 1784753501743,
+            "promptIndex": 27
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you've done that surprised you?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "control-agency",
+            "deckTitle": "Control & Agency",
+            "promptId": 1784749742393,
+            "promptIndex": 40
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478724,
+            "promptIndex": 9
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you've worked hard to achieve?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "control-agency",
+            "deckTitle": "Control & Agency",
+            "promptId": 1784749742394,
+            "promptIndex": 41
+          },
+          {
+            "deckId": 1784753344503,
+            "deckTitle": "Accomplisments",
+            "promptId": 1784753501718,
+            "promptIndex": 2
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes you feel capable?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": "control-agency",
+            "deckTitle": "Control & Agency",
+            "promptId": 1784749742398,
+            "promptIndex": 45
+          },
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377503,
+            "promptIndex": 18
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478736,
+            "promptIndex": 21
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know when you're growing?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "control-agency",
+            "deckTitle": "Control & Agency",
+            "promptId": 1784749742399,
+            "promptIndex": 46
+          },
+          {
+            "deckId": 1784758677730,
+            "deckTitle": "Independence",
+            "promptId": 1784758742900,
+            "promptIndex": 33
+          }
+        ]
+      },
+      {
+        "normalizedText": "what kind of person do you want to become?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": "control-agency",
+            "deckTitle": "Control & Agency",
+            "promptId": 1784749742403,
+            "promptIndex": 50
+          },
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190729,
+            "promptIndex": 42
+          },
+          {
+            "deckId": 1784762660474,
+            "deckTitle": "Identity",
+            "promptId": 1784762665244,
+            "promptIndex": 29
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you set healthy boundaries?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "control-agency",
+            "deckTitle": "Control & Agency",
+            "promptId": 1784749742408,
+            "promptIndex": 55
+          },
+          {
+            "deckId": 1784758677730,
+            "deckTitle": "Independence",
+            "promptId": 1784758742887,
+            "promptIndex": 20
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's your favorite way to relax?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770438,
+            "promptIndex": 22
+          },
+          {
+            "deckId": 1784755789746,
+            "deckTitle": "Conversation Starters",
+            "promptId": 1784755798559,
+            "promptIndex": 29
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you feel peaceful?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770444,
+            "promptIndex": 28
+          },
+          {
+            "deckId": 1784753258905,
+            "deckTitle": "Self-Compassion",
+            "promptId": 1784753402462,
+            "promptIndex": 46
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something that makes you laugh?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770463,
+            "promptIndex": 47
+          },
+          {
+            "deckId": 1784762482511,
+            "deckTitle": "Gratitude",
+            "promptId": 1784762491883,
+            "promptIndex": 25
+          }
+        ]
+      },
+      {
+        "normalizedText": "who helps you feel supported?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770466,
+            "promptIndex": 50
+          },
+          {
+            "deckId": 1784756957700,
+            "deckTitle": "Sadness",
+            "promptId": 1784756965708,
+            "promptIndex": 9
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing that helps you sleep better?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770473,
+            "promptIndex": 57
+          },
+          {
+            "deckId": 1784762843603,
+            "deckTitle": "Sleep Hygiene",
+            "promptId": 1784762851939,
+            "promptIndex": 4
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one coping skill you want to practice more often?",
+        "occurrenceCount": 4,
+        "occurrences": [
+          {
+            "deckId": "everyday-coping-situations",
+            "deckTitle": "Everyday Coping Situations",
+            "promptId": 1784749770479,
+            "promptIndex": 63
+          },
+          {
+            "deckId": 1784756782099,
+            "deckTitle": "Anger",
+            "promptId": 1784756801351,
+            "promptIndex": 53
+          },
+          {
+            "deckId": 1784756993884,
+            "deckTitle": "Worry",
+            "promptId": 1784757001017,
+            "promptIndex": 52
+          },
+          {
+            "deckId": 1784762949080,
+            "deckTitle": "Safety Planning",
+            "promptId": 1784762957293,
+            "promptIndex": 23
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your future self wrote you a letter, what would it say?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": "creative-thinking-writing",
+            "deckTitle": "Creative Thinking & Writing",
+            "promptId": 1784749804329,
+            "promptIndex": 66
+          },
+          {
+            "deckId": 1784758661264,
+            "deckTitle": "Future Planning",
+            "promptId": 1784758767602,
+            "promptIndex": 38
+          },
+          {
+            "deckId": 1784762082048,
+            "deckTitle": "Future Self",
+            "promptId": 1784762087628,
+            "promptIndex": 30
+          }
+        ]
+      },
+      {
+        "normalizedText": "who knows you really well?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873904,
+            "promptIndex": 13
+          },
+          {
+            "deckId": 1784755789746,
+            "deckTitle": "Conversation Starters",
+            "promptId": 1784755798573,
+            "promptIndex": 43
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you appreciate about your family?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873915,
+            "promptIndex": 24
+          },
+          {
+            "deckId": 1784762482511,
+            "deckTitle": "Gratitude",
+            "promptId": 1784762491862,
+            "promptIndex": 4
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you trust people?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873918,
+            "promptIndex": 27
+          },
+          {
+            "deckId": 1784752722632,
+            "deckTitle": "Trauma and Triggers",
+            "promptId": 1784753002861,
+            "promptIndex": 37
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you feel connected to others?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873921,
+            "promptIndex": 30
+          },
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080530,
+            "promptIndex": 8
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one relationship you'd like to strengthen?",
+        "occurrenceCount": 4,
+        "occurrences": [
+          {
+            "deckId": "personal-family-conversations",
+            "deckTitle": "Personal & Family Conversations",
+            "promptId": 1784749873938,
+            "promptIndex": 47
+          },
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080531,
+            "promptIndex": 9
+          },
+          {
+            "deckId": 1784755869431,
+            "deckTitle": "Conflict Resolution",
+            "promptId": 1784755876897,
+            "promptIndex": 50
+          },
+          {
+            "deckId": 1784757158049,
+            "deckTitle": "Loneliness",
+            "promptId": 1784757166389,
+            "promptIndex": 24
+          }
+        ]
+      },
+      {
+        "normalizedText": "what feels most important to talk about today?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840499,
+            "promptIndex": 4
+          },
+          {
+            "deckId": 1784762919196,
+            "deckTitle": "Therapy Prompts",
+            "promptId": 1784762931645,
+            "promptIndex": 0
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you're looking forward to?",
+        "occurrenceCount": 6,
+        "occurrences": [
+          {
+            "deckId": "therapy-check-in",
+            "deckTitle": "Therapy Check-In",
+            "promptId": 1784749840515,
+            "promptIndex": 20
+          },
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190735,
+            "promptIndex": 48
+          },
+          {
+            "deckId": 1784755789746,
+            "deckTitle": "Conversation Starters",
+            "promptId": 1784755798531,
+            "promptIndex": 1
+          },
+          {
+            "deckId": 1784757182732,
+            "deckTitle": "Excitement",
+            "promptId": 1784757199654,
+            "promptIndex": 4
+          },
+          {
+            "deckId": 1784762482511,
+            "deckTitle": "Gratitude",
+            "promptId": 1784762491868,
+            "promptIndex": 10
+          },
+          {
+            "deckId": 1784762949080,
+            "deckTitle": "Safety Planning",
+            "promptId": 1784762957287,
+            "promptIndex": 17
+          }
+        ]
+      },
+      {
+        "normalizedText": "design your own superhero.",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": "art-therapy-exercises",
+            "deckTitle": "Art Therapy Exercises",
+            "promptId": 1784749908285,
+            "promptIndex": 28
+          },
+          {
+            "deckId": "imagination-drawing-prompts",
+            "deckTitle": "Imagination Drawing Prompts",
+            "promptId": 1784749947287,
+            "promptIndex": 43
+          }
+        ]
+      },
+      {
+        "normalizedText": "what objects help you feel comforted?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784752722632,
+            "deckTitle": "Trauma and Triggers",
+            "promptId": 1784753002849,
+            "promptIndex": 25
+          },
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048828,
+            "promptIndex": 37
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you've learned about yourself?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784752722632,
+            "deckTitle": "Trauma and Triggers",
+            "promptId": 1784753002867,
+            "promptIndex": 43
+          },
+          {
+            "deckId": 1784752845862,
+            "deckTitle": "My Trauma Story",
+            "promptId": 1784753088513,
+            "promptIndex": 8
+          },
+          {
+            "deckId": 1784762553331,
+            "deckTitle": "Personal Growth",
+            "promptId": 1784762559563,
+            "promptIndex": 1
+          }
+        ]
+      },
+      {
+        "normalizedText": "where do you feel the safest?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048793,
+            "promptIndex": 2
+          },
+          {
+            "deckId": 1784752902361,
+            "deckTitle": "My Safe Place",
+            "promptId": 1784753157521,
+            "promptIndex": 0
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know when you need a break?",
+        "occurrenceCount": 4,
+        "occurrences": [
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048806,
+            "promptIndex": 15
+          },
+          {
+            "deckId": 1784755249308,
+            "deckTitle": "Time Management",
+            "promptId": 1784755275815,
+            "promptIndex": 25
+          },
+          {
+            "deckId": 1784755509772,
+            "deckTitle": "Productivity Hacks",
+            "promptId": 1784755518086,
+            "promptIndex": 15
+          },
+          {
+            "deckId": 1784756211534,
+            "deckTitle": "Burnout",
+            "promptId": 1784756227241,
+            "promptIndex": 10
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does kindness look like?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048817,
+            "promptIndex": 26
+          },
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825548,
+            "promptIndex": 7
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your safe place had a soundtrack, what would you hear?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048844,
+            "promptIndex": 53
+          },
+          {
+            "deckId": 1784752902361,
+            "deckTitle": "My Safe Place",
+            "promptId": 1784753157575,
+            "promptIndex": 54
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your safe place had a guardian, who or what would it be?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784752811663,
+            "deckTitle": "Safe vs Unsafe",
+            "promptId": 1784753048848,
+            "promptIndex": 57
+          },
+          {
+            "deckId": 1784752902361,
+            "deckTitle": "My Safe Place",
+            "promptId": 1784753157565,
+            "promptIndex": 44
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something that made you stronger?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784752845862,
+            "deckTitle": "My Trauma Story",
+            "promptId": 1784753088512,
+            "promptIndex": 7
+          },
+          {
+            "deckId": 1784753344503,
+            "deckTitle": "Accomplisments",
+            "promptId": 1784753501728,
+            "promptIndex": 12
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one way you've grown?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784752845862,
+            "deckTitle": "My Trauma Story",
+            "promptId": 1784753088534,
+            "promptIndex": 29
+          },
+          {
+            "deckId": 1784753258905,
+            "deckTitle": "Self-Compassion",
+            "promptId": 1784753402425,
+            "promptIndex": 9
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does healing mean to you?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784752845862,
+            "deckTitle": "My Trauma Story",
+            "promptId": 1784753088561,
+            "promptIndex": 56
+          },
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190687,
+            "promptIndex": 0
+          },
+          {
+            "deckId": 1784757224068,
+            "deckTitle": "Grief",
+            "promptId": 1784757229363,
+            "promptIndex": 30
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one challenge you've overcome?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190690,
+            "promptIndex": 3
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478719,
+            "promptIndex": 4
+          }
+        ]
+      },
+      {
+        "normalizedText": "who helps you feel understood?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190708,
+            "promptIndex": 21
+          },
+          {
+            "deckId": 1784753658914,
+            "deckTitle": "Emotional Regulation",
+            "promptId": 1784754022894,
+            "promptIndex": 34
+          }
+        ]
+      },
+      {
+        "normalizedText": "who believes in you?",
+        "occurrenceCount": 5,
+        "occurrences": [
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190709,
+            "promptIndex": 22
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478746,
+            "promptIndex": 31
+          },
+          {
+            "deckId": 1784761948003,
+            "deckTitle": "Change Talk",
+            "promptId": 1784761953095,
+            "promptIndex": 23
+          },
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004793,
+            "promptIndex": 17
+          },
+          {
+            "deckId": 1784762043955,
+            "deckTitle": "Confidence Scaling",
+            "promptId": 1784762056169,
+            "promptIndex": 11
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one new experience you'd like to have?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190733,
+            "promptIndex": 46
+          },
+          {
+            "deckId": 1784753290469,
+            "deckTitle": "Growth Mindset",
+            "promptId": 1784753450659,
+            "promptIndex": 43
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one reminder you want to carry with you?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784752941976,
+            "deckTitle": "Healing Journey",
+            "promptId": 1784753190752,
+            "promptIndex": 65
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478781,
+            "promptIndex": 66
+          },
+          {
+            "deckId": 1784753685664,
+            "deckTitle": "Radical Acceptance",
+            "promptId": 1784754066656,
+            "promptIndex": 53
+          }
+        ]
+      },
+      {
+        "normalizedText": "what comes naturally to you?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377489,
+            "promptIndex": 4
+          },
+          {
+            "deckId": 1784762421421,
+            "deckTitle": "Strengths",
+            "promptId": 1784762435144,
+            "promptIndex": 2
+          }
+        ]
+      },
+      {
+        "normalizedText": "what do other people compliment you on?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377490,
+            "promptIndex": 5
+          },
+          {
+            "deckId": 1784762401113,
+            "deckTitle": "Characters",
+            "promptId": 1784762405742,
+            "promptIndex": 1
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes you a good friend?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377493,
+            "promptIndex": 8
+          },
+          {
+            "deckId": 1784762421421,
+            "deckTitle": "Strengths",
+            "promptId": 1784762435152,
+            "promptIndex": 10
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes you a good teammate?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377494,
+            "promptIndex": 9
+          },
+          {
+            "deckId": 1784762421421,
+            "deckTitle": "Strengths",
+            "promptId": 1784762435154,
+            "promptIndex": 12
+          }
+        ]
+      },
+      {
+        "normalizedText": "when do you feel the most confident?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377495,
+            "promptIndex": 10
+          },
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857896,
+            "promptIndex": 7
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's a goal you've reached?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377500,
+            "promptIndex": 15
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478730,
+            "promptIndex": 15
+          },
+          {
+            "deckId": 1784753344503,
+            "deckTitle": "Accomplisments",
+            "promptId": 1784753501719,
+            "promptIndex": 3
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you've accomplished recently?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377501,
+            "promptIndex": 16
+          },
+          {
+            "deckId": 1784753344503,
+            "deckTitle": "Accomplisments",
+            "promptId": 1784753501722,
+            "promptIndex": 6
+          }
+        ]
+      },
+      {
+        "normalizedText": "when have you been brave?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377512,
+            "promptIndex": 27
+          },
+          {
+            "deckId": 1784762421421,
+            "deckTitle": "Strengths",
+            "promptId": 1784762435159,
+            "promptIndex": 17
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does courage mean to you?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377529,
+            "promptIndex": 44
+          },
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825551,
+            "promptIndex": 10
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one mistake that helped you grow?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377531,
+            "promptIndex": 46
+          },
+          {
+            "deckId": 1784762553331,
+            "deckTitle": "Personal Growth",
+            "promptId": 1784762559568,
+            "promptIndex": 6
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your best friend described you, what would they say?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377536,
+            "promptIndex": 51
+          },
+          {
+            "deckId": 1784754418798,
+            "deckTitle": "Core Beliefs",
+            "promptId": 1784754441052,
+            "promptIndex": 40
+          },
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857932,
+            "promptIndex": 43
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your strengths were ingredients in a recipe, what would they be?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377543,
+            "promptIndex": 58
+          },
+          {
+            "deckId": 1784762421421,
+            "deckTitle": "Strengths",
+            "promptId": 1784762435180,
+            "promptIndex": 38
+          }
+        ]
+      },
+      {
+        "normalizedText": "what positive quality do you sometimes forget you have?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753236339,
+            "deckTitle": "Positive Qualities",
+            "promptId": 1784753377552,
+            "promptIndex": 67
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478775,
+            "promptIndex": 60
+          }
+        ]
+      },
+      {
+        "normalizedText": "what did that experience teach you?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784753258905,
+            "deckTitle": "Self-Compassion",
+            "promptId": 1784753402437,
+            "promptIndex": 21
+          },
+          {
+            "deckId": 1784753290469,
+            "deckTitle": "Growth Mindset",
+            "promptId": 1784753450635,
+            "promptIndex": 19
+          },
+          {
+            "deckId": 1784762447334,
+            "deckTitle": "Resilience",
+            "promptId": 1784762456634,
+            "promptIndex": 2
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one way you've surprised yourself?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753258905,
+            "deckTitle": "Self-Compassion",
+            "promptId": 1784753402445,
+            "promptIndex": 29
+          },
+          {
+            "deckId": 1784762553331,
+            "deckTitle": "Personal Growth",
+            "promptId": 1784762559591,
+            "promptIndex": 29
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does your inner critic usually say?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753258905,
+            "deckTitle": "Self-Compassion",
+            "promptId": 1784753402446,
+            "promptIndex": 30
+          },
+          {
+            "deckId": 1784753273903,
+            "deckTitle": "Inner Critic vs Inner Coach",
+            "promptId": 1784753427150,
+            "promptIndex": 0
+          }
+        ]
+      },
+      {
+        "normalizedText": "what would your inner coach say instead?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753258905,
+            "deckTitle": "Self-Compassion",
+            "promptId": 1784753402447,
+            "promptIndex": 31
+          },
+          {
+            "deckId": 1784753273903,
+            "deckTitle": "Inner Critic vs Inner Coach",
+            "promptId": 1784753427181,
+            "promptIndex": 31
+          }
+        ]
+      },
+      {
+        "normalizedText": "which voice helps you grow?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753258905,
+            "deckTitle": "Self-Compassion",
+            "promptId": 1784753402448,
+            "promptIndex": 32
+          },
+          {
+            "deckId": 1784753273903,
+            "deckTitle": "Inner Critic vs Inner Coach",
+            "promptId": 1784753427157,
+            "promptIndex": 7
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you recharge?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753258905,
+            "deckTitle": "Self-Compassion",
+            "promptId": 1784753402460,
+            "promptIndex": 44
+          },
+          {
+            "deckId": 1784756141399,
+            "deckTitle": "Energy Accounting",
+            "promptId": 1784756343297,
+            "promptIndex": 16
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one obstacle you've overcome?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753290469,
+            "deckTitle": "Growth Mindset",
+            "promptId": 1784753450634,
+            "promptIndex": 18
+          },
+          {
+            "deckId": 1784762513607,
+            "deckTitle": "Wins",
+            "promptId": 1784762518653,
+            "promptIndex": 27
+          }
+        ]
+      },
+      {
+        "normalizedText": "what motivates you to keep trying?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753290469,
+            "deckTitle": "Growth Mindset",
+            "promptId": 1784753450640,
+            "promptIndex": 24
+          },
+          {
+            "deckId": 1784762447334,
+            "deckTitle": "Resilience",
+            "promptId": 1784762456656,
+            "promptIndex": 24
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does success mean to you?",
+        "occurrenceCount": 5,
+        "occurrences": [
+          {
+            "deckId": 1784753290469,
+            "deckTitle": "Growth Mindset",
+            "promptId": 1784753450643,
+            "promptIndex": 27
+          },
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857923,
+            "promptIndex": 34
+          },
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825554,
+            "promptIndex": 13
+          },
+          {
+            "deckId": 1784758661264,
+            "deckTitle": "Future Planning",
+            "promptId": 1784758767568,
+            "promptIndex": 4
+          },
+          {
+            "deckId": 1784762781459,
+            "deckTitle": "Philosophy",
+            "promptId": 1784762794725,
+            "promptIndex": 6
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you've been afraid to try?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753290469,
+            "deckTitle": "Growth Mindset",
+            "promptId": 1784753450657,
+            "promptIndex": 41
+          },
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478765,
+            "promptIndex": 50
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one fear you've faced?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478743,
+            "promptIndex": 28
+          },
+          {
+            "deckId": 1784762513607,
+            "deckTitle": "Wins",
+            "promptId": 1784762518634,
+            "promptIndex": 8
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your confidence had a mascot, what would it look like?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478764,
+            "promptIndex": 49
+          },
+          {
+            "deckId": 1784755961382,
+            "deckTitle": "Assertiveness",
+            "promptId": 1784755974295,
+            "promptIndex": 46
+          },
+          {
+            "deckId": 1784756183050,
+            "deckTitle": "Self-Advocacy",
+            "promptId": 1784756282141,
+            "promptIndex": 43
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one small step you could take this week?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753324287,
+            "deckTitle": "Confidence Builders",
+            "promptId": 1784753478768,
+            "promptIndex": 53
+          },
+          {
+            "deckId": 1784758661264,
+            "deckTitle": "Future Planning",
+            "promptId": 1784758767596,
+            "promptIndex": 32
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one accomplishment you'll always remember?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753344503,
+            "deckTitle": "Accomplisments",
+            "promptId": 1784753501717,
+            "promptIndex": 1
+          },
+          {
+            "deckId": 1784762578666,
+            "deckTitle": "Proud Moments",
+            "promptId": 1784762587541,
+            "promptIndex": 1
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one challenge you overcame?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753344503,
+            "deckTitle": "Accomplisments",
+            "promptId": 1784753501727,
+            "promptIndex": 11
+          },
+          {
+            "deckId": 1784762578666,
+            "deckTitle": "Proud Moments",
+            "promptId": 1784762587543,
+            "promptIndex": 3
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you think before reacting?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753658914,
+            "deckTitle": "Emotional Regulation",
+            "promptId": 1784754022892,
+            "promptIndex": 32
+          },
+          {
+            "deckId": 1784755869431,
+            "deckTitle": "Conflict Resolution",
+            "promptId": 1784755876884,
+            "promptIndex": 37
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one small step you can take today?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784753658914,
+            "deckTitle": "Emotional Regulation",
+            "promptId": 1784754022922,
+            "promptIndex": 62
+          },
+          {
+            "deckId": 1784753685664,
+            "deckTitle": "Radical Acceptance",
+            "promptId": 1784754066631,
+            "promptIndex": 28
+          },
+          {
+            "deckId": 1784761899071,
+            "deckTitle": "Committed Action",
+            "promptId": 1784761921605,
+            "promptIndex": 0
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one healthy choice your future self will thank you for?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753658914,
+            "deckTitle": "Emotional Regulation",
+            "promptId": 1784754022925,
+            "promptIndex": 65
+          },
+          {
+            "deckId": 1784753929123,
+            "deckTitle": "Distress Tolerance",
+            "promptId": 1784753935701,
+            "promptIndex": 64
+          }
+        ]
+      },
+      {
+        "normalizedText": "what did you learn from that experience?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753685664,
+            "deckTitle": "Radical Acceptance",
+            "promptId": 1784754066636,
+            "promptIndex": 33
+          },
+          {
+            "deckId": 1784762043955,
+            "deckTitle": "Confidence Scaling",
+            "promptId": 1784762056165,
+            "promptIndex": 7
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you're stronger than you realize?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753685664,
+            "deckTitle": "Radical Acceptance",
+            "promptId": 1784754066660,
+            "promptIndex": 57
+          },
+          {
+            "deckId": 1784753929123,
+            "deckTitle": "Distress Tolerance",
+            "promptId": 1784753935698,
+            "promptIndex": 61
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes you feel heard?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080525,
+            "promptIndex": 3
+          },
+          {
+            "deckId": 1784758627704,
+            "deckTitle": "Relationships",
+            "promptId": 1784758813380,
+            "promptIndex": 7
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one communication skill you'd like to improve?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080539,
+            "promptIndex": 17
+          },
+          {
+            "deckId": 1784755869431,
+            "deckTitle": "Conflict Resolution",
+            "promptId": 1784755876862,
+            "promptIndex": 15
+          },
+          {
+            "deckId": 1784755961382,
+            "deckTitle": "Assertiveness",
+            "promptId": 1784755974287,
+            "promptIndex": 38
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know when to say yes?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080542,
+            "promptIndex": 20
+          },
+          {
+            "deckId": 1784755923097,
+            "deckTitle": "Boundaries",
+            "promptId": 1784755945090,
+            "promptIndex": 10
+          },
+          {
+            "deckId": 1784755961382,
+            "deckTitle": "Assertiveness",
+            "promptId": 1784755974269,
+            "promptIndex": 20
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know when to say no?",
+        "occurrenceCount": 4,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080543,
+            "promptIndex": 21
+          },
+          {
+            "deckId": 1784755923097,
+            "deckTitle": "Boundaries",
+            "promptId": 1784755945091,
+            "promptIndex": 11
+          },
+          {
+            "deckId": 1784755961382,
+            "deckTitle": "Assertiveness",
+            "promptId": 1784755974270,
+            "promptIndex": 21
+          },
+          {
+            "deckId": 1784758677730,
+            "deckTitle": "Independence",
+            "promptId": 1784758742888,
+            "promptIndex": 21
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know when someone crosses one of your boundaries?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080547,
+            "promptIndex": 25
+          },
+          {
+            "deckId": 1784755923097,
+            "deckTitle": "Boundaries",
+            "promptId": 1784755945084,
+            "promptIndex": 4
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you apologize when you've made a mistake?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080559,
+            "promptIndex": 37
+          },
+          {
+            "deckId": 1784755869431,
+            "deckTitle": "Conflict Resolution",
+            "promptId": 1784755876863,
+            "promptIndex": 16
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one conversation you've been avoiding?",
+        "occurrenceCount": 5,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080566,
+            "promptIndex": 44
+          },
+          {
+            "deckId": 1784755869431,
+            "deckTitle": "Conflict Resolution",
+            "promptId": 1784755876898,
+            "promptIndex": 51
+          },
+          {
+            "deckId": 1784755923097,
+            "deckTitle": "Boundaries",
+            "promptId": 1784755945130,
+            "promptIndex": 50
+          },
+          {
+            "deckId": 1784755961382,
+            "deckTitle": "Assertiveness",
+            "promptId": 1784755974300,
+            "promptIndex": 51
+          },
+          {
+            "deckId": 1784756183050,
+            "deckTitle": "Self-Advocacy",
+            "promptId": 1784756282148,
+            "promptIndex": 50
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one relationship you're grateful for?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080568,
+            "promptIndex": 46
+          },
+          {
+            "deckId": 1784757158049,
+            "deckTitle": "Loneliness",
+            "promptId": 1784757166416,
+            "promptIndex": 51
+          },
+          {
+            "deckId": 1784758627704,
+            "deckTitle": "Relationships",
+            "promptId": 1784758813382,
+            "promptIndex": 9
+          }
+        ]
+      },
+      {
+        "normalizedText": "who helps you feel accepted?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080569,
+            "promptIndex": 47
+          },
+          {
+            "deckId": 1784757013149,
+            "deckTitle": "Shame",
+            "promptId": 1784757026061,
+            "promptIndex": 10
+          },
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857899,
+            "promptIndex": 10
+          }
+        ]
+      },
+      {
+        "normalizedText": "who brings out the best in you?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080570,
+            "promptIndex": 48
+          },
+          {
+            "deckId": 1784758627704,
+            "deckTitle": "Relationships",
+            "promptId": 1784758813384,
+            "promptIndex": 11
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your boundaries were a fence, what would it look like?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080573,
+            "promptIndex": 51
+          },
+          {
+            "deckId": 1784755923097,
+            "deckTitle": "Boundaries",
+            "promptId": 1784755945119,
+            "promptIndex": 39
+          }
+        ]
+      },
+      {
+        "normalizedText": "if respect had a voice, what would it sound like?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753706013,
+            "deckTitle": "Interpersonal Effectiveness",
+            "promptId": 1784754080576,
+            "promptIndex": 54
+          },
+          {
+            "deckId": 1784755869431,
+            "deckTitle": "Conflict Resolution",
+            "promptId": 1784755876895,
+            "promptIndex": 48
+          }
+        ]
+      },
+      {
+        "normalizedText": "how did you feel afterward?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753722062,
+            "deckTitle": "Opposite Action",
+            "promptId": 1784754094039,
+            "promptIndex": 18
+          },
+          {
+            "deckId": 1784755554056,
+            "deckTitle": "Goal Setting",
+            "promptId": 1784755577106,
+            "promptIndex": 35
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one tiny step that feels possible?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753722062,
+            "deckTitle": "Opposite Action",
+            "promptId": 1784754094058,
+            "promptIndex": 37
+          },
+          {
+            "deckId": 1784761899071,
+            "deckTitle": "Committed Action",
+            "promptId": 1784761921610,
+            "promptIndex": 5
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one fear that's becoming smaller?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753722062,
+            "deckTitle": "Opposite Action",
+            "promptId": 1784754094071,
+            "promptIndex": 50
+          },
+          {
+            "deckId": 1784754480181,
+            "deckTitle": "Behavioral Experiments",
+            "promptId": 1784754489813,
+            "promptIndex": 51
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know you're reaching your limit?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784753929123,
+            "deckTitle": "Distress Tolerance",
+            "promptId": 1784753935639,
+            "promptIndex": 2
+          },
+          {
+            "deckId": 1784756127381,
+            "deckTitle": "Masking",
+            "promptId": 1784756361255,
+            "promptIndex": 17
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thought that makes you feel stuck?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754352742,
+            "deckTitle": "Thinking Traps",
+            "promptId": 1784754371268,
+            "promptIndex": 8
+          },
+          {
+            "deckId": 1784754383140,
+            "deckTitle": "Reframing Thoughts",
+            "promptId": 1784754402681,
+            "promptIndex": 1
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's the best-case scenario?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754352742,
+            "deckTitle": "Thinking Traps",
+            "promptId": 1784754371273,
+            "promptIndex": 13
+          },
+          {
+            "deckId": 1784754558454,
+            "deckTitle": "Worry vs. Reality",
+            "promptId": 1784754566602,
+            "promptIndex": 7
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one fear that turned out to be smaller than expected?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754352742,
+            "deckTitle": "Thinking Traps",
+            "promptId": 1784754371276,
+            "promptIndex": 16
+          },
+          {
+            "deckId": 1784754558454,
+            "deckTitle": "Worry vs. Reality",
+            "promptId": 1784754566618,
+            "promptIndex": 23
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's another explanation for what happened?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754352742,
+            "deckTitle": "Thinking Traps",
+            "promptId": 1784754371283,
+            "promptIndex": 23
+          },
+          {
+            "deckId": 1784755892533,
+            "deckTitle": "Perspective Taking",
+            "promptId": 1784755905817,
+            "promptIndex": 4
+          }
+        ]
+      },
+      {
+        "normalizedText": "can two things be true at the same time?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754352742,
+            "deckTitle": "Thinking Traps",
+            "promptId": 1784754371294,
+            "promptIndex": 34
+          },
+          {
+            "deckId": 1784754508481,
+            "deckTitle": "Flexible Thinking",
+            "promptId": 1784754527876,
+            "promptIndex": 13
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one balanced thought you can practice today?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754352742,
+            "deckTitle": "Thinking Traps",
+            "promptId": 1784754371316,
+            "promptIndex": 56
+          },
+          {
+            "deckId": 1784754558454,
+            "deckTitle": "Worry vs. Reality",
+            "promptId": 1784754566659,
+            "promptIndex": 64
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thought you're ready to let go of?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754352742,
+            "deckTitle": "Thinking Traps",
+            "promptId": 1784754371320,
+            "promptIndex": 60
+          },
+          {
+            "deckId": 1784754383140,
+            "deckTitle": "Reframing Thoughts",
+            "promptId": 1784754402730,
+            "promptIndex": 50
+          }
+        ]
+      },
+      {
+        "normalizedText": "how would someone else see this situation?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754383140,
+            "deckTitle": "Reframing Thoughts",
+            "promptId": 1784754402696,
+            "promptIndex": 16
+          },
+          {
+            "deckId": 1784754558454,
+            "deckTitle": "Worry vs. Reality",
+            "promptId": 1784754566610,
+            "promptIndex": 15
+          }
+        ]
+      },
+      {
+        "normalizedText": "what would your wise mind say?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754383140,
+            "deckTitle": "Reframing Thoughts",
+            "promptId": 1784754402698,
+            "promptIndex": 18
+          },
+          {
+            "deckId": 1784754558454,
+            "deckTitle": "Worry vs. Reality",
+            "promptId": 1784754566611,
+            "promptIndex": 16
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one strength you sometimes forget?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754418798,
+            "deckTitle": "Core Beliefs",
+            "promptId": 1784754441038,
+            "promptIndex": 26
+          },
+          {
+            "deckId": 1784757042733,
+            "deckTitle": "Jealousy",
+            "promptId": 1784757112862,
+            "promptIndex": 13
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you've learned about yourself recently?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754418798,
+            "deckTitle": "Core Beliefs",
+            "promptId": 1784754441040,
+            "promptIndex": 28
+          },
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857908,
+            "promptIndex": 19
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one experiment you could try this week?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754480181,
+            "deckTitle": "Behavioral Experiments",
+            "promptId": 1784754489774,
+            "promptIndex": 12
+          },
+          {
+            "deckId": 1784762825786,
+            "deckTitle": "Exposure Ideas",
+            "promptId": 1784762833481,
+            "promptIndex": 26
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you handle disappointment?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754508481,
+            "deckTitle": "Flexible Thinking",
+            "promptId": 1784754527884,
+            "promptIndex": 21
+          },
+          {
+            "deckId": 1784762447334,
+            "deckTitle": "Resilience",
+            "promptId": 1784762456646,
+            "promptIndex": 14
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one reminder helps you stay open-minded?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754508481,
+            "deckTitle": "Flexible Thinking",
+            "promptId": 1784754527915,
+            "promptIndex": 52
+          },
+          {
+            "deckId": 1784755892533,
+            "deckTitle": "Perspective Taking",
+            "promptId": 1784755905864,
+            "promptIndex": 51
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one new strategy are you willing to try?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754508481,
+            "deckTitle": "Flexible Thinking",
+            "promptId": 1784754527918,
+            "promptIndex": 55
+          },
+          {
+            "deckId": 1784755454290,
+            "deckTitle": "Memory Strategies",
+            "promptId": 1784755475217,
+            "promptIndex": 45
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one problem that has more than one solution?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754508481,
+            "deckTitle": "Flexible Thinking",
+            "promptId": 1784754527919,
+            "promptIndex": 56
+          },
+          {
+            "deckId": 1784755869431,
+            "deckTitle": "Conflict Resolution",
+            "promptId": 1784755876875,
+            "promptIndex": 28
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one worry you're ready to question?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784754558454,
+            "deckTitle": "Worry vs. Reality",
+            "promptId": 1784754566653,
+            "promptIndex": 58
+          },
+          {
+            "deckId": 1784756886850,
+            "deckTitle": "Anxiety",
+            "promptId": 1784756901382,
+            "promptIndex": 50
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know what's most important?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755249308,
+            "deckTitle": "Time Management",
+            "promptId": 1784755275800,
+            "promptIndex": 10
+          },
+          {
+            "deckId": 1784755343593,
+            "deckTitle": "Organization",
+            "promptId": 1784755374371,
+            "promptIndex": 31
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you get started?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755249308,
+            "deckTitle": "Time Management",
+            "promptId": 1784755275802,
+            "promptIndex": 12
+          },
+          {
+            "deckId": 1784755509772,
+            "deckTitle": "Productivity Hacks",
+            "promptId": 1784755518080,
+            "promptIndex": 9
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you stay focused?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755249308,
+            "deckTitle": "Time Management",
+            "promptId": 1784755275812,
+            "promptIndex": 22
+          },
+          {
+            "deckId": 1784755293727,
+            "deckTitle": "Task Initiation",
+            "promptId": 1784755318148,
+            "promptIndex": 25
+          }
+        ]
+      },
+      {
+        "normalizedText": "where do you work best?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755249308,
+            "deckTitle": "Time Management",
+            "promptId": 1784755275813,
+            "promptIndex": 23
+          },
+          {
+            "deckId": 1784755293727,
+            "deckTitle": "Task Initiation",
+            "promptId": 1784755318146,
+            "promptIndex": 23
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you avoid procrastination?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755249308,
+            "deckTitle": "Time Management",
+            "promptId": 1784755275818,
+            "promptIndex": 28
+          },
+          {
+            "deckId": 1784755509772,
+            "deckTitle": "Productivity Hacks",
+            "promptId": 1784755518094,
+            "promptIndex": 23
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you prepare for tomorrow?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755249308,
+            "deckTitle": "Time Management",
+            "promptId": 1784755275825,
+            "promptIndex": 35
+          },
+          {
+            "deckId": 1784755343593,
+            "deckTitle": "Organization",
+            "promptId": 1784755374374,
+            "promptIndex": 34
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you can say no to this week?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755249308,
+            "deckTitle": "Time Management",
+            "promptId": 1784755275840,
+            "promptIndex": 50
+          },
+          {
+            "deckId": 1784756141399,
+            "deckTitle": "Energy Accounting",
+            "promptId": 1784756343316,
+            "promptIndex": 35
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one strength helps you stay organized?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755249308,
+            "deckTitle": "Time Management",
+            "promptId": 1784755275847,
+            "promptIndex": 57
+          },
+          {
+            "deckId": 1784755343593,
+            "deckTitle": "Organization",
+            "promptId": 1784755374395,
+            "promptIndex": 55
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you can prepare ahead of time?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784755293727,
+            "deckTitle": "Task Initiation",
+            "promptId": 1784755318139,
+            "promptIndex": 16
+          },
+          {
+            "deckId": 1784755343593,
+            "deckTitle": "Organization",
+            "promptId": 1784755374369,
+            "promptIndex": 29
+          },
+          {
+            "deckId": 1784755454290,
+            "deckTitle": "Memory Strategies",
+            "promptId": 1784755475199,
+            "promptIndex": 27
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one obstacle you might face?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755554056,
+            "deckTitle": "Goal Setting",
+            "promptId": 1784755577087,
+            "promptIndex": 16
+          },
+          {
+            "deckId": 1784758661264,
+            "deckTitle": "Future Planning",
+            "promptId": 1784758767592,
+            "promptIndex": 28
+          }
+        ]
+      },
+      {
+        "normalizedText": "how could you prepare for that obstacle?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755554056,
+            "deckTitle": "Goal Setting",
+            "promptId": 1784755577088,
+            "promptIndex": 17
+          },
+          {
+            "deckId": 1784758661264,
+            "deckTitle": "Future Planning",
+            "promptId": 1784758767593,
+            "promptIndex": 29
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one backup plan if things don't go as expected?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755554056,
+            "deckTitle": "Goal Setting",
+            "promptId": 1784755577089,
+            "promptIndex": 18
+          },
+          {
+            "deckId": 1784762043955,
+            "deckTitle": "Confidence Scaling",
+            "promptId": 1784762056187,
+            "promptIndex": 28
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one reminder helps you stay motivated?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755554056,
+            "deckTitle": "Goal Setting",
+            "promptId": 1784755577123,
+            "promptIndex": 52
+          },
+          {
+            "deckId": 1784761948003,
+            "deckTitle": "Change Talk",
+            "promptId": 1784761953119,
+            "promptIndex": 47
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you ask for what you need?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784755869431,
+            "deckTitle": "Conflict Resolution",
+            "promptId": 1784755876859,
+            "promptIndex": 12
+          },
+          {
+            "deckId": 1784755961382,
+            "deckTitle": "Assertiveness",
+            "promptId": 1784755974259,
+            "promptIndex": 10
+          },
+          {
+            "deckId": 1784758539150,
+            "deckTitle": "Dating",
+            "promptId": 1784758707860,
+            "promptIndex": 28
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know when it's time to take a break?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755869431,
+            "deckTitle": "Conflict Resolution",
+            "promptId": 1784755876879,
+            "promptIndex": 32
+          },
+          {
+            "deckId": 1784756782099,
+            "deckTitle": "Anger",
+            "promptId": 1784756801322,
+            "promptIndex": 24
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you can't control?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755869431,
+            "deckTitle": "Conflict Resolution",
+            "promptId": 1784755876882,
+            "promptIndex": 35
+          },
+          {
+            "deckId": 1784756993884,
+            "deckTitle": "Worry",
+            "promptId": 1784757000986,
+            "promptIndex": 21
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know when someone respects your boundaries?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755923097,
+            "deckTitle": "Boundaries",
+            "promptId": 1784755945083,
+            "promptIndex": 3
+          },
+          {
+            "deckId": 1784758539150,
+            "deckTitle": "Dating",
+            "promptId": 1784758707843,
+            "promptIndex": 11
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you respect someone else's boundaries?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784755923097,
+            "deckTitle": "Boundaries",
+            "promptId": 1784755945108,
+            "promptIndex": 28
+          },
+          {
+            "deckId": 1784758539150,
+            "deckTitle": "Dating",
+            "promptId": 1784758707845,
+            "promptIndex": 13
+          },
+          {
+            "deckId": 1784758627704,
+            "deckTitle": "Relationships",
+            "promptId": 1784758813395,
+            "promptIndex": 22
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your boundaries had a stop sign, where would you place it?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755923097,
+            "deckTitle": "Boundaries",
+            "promptId": 1784755945121,
+            "promptIndex": 41
+          },
+          {
+            "deckId": 1784758539150,
+            "deckTitle": "Dating",
+            "promptId": 1784758707877,
+            "promptIndex": 45
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you ask for a break?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755961382,
+            "deckTitle": "Assertiveness",
+            "promptId": 1784755974268,
+            "promptIndex": 19
+          },
+          {
+            "deckId": 1784756183050,
+            "deckTitle": "Self-Advocacy",
+            "promptId": 1784756282111,
+            "promptIndex": 13
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you balance your needs with someone else's?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784755961382,
+            "deckTitle": "Assertiveness",
+            "promptId": 1784755974278,
+            "promptIndex": 29
+          },
+          {
+            "deckId": 1784756183050,
+            "deckTitle": "Self-Advocacy",
+            "promptId": 1784756282131,
+            "promptIndex": 33
+          }
+        ]
+      },
+      {
+        "normalizedText": "when do you feel like you're pretending?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756127381,
+            "deckTitle": "Masking",
+            "promptId": 1784756361245,
+            "promptIndex": 7
+          },
+          {
+            "deckId": 1784762660474,
+            "deckTitle": "Identity",
+            "promptId": 1784762665218,
+            "promptIndex": 3
+          }
+        ]
+      },
+      {
+        "normalizedText": "what are your biggest strengths?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756127381,
+            "deckTitle": "Masking",
+            "promptId": 1784756361269,
+            "promptIndex": 31
+          },
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857892,
+            "promptIndex": 3
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one way you'll protect your energy this week?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756127381,
+            "deckTitle": "Masking",
+            "promptId": 1784756361303,
+            "promptIndex": 65
+          },
+          {
+            "deckId": 1784756211534,
+            "deckTitle": "Burnout",
+            "promptId": 1784756227281,
+            "promptIndex": 50
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one question you're still curious about?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756156298,
+            "deckTitle": "Special Interests",
+            "promptId": 1784756323364,
+            "promptIndex": 15
+          },
+          {
+            "deckId": 1784758054689,
+            "deckTitle": "Behavior Detective",
+            "promptId": 1784758064888,
+            "promptIndex": 50
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you wish people understood about you?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756183050,
+            "deckTitle": "Self-Advocacy",
+            "promptId": 1784756282103,
+            "promptIndex": 5
+          },
+          {
+            "deckId": 1784762919196,
+            "deckTitle": "Therapy Prompts",
+            "promptId": 1784762931653,
+            "promptIndex": 8
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know when it's okay to ask for help?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756183050,
+            "deckTitle": "Self-Advocacy",
+            "promptId": 1784756282117,
+            "promptIndex": 19
+          },
+          {
+            "deckId": 1784762447334,
+            "deckTitle": "Resilience",
+            "promptId": 1784762456651,
+            "promptIndex": 19
+          }
+        ]
+      },
+      {
+        "normalizedText": "what helps you stay in the present moment?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756886850,
+            "deckTitle": "Anxiety",
+            "promptId": 1784756901351,
+            "promptIndex": 19
+          },
+          {
+            "deckId": 1784756993884,
+            "deckTitle": "Worry",
+            "promptId": 1784757000981,
+            "promptIndex": 16
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you know when it's time to ask for support?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756886850,
+            "deckTitle": "Anxiety",
+            "promptId": 1784756901364,
+            "promptIndex": 32
+          },
+          {
+            "deckId": 1784756957700,
+            "deckTitle": "Sadness",
+            "promptId": 1784756965732,
+            "promptIndex": 33
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you're proud of yourself for surviving?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756957700,
+            "deckTitle": "Sadness",
+            "promptId": 1784756965751,
+            "promptIndex": 52
+          },
+          {
+            "deckId": 1784757224068,
+            "deckTitle": "Grief",
+            "promptId": 1784757229358,
+            "promptIndex": 25
+          }
+        ]
+      },
+      {
+        "normalizedText": "if courage sat beside you, what would it encourage you to do?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756993884,
+            "deckTitle": "Worry",
+            "promptId": 1784757001010,
+            "promptIndex": 45
+          },
+          {
+            "deckId": 1784757013149,
+            "deckTitle": "Shame",
+            "promptId": 1784757026098,
+            "promptIndex": 47
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one way you'll take care of yourself today?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784756993884,
+            "deckTitle": "Worry",
+            "promptId": 1784757001020,
+            "promptIndex": 55
+          },
+          {
+            "deckId": 1784757158049,
+            "deckTitle": "Loneliness",
+            "promptId": 1784757166419,
+            "promptIndex": 54
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's something you appreciate about yourself?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784757042733,
+            "deckTitle": "Jealousy",
+            "promptId": 1784757112861,
+            "promptIndex": 12
+          },
+          {
+            "deckId": 1784762482511,
+            "deckTitle": "Gratitude",
+            "promptId": 1784762491861,
+            "promptIndex": 3
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one reminder helps you keep moving forward?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784757224068,
+            "deckTitle": "Grief",
+            "promptId": 1784757229386,
+            "promptIndex": 53
+          },
+          {
+            "deckId": 1784761899071,
+            "deckTitle": "Committed Action",
+            "promptId": 1784761921654,
+            "promptIndex": 49
+          },
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004817,
+            "promptIndex": 41
+          }
+        ]
+      },
+      {
+        "normalizedText": "what strengths can you build on?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784757903023,
+            "deckTitle": "Parent Coaching",
+            "promptId": 1784757908318,
+            "promptIndex": 13
+          },
+          {
+            "deckId": 1784758054689,
+            "deckTitle": "Behavior Detective",
+            "promptId": 1784758064871,
+            "promptIndex": 33
+          }
+        ]
+      },
+      {
+        "normalizedText": "what makes things worse?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784757903023,
+            "deckTitle": "Parent Coaching",
+            "promptId": 1784757908321,
+            "promptIndex": 16
+          },
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479229,
+            "promptIndex": 13
+          }
+        ]
+      },
+      {
+        "normalizedText": "how does your child usually communicate stress?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784757903023,
+            "deckTitle": "Parent Coaching",
+            "promptId": 1784757908322,
+            "promptIndex": 17
+          },
+          {
+            "deckId": 1784757925025,
+            "deckTitle": "Co-Regulation",
+            "promptId": 1784757989281,
+            "promptIndex": 5
+          }
+        ]
+      },
+      {
+        "normalizedText": "what skill might your child still be learning?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784757903023,
+            "deckTitle": "Parent Coaching",
+            "promptId": 1784757908326,
+            "promptIndex": 21
+          },
+          {
+            "deckId": 1784758054689,
+            "deckTitle": "Behavior Detective",
+            "promptId": 1784758064849,
+            "promptIndex": 11
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you're already doing well?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784757925025,
+            "deckTitle": "Co-Regulation",
+            "promptId": 1784757989327,
+            "promptIndex": 51
+          },
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004790,
+            "promptIndex": 14
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you handle disagreements respectfully?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758539150,
+            "deckTitle": "Dating",
+            "promptId": 1784758707846,
+            "promptIndex": 14
+          },
+          {
+            "deckId": 1784758677730,
+            "deckTitle": "Independence",
+            "promptId": 1784758742889,
+            "promptIndex": 22
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one sentence you want to remember about healthy relationships?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758539150,
+            "deckTitle": "Dating",
+            "promptId": 1784758707888,
+            "promptIndex": 56
+          },
+          {
+            "deckId": 1784758627704,
+            "deckTitle": "Relationships",
+            "promptId": 1784758813427,
+            "promptIndex": 54
+          }
+        ]
+      },
+      {
+        "normalizedText": "what kind of person do you want to be?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857901,
+            "promptIndex": 12
+          },
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825542,
+            "promptIndex": 1
+          },
+          {
+            "deckId": 1784761815118,
+            "deckTitle": "Values",
+            "promptId": 1784761827073,
+            "promptIndex": 1
+          }
+        ]
+      },
+      {
+        "normalizedText": "what qualities do you admire in other people?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857902,
+            "promptIndex": 13
+          },
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825543,
+            "promptIndex": 2
+          }
+        ]
+      },
+      {
+        "normalizedText": "which of those qualities do you already have?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857903,
+            "promptIndex": 14
+          },
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825544,
+            "promptIndex": 3
+          }
+        ]
+      },
+      {
+        "normalizedText": "what kind of impact do you want to have on other people?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857921,
+            "promptIndex": 32
+          },
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825575,
+            "promptIndex": 33
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does happiness mean to you?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857924,
+            "promptIndex": 35
+          },
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825555,
+            "promptIndex": 14
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your identity had a symbol, what would it be?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857929,
+            "promptIndex": 40
+          },
+          {
+            "deckId": 1784762660474,
+            "deckTitle": "Identity",
+            "promptId": 1784762665252,
+            "promptIndex": 37
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one belief about yourself that's becoming stronger?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857939,
+            "promptIndex": 50
+          },
+          {
+            "deckId": 1784762553331,
+            "deckTitle": "Personal Growth",
+            "promptId": 1784762559570,
+            "promptIndex": 8
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one strength you'll rely on this week?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857941,
+            "promptIndex": 52
+          },
+          {
+            "deckId": 1784762447334,
+            "deckTitle": "Resilience",
+            "promptId": 1784762456677,
+            "promptIndex": 45
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one reminder helps you stay true to yourself?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857943,
+            "promptIndex": 54
+          },
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825594,
+            "promptIndex": 52
+          },
+          {
+            "deckId": 1784762660474,
+            "deckTitle": "Identity",
+            "promptId": 1784762665264,
+            "promptIndex": 49
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you're proud of becoming?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758597037,
+            "deckTitle": "Identity",
+            "promptId": 1784758857944,
+            "promptIndex": 55
+          },
+          {
+            "deckId": 1784762660474,
+            "deckTitle": "Identity",
+            "promptId": 1784762665265,
+            "promptIndex": 50
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do your values help you make hard decisions?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825569,
+            "promptIndex": 27
+          },
+          {
+            "deckId": 1784761815118,
+            "deckTitle": "Values",
+            "promptId": 1784761827096,
+            "promptIndex": 24
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your future self thanked you for one decision, what would it be?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784758615775,
+            "deckTitle": "Values",
+            "promptId": 1784758825582,
+            "promptIndex": 40
+          },
+          {
+            "deckId": 1784758677730,
+            "deckTitle": "Independence",
+            "promptId": 1784758742905,
+            "promptIndex": 38
+          },
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004816,
+            "promptIndex": 40
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one habit you'd like to build?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758661264,
+            "deckTitle": "Future Planning",
+            "promptId": 1784758767576,
+            "promptIndex": 12
+          },
+          {
+            "deckId": 1784761899071,
+            "deckTitle": "Committed Action",
+            "promptId": 1784761921612,
+            "promptIndex": 7
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do you recover after making a mistake?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758677730,
+            "deckTitle": "Independence",
+            "promptId": 1784758742877,
+            "promptIndex": 10
+          },
+          {
+            "deckId": 1784762447334,
+            "deckTitle": "Resilience",
+            "promptId": 1784762456642,
+            "promptIndex": 10
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one reminder helps you trust yourself?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784758677730,
+            "deckTitle": "Independence",
+            "promptId": 1784758742918,
+            "promptIndex": 51
+          },
+          {
+            "deckId": 1784762043955,
+            "deckTitle": "Confidence Scaling",
+            "promptId": 1784762056207,
+            "promptIndex": 48
+          }
+        ]
+      },
+      {
+        "normalizedText": "who is feeling happy?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479220,
+            "promptIndex": 4
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533303,
+            "promptIndex": 4
+          }
+        ]
+      },
+      {
+        "normalizedText": "who is feeling worried?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479221,
+            "promptIndex": 5
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533304,
+            "promptIndex": 5
+          }
+        ]
+      },
+      {
+        "normalizedText": "who is feeling left out?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479222,
+            "promptIndex": 6
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533305,
+            "promptIndex": 6
+          }
+        ]
+      },
+      {
+        "normalizedText": "what does each character want?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479225,
+            "promptIndex": 9
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533315,
+            "promptIndex": 16
+          }
+        ]
+      },
+      {
+        "normalizedText": "what gets in the way?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479226,
+            "promptIndex": 10
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533316,
+            "promptIndex": 17
+          }
+        ]
+      },
+      {
+        "normalizedText": "who notices someone else's feelings?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479230,
+            "promptIndex": 14
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533313,
+            "promptIndex": 14
+          }
+        ]
+      },
+      {
+        "normalizedText": "what happens next?",
+        "occurrenceCount": 3,
+        "occurrences": [
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479231,
+            "promptIndex": 15
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533327,
+            "promptIndex": 28
+          },
+          {
+            "deckId": 1784761597039,
+            "deckTitle": "Role Play",
+            "promptId": 1784761606206,
+            "promptIndex": 9
+          }
+        ]
+      },
+      {
+        "normalizedText": "who asks for help?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479233,
+            "promptIndex": 17
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533318,
+            "promptIndex": 19
+          }
+        ]
+      },
+      {
+        "normalizedText": "who says something kind?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479234,
+            "promptIndex": 18
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533322,
+            "promptIndex": 23
+          }
+        ]
+      },
+      {
+        "normalizedText": "how do they solve the problem?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761460080,
+            "deckTitle": "Toy Stories",
+            "promptId": 1784761479239,
+            "promptIndex": 23
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533317,
+            "promptIndex": 18
+          }
+        ]
+      },
+      {
+        "normalizedText": "who needs help?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761491897,
+            "deckTitle": "Sand Tray Ideas",
+            "promptId": 1784761503216,
+            "promptIndex": 8
+          },
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533307,
+            "promptIndex": 8
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one strength helped someone succeed?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761515029,
+            "deckTitle": "Mini Figure Scenarios",
+            "promptId": 1784761533350,
+            "promptIndex": 51
+          },
+          {
+            "deckId": 1784761620845,
+            "deckTitle": "Finish the Story",
+            "promptId": 1784761631548,
+            "promptIndex": 53
+          }
+        ]
+      },
+      {
+        "normalizedText": "what strengths do you want to use more often?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761815118,
+            "deckTitle": "Values",
+            "promptId": 1784761827087,
+            "promptIndex": 15
+          },
+          {
+            "deckId": 1784762683643,
+            "deckTitle": "Purpose",
+            "promptId": 1784762693329,
+            "promptIndex": 17
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one habit you'd like to change?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761899071,
+            "deckTitle": "Committed Action",
+            "promptId": 1784761921613,
+            "promptIndex": 8
+          },
+          {
+            "deckId": 1784762919196,
+            "deckTitle": "Therapy Prompts",
+            "promptId": 1784762931666,
+            "promptIndex": 21
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one promise you want to make to yourself?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761899071,
+            "deckTitle": "Committed Action",
+            "promptId": 1784761921619,
+            "promptIndex": 14
+          },
+          {
+            "deckId": 1784762968811,
+            "deckTitle": "Relapse Prevention",
+            "promptId": 1784762980106,
+            "promptIndex": 29
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one action you'll commit to this week?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761899071,
+            "deckTitle": "Committed Action",
+            "promptId": 1784761921652,
+            "promptIndex": 47
+          },
+          {
+            "deckId": 1784761948003,
+            "deckTitle": "Change Talk",
+            "promptId": 1784761953118,
+            "promptIndex": 46
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one strength you'll rely on?",
+        "occurrenceCount": 4,
+        "occurrences": [
+          {
+            "deckId": 1784761899071,
+            "deckTitle": "Committed Action",
+            "promptId": 1784761921656,
+            "promptIndex": 51
+          },
+          {
+            "deckId": 1784761948003,
+            "deckTitle": "Change Talk",
+            "promptId": 1784761953120,
+            "promptIndex": 48
+          },
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004818,
+            "promptIndex": 42
+          },
+          {
+            "deckId": 1784762043955,
+            "deckTitle": "Confidence Scaling",
+            "promptId": 1784762056206,
+            "promptIndex": 47
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one obstacle you expect?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761948003,
+            "deckTitle": "Change Talk",
+            "promptId": 1784761953092,
+            "promptIndex": 20
+          },
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004794,
+            "promptIndex": 18
+          }
+        ]
+      },
+      {
+        "normalizedText": "how will you know you're making progress?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761948003,
+            "deckTitle": "Change Talk",
+            "promptId": 1784761953097,
+            "promptIndex": 25
+          },
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004801,
+            "promptIndex": 25
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one reason now feels like the right time?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761948003,
+            "deckTitle": "Change Talk",
+            "promptId": 1784761953101,
+            "promptIndex": 29
+          },
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004803,
+            "promptIndex": 27
+          }
+        ]
+      },
+      {
+        "normalizedText": "if courage made today's decisions, what would you choose?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761948003,
+            "deckTitle": "Change Talk",
+            "promptId": 1784761953113,
+            "promptIndex": 41
+          },
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004809,
+            "promptIndex": 33
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one thing you can control?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004798,
+            "promptIndex": 22
+          },
+          {
+            "deckId": 1784762043955,
+            "deckTitle": "Confidence Scaling",
+            "promptId": 1784762056180,
+            "promptIndex": 21
+          }
+        ]
+      },
+      {
+        "normalizedText": "what would success look like this week?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784761999856,
+            "deckTitle": "Readiness",
+            "promptId": 1784762004799,
+            "promptIndex": 23
+          },
+          {
+            "deckId": 1784762043955,
+            "deckTitle": "Confidence Scaling",
+            "promptId": 1784762056186,
+            "promptIndex": 27
+          }
+        ]
+      },
+      {
+        "normalizedText": "when have you shown leadership?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762401113,
+            "deckTitle": "Characters",
+            "promptId": 1784762405752,
+            "promptIndex": 11
+          },
+          {
+            "deckId": 1784762421421,
+            "deckTitle": "Strengths",
+            "promptId": 1784762435164,
+            "promptIndex": 22
+          }
+        ]
+      },
+      {
+        "normalizedText": "what challenge helped you discover a strength?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762401113,
+            "deckTitle": "Characters",
+            "promptId": 1784762405772,
+            "promptIndex": 31
+          },
+          {
+            "deckId": 1784762421421,
+            "deckTitle": "Strengths",
+            "promptId": 1784762435168,
+            "promptIndex": 26
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one strength you'll use today?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762401113,
+            "deckTitle": "Characters",
+            "promptId": 1784762405789,
+            "promptIndex": 48
+          },
+          {
+            "deckId": 1784762421421,
+            "deckTitle": "Strengths",
+            "promptId": 1784762435190,
+            "promptIndex": 48
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one sentence you want to remember about the strengths you already have?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762401113,
+            "deckTitle": "Characters",
+            "promptId": 1784762405795,
+            "promptIndex": 54
+          },
+          {
+            "deckId": 1784762421421,
+            "deckTitle": "Strengths",
+            "promptId": 1784762435196,
+            "promptIndex": 54
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one problem you solved?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762513607,
+            "deckTitle": "Wins",
+            "promptId": 1784762518632,
+            "promptIndex": 6
+          },
+          {
+            "deckId": 1784762578666,
+            "deckTitle": "Proud Moments",
+            "promptId": 1784762587551,
+            "promptIndex": 11
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one brave thing you've done?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762513607,
+            "deckTitle": "Wins",
+            "promptId": 1784762518642,
+            "promptIndex": 16
+          },
+          {
+            "deckId": 1784762578666,
+            "deckTitle": "Proud Moments",
+            "promptId": 1784762587546,
+            "promptIndex": 6
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one decision you're proud you made?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762513607,
+            "deckTitle": "Wins",
+            "promptId": 1784762518652,
+            "promptIndex": 26
+          },
+          {
+            "deckId": 1784762578666,
+            "deckTitle": "Proud Moments",
+            "promptId": 1784762587548,
+            "promptIndex": 8
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your life had chapters, what would this chapter be called?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762553331,
+            "deckTitle": "Personal Growth",
+            "promptId": 1784762559598,
+            "promptIndex": 36
+          },
+          {
+            "deckId": 1784762660474,
+            "deckTitle": "Identity",
+            "promptId": 1784762665246,
+            "promptIndex": 31
+          }
+        ]
+      },
+      {
+        "normalizedText": "if your younger self met you today, what would surprise them most?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762553331,
+            "deckTitle": "Personal Growth",
+            "promptId": 1784762559599,
+            "promptIndex": 37
+          },
+          {
+            "deckId": 1784762660474,
+            "deckTitle": "Identity",
+            "promptId": 1784762665248,
+            "promptIndex": 33
+          }
+        ]
+      },
+      {
+        "normalizedText": "what responsibilities come with freedom?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762741461,
+            "deckTitle": "Big Questions",
+            "promptId": 1784762746626,
+            "promptIndex": 13
+          },
+          {
+            "deckId": 1784762781459,
+            "deckTitle": "Philosophy",
+            "promptId": 1784762794732,
+            "promptIndex": 13
+          }
+        ]
+      },
+      {
+        "normalizedText": "what do you think gives life meaning?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762741461,
+            "deckTitle": "Big Questions",
+            "promptId": 1784762746628,
+            "promptIndex": 15
+          },
+          {
+            "deckId": 1784762781459,
+            "deckTitle": "Philosophy",
+            "promptId": 1784762794726,
+            "promptIndex": 7
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one exposure you'll practice this week?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762825786,
+            "deckTitle": "Exposure Ideas",
+            "promptId": 1784762833500,
+            "promptIndex": 45
+          },
+          {
+            "deckId": 1784762889195,
+            "deckTitle": "OCD Exposure",
+            "promptId": 1784762905922,
+            "promptIndex": 45
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one coping skill you'd like to practice more?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762866271,
+            "deckTitle": "Panic Skills",
+            "promptId": 1784762876564,
+            "promptIndex": 6
+          },
+          {
+            "deckId": 1784762919196,
+            "deckTitle": "Therapy Prompts",
+            "promptId": 1784762931663,
+            "promptIndex": 18
+          }
+        ]
+      },
+      {
+        "normalizedText": "what's one success reminds you recovery is possible?",
+        "occurrenceCount": 2,
+        "occurrences": [
+          {
+            "deckId": 1784762889195,
+            "deckTitle": "OCD Exposure",
+            "promptId": 1784762905906,
+            "promptIndex": 29
+          },
+          {
+            "deckId": 1784762968811,
+            "deckTitle": "Relapse Prevention",
+            "promptId": 1784762980097,
+            "promptIndex": 20
+          }
+        ]
+      }
+    ]
+  },
+  "malformedPrompts": [],
+  "sourceAttribution": {
+    "deckRecordsWithSource": 0,
+    "deckRecordsWithAttribution": 0,
+    "promptRecordsWithSource": 0,
+    "promptRecordsWithAttribution": 0
+  },
+  "deterministicOrdering": "Source deck order, then source prompt order.",
+  "idPolicy": {
+    "deckIds": "Preserved exactly.",
+    "promptIds": "Preserved exactly when unique within a deck. Later within-deck collisions use the verified browser-recovery UUID and retain legacyId; deterministic SHA-256 IDs are the fallback."
+  }
+}

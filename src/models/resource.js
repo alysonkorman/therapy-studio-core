@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const resourceTypes = [
   "prompt",
+  "prompt-deck",
   "intervention",
   "game",
   "worksheet",
