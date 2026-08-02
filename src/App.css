@@ -105,6 +105,23 @@ button {
   padding: 40px;
 }
 
+.resource-list {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.system-message {
+  margin: auto;
+  max-width: 540px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.system-message p {
+  color: var(--muted);
+}
+
 .page-header {
   align-items: flex-start;
   display: flex;

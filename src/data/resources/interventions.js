@@ -4,8 +4,7 @@ export const interventions = [
   createResource({
     type: "intervention",
     title: "Feelings Jenga",
-    description:
-      "Identify and discuss emotions while playing Jenga.",
+    description: "Identify and discuss emotions while playing Jenga.",
 
     worksWellWhen: [
       "They're shutting down",
@@ -13,17 +12,9 @@ export const interventions = [
       "Rapport is weak",
     ],
 
-    kidsWhoLike: [
-      "Pokémon",
-      "Minecraft",
-      "Drawing",
-    ],
+    kidsWhoLike: ["Pokémon", "Minecraft", "Drawing"],
 
-    goals: [
-      "Emotion identification",
-      "Rapport",
-      "Externalization",
-    ],
+    goals: ["Emotion identification", "Rapport", "Externalization"],
 
     durationMinutes: 15,
   }),
