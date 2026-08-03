@@ -14,9 +14,9 @@ This is the concise execution tracker and source of truth for what comes next. S
 ## Current Snapshot
 
 - **Branch:** `main`, aligned with `origin/main`
-- **Working tree:** Verified implementation work is ready for commit
-- **Current next milestone:** Resource Persistence Foundation
-- **Last verified milestone:** Current Session Context, ready for commit
+- **Working tree:** Resource Persistence Foundation is implemented and ready for commit
+- **Current next milestone:** Prompt Authoring Toolkit, after persistence is committed
+- **Last verified milestone:** Resource Persistence Foundation, ready for commit
 - **Last complete and committed milestone:** First Usable Prompt Library (`97815a5`)
 - **Checklist updated:** August 3, 2026
 
@@ -47,8 +47,9 @@ This is the concise execution tracker and source of truth for what comes next. S
 - [x] **Current Session Context** — Temporary whitelisted context, dashboard controls,
       transparent search boosts, and focused tests are verified. Depends on Universal
       Resource Search. Commit: pending.
-- [>] **Resource Persistence Foundation** — Establishes the Dexie repository boundary
-  without changing feature reads.
+- [~] **Resource Persistence Foundation** — The Dexie Resource database, validated
+  repository, explicit transactional seed pathway, and isolated tests are verified.
+  Feature reads remain unchanged. Commit: pending.
 - [ ] **Therapist Resource Memory** — Planned after persistence; favorites, ratings,
       notes, and recent-use metadata.
 - [ ] **Generic Client Profile Foundation** — Planned after Therapist Resource Memory;
@@ -60,9 +61,12 @@ This is the concise execution tracker and source of truth for what comes next. S
 
 - [!] **Full Intervention Library migration** — The first Resource-based intervention
   exists, but the complete library import and repository integration are missing.
-- [ ] **Prompt Authoring Toolkit** — Categories, deck colors, icon assignment, deck and
-      prompt reordering, playlists/collections, diagnosis associations, bulk add, and inline
-      editing where appropriate. Depends on the locked Phase 0 sequence.
+- [>] **Prompt Authoring Toolkit** — Create, edit, archive, and duplicate decks; inline
+  editing where appropriate; bulk add prompts; create and edit categories; choose deck
+  colors; assign icons; reorder decks and prompts; create playlists or collections;
+  and associate diagnoses, goals, age ranges, and tags. Smart Paste, advanced bulk
+  parsing, AI-assisted authoring, and final visual polish are deferred. Planned
+  immediately after Resource Persistence Foundation.
 - [ ] **Worksheet Library** — Planned connected worksheet resources.
 - [ ] **Worksheet Builder** — Planned authoring workflow.
 - [ ] **Workbook Builder** — Planned connected workbook authoring.
@@ -87,11 +91,10 @@ This is the concise execution tracker and source of truth for what comes next. S
 ## Locked Build Order
 
 1. Resource Persistence Foundation
-2. Therapist Resource Memory
-3. Generic Client Profile Foundation
-4. Resource Reflection and Outcome Tracking
-5. Full Intervention Library migration
-6. Prompt Authoring Toolkit
+2. Prompt Authoring Toolkit
+3. Therapist Resource Memory
+4. Generic Client Profile Foundation
+5. Resource Reflection and Outcome Tracking
 
 ## Parking Lot
 

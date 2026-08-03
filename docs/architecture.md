@@ -149,17 +149,22 @@ folders expose small barrel files where that improves stable imports.
 
 ## Data and Persistence Strategy
 
-The current application uses in-repository seed modules; it does not yet have an active
-persistence repository. Persistence is intended to be local-first and separated behind
-data-access/repository boundaries, with Dexie/IndexedDB available in the installed
-foundation. Zustand is available for client state when an approved milestone requires
-shared state. Neither dependency should be introduced into a feature simply because it
-is installed.
+Therapy Studio has one local Resource persistence boundary under `src/lib/data`.
+`database.js` owns the lazy Dexie/IndexedDB database and version declarations;
+`resourceRepository.js` owns validated reads, writes, archive state, explicit seeding,
+and structured errors. UI components do not import Dexie.
+
+Database version 1 contains only the `resources` table with stable Resource IDs as its
+primary keys. It is not seeded automatically. The Prompt Library and other features
+continue using their existing in-repository data modules until a later milestone
+explicitly changes feature reads. Zustand remains the temporary Current Session state
+mechanism and is not persistence.
 
 Do not store clinical data directly from page components. Before persistent client or
 session data is implemented, the relevant milestone must define privacy, data
-boundaries, migrations, backup, and failure behavior. Therapy Studio must not drift
-into EHR behavior.
+boundaries, migrations, backup, and failure behavior. Version 1 stores no client,
+session, profile, therapist-memory, or outcome data. Therapy Studio must not drift into
+EHR behavior.
 
 Yjs and WebSocket collaboration dependencies are installed for the eventual
 two-player direction, but no collaboration architecture is currently active. That work

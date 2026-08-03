@@ -127,6 +127,14 @@ This documentation milestone was completed after 0.5A in repository history; its
 number describes the agreed foundation order rather than the chronological order in
 which the work happened.
 
+### Resource Persistence Foundation — implemented, pending commit
+
+- Added the version 1 Dexie/IndexedDB Resource database boundary.
+- Added validated repository reads, writes, archive/restore, permanent deletion, and
+  explicit transactional seeding.
+- Verified ordinary Resource and complete Prompt Deck compatibility without changing
+  feature reads or startup behavior.
+
 ## Remaining Milestones
 
 The following established capability areas remain. They are not permission to start
@@ -175,10 +183,19 @@ The currently agreed order is:
    without feature development.
 3. **Milestone 0.5A — Stabilize the Existing Therapy Studio Foundation.** Complete the
    Resource vertical slice, automated checks, active entry path, and routed dashboard.
-4. **Phase 1 feature expansion — not yet sequenced.** Before implementation, record and
-   approve the numbered, bounded Phase 1 milestone sequence in this document. Do not
-   infer that sequence from folder names, installed packages, placeholder pages, or the
-   capability backlog above.
+4. **Approved next sequence.** Complete the following milestones in this locked order:
+   1. Resource Persistence Foundation.
+   2. Prompt Authoring Toolkit.
+   3. Therapist Resource Memory.
+   4. Generic Client Profile Foundation.
+   5. Resource Reflection and Outcome Tracking.
 
-Steps 1 through 3 are complete. The order may be changed only through an explicit project
-decision recorded here; agents must not invent or reorder future milestones.
+Steps 1 through 3 are complete. Resource Persistence Foundation is implemented and
+pending commit; Prompt Authoring Toolkit is next after that commit. The Prompt
+Authoring Toolkit scope is deck creation, editing, archiving, and duplication; inline
+editing where appropriate; bulk prompt addition; category creation and editing; deck
+colors and icon assignment; deck and prompt reordering;
+playlists/collections; and diagnosis, goal, age-range, and tag associations. Smart
+Paste, advanced bulk parsing, AI-assisted authoring, and final visual polish are
+deferred. The order may be changed only through an explicit project decision recorded
+here; agents must not invent or reorder future milestones.
