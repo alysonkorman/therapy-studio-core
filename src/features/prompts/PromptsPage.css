@@ -51,6 +51,15 @@
   width: 100%;
 }
 
+.prompt-search-control {
+  display: flex;
+  gap: 8px;
+}
+
+.prompt-search-control input {
+  min-width: 0;
+}
+
 .prompt-filters input:focus,
 .prompt-filters select:focus,
 .prompt-filters button:focus-visible,

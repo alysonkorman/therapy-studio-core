@@ -7,12 +7,13 @@ import {
   Gamepad2,
   Library,
   MessageCircle,
-  Search,
   Shapes,
-  UserRound,
   Users,
   WandSparkles,
 } from "lucide-react";
+
+import ResourceSearch from "../search/ResourceSearch";
+import CurrentSessionCard from "../sessions/CurrentSessionCard";
 
 const toolCards = [
   {
@@ -57,92 +58,6 @@ const toolCards = [
   },
 ];
 
-function SearchBar() {
-  return (
-    <section className="search-section">
-      <label className="search-label" htmlFor="therapy-search">
-        What do you need right now?
-      </label>
-
-      <div className="search-field">
-        <Search size={22} />
-        <input
-          id="therapy-search"
-          placeholder="Try: 9 year old with ADHD who will not talk today"
-          type="search"
-        />
-        <button type="button">Search</button>
-      </div>
-
-      <div className="suggested-searches">
-        <span>Try:</span>
-        <button type="button">shutting down</button>
-        <button type="button">Pokémon</button>
-        <button type="button">rapport</button>
-        <button type="button">10 minutes left</button>
-        <button type="button">telehealth</button>
-      </div>
-    </section>
-  );
-}
-
-function CurrentSessionCard() {
-  return (
-    <section className="session-card">
-      <div className="section-heading">
-        <div>
-          <span className="eyebrow">Optional context</span>
-          <h2>Current Session</h2>
-        </div>
-        <div className="session-icon">
-          <UserRound size={22} />
-        </div>
-      </div>
-
-      <p>
-        Add only what is useful right now. Therapy Studio can use it to improve search
-        results and recommendations.
-      </p>
-
-      <div className="session-fields">
-        <label>
-          Age
-          <select defaultValue="">
-            <option disabled value="">
-              Select
-            </option>
-            <option>5–7</option>
-            <option>8–10</option>
-            <option>11–13</option>
-            <option>14–17</option>
-          </select>
-        </label>
-        <label>
-          Session length
-          <select defaultValue="45 minutes">
-            <option>15 minutes</option>
-            <option>30 minutes</option>
-            <option>45 minutes</option>
-            <option>60 minutes</option>
-          </select>
-        </label>
-        <label className="wide-field">
-          What is happening?
-          <input placeholder="Shutting down, restless, anxious..." type="text" />
-        </label>
-        <label className="wide-field">
-          Interests
-          <input placeholder="Pokémon, drawing, animals..." type="text" />
-        </label>
-      </div>
-
-      <button className="advanced-button" type="button">
-        Show advanced options
-      </button>
-    </section>
-  );
-}
-
 function ToolCard({ title, description, icon: Icon }) {
   return (
     <button className="tool-card" type="button">
@@ -172,7 +87,7 @@ export default function DashboardPage() {
         </button>
       </header>
 
-      <SearchBar />
+      <ResourceSearch />
 
       <div className="home-layout">
         <CurrentSessionCard />

@@ -1,0 +1,59 @@
+.session-card__status,
+.session-card__actions,
+.session-clear-confirmation {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.session-active-indicator {
+  background: var(--accent-soft);
+  border-radius: 999px;
+  color: var(--accent-dark);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 6px 9px;
+}
+
+.session-fields textarea {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  min-height: 86px;
+  padding: 10px 11px;
+  resize: vertical;
+  width: 100%;
+}
+
+.session-advanced {
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+  padding-top: 4px;
+}
+
+.session-clear-button,
+.session-clear-confirmation button {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  display: inline-flex;
+  gap: 7px;
+  padding: 9px 12px;
+}
+
+.session-clear-confirmation {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-top: 14px;
+  padding: 12px;
+}
+
+.session-clear-confirmation span {
+  font-weight: 700;
+  margin-right: auto;
+}

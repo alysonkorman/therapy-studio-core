@@ -53,6 +53,36 @@ describe("PromptsPage", () => {
     expect(screen.queryByRole("heading", { name: "Everyday Superpowers" })).toBeNull();
   });
 
+  it("submits with Enter without clearing the query or category", async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<PromptsPage decks={testDecks} />, {
+      initialEntries: ["/prompts"],
+    });
+    const search = screen.getByRole("searchbox", { name: /search prompts/i });
+    const category = screen.getByRole("combobox", { name: /category/i });
+
+    await user.selectOptions(category, "Strengths");
+    await user.type(search, "brave{Enter}");
+
+    expect(screen.getByText("Showing 1 of 2 decks")).toBeVisible();
+    expect(search).toHaveValue("brave");
+    expect(category).toHaveValue("Strengths");
+    expect(screen.getByRole("form", { name: /search prompt decks/i })).toBeVisible();
+  });
+
+  it("submits with the Search button and preserves the query", async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<PromptsPage decks={testDecks} />);
+    const search = screen.getByRole("searchbox", { name: /search prompts/i });
+
+    await user.type(search, "Superpowers");
+    await user.click(screen.getByRole("button", { name: /^search$/i }));
+
+    expect(screen.getByText("Showing 1 of 2 decks")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Everyday Superpowers" })).toBeVisible();
+    expect(search).toHaveValue("Superpowers");
+  });
+
   it("filters by category and clears all results controls", async () => {
     const user = userEvent.setup();
     renderWithRouter(<PromptsPage decks={testDecks} />);

@@ -4,6 +4,10 @@ This document is the authoritative roadmap for Therapy Studio. It records establ
 project decisions and current repository status. A milestone brief may narrow a step,
 but it must not silently broaden or contradict this plan.
 
+Execution status and the current next milestone are tracked in
+[`project-checklist.md`](./project-checklist.md). This document remains the full vision
+and long-term roadmap.
+
 ## Vision
 
 Therapy Studio is Alyson's telehealth-only clinical workspace. Its purpose is to help

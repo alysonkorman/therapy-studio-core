@@ -76,6 +76,7 @@ isolated feature silos.
 - Add focused tests for new model behavior, shared-component behavior, engines, and
   repositories as those layers are implemented.
 
-Use `docs/master-plan.md` as the roadmap and `docs/architecture.md` as the organization
-guide. A milestone brief controls the immediate work; the roadmap backlog is not
-permission to begin future features.
+Use `docs/master-plan.md` as the roadmap, `docs/architecture.md` as the organization
+guide, and `docs/project-checklist.md` as the execution-status source of truth before
+proposing the next milestone. A milestone brief controls the immediate work; the
+roadmap backlog is not permission to begin future features.

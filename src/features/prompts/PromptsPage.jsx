@@ -25,6 +25,10 @@ export default function PromptsPage({ decks = promptDecks }) {
     setCategory("");
   }
 
+  function handleSearchSubmit(event) {
+    event.preventDefault();
+  }
+
   return (
     <div className="prompts-page">
       <header className="prompts-page__header">
@@ -35,15 +39,25 @@ export default function PromptsPage({ decks = promptDecks }) {
         </p>
       </header>
 
-      <div className="prompt-filters">
+      <form
+        aria-label="Search prompt decks"
+        className="prompt-filters"
+        onSubmit={handleSearchSubmit}
+      >
         <label>
           Search prompts
-          <input
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search decks or prompt text"
-            type="search"
-            value={query}
-          />
+          <span className="prompt-search-control">
+            <input
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search decks or prompt text"
+              type="search"
+              value={query}
+            />
+            <button type="submit">
+              <Search aria-hidden="true" size={18} />
+              Search
+            </button>
+          </span>
         </label>
         <label>
           Category
@@ -60,7 +74,7 @@ export default function PromptsPage({ decks = promptDecks }) {
           <X aria-hidden="true" size={18} />
           Clear results
         </button>
-      </div>
+      </form>
 
       <p className="prompts-page__summary" aria-live="polite">
         Showing {matchingDecks.length} of {decks.length} decks

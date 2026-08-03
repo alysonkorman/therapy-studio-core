@@ -1,0 +1,87 @@
+.resource-search-results {
+  margin: 0 auto 28px;
+  max-width: 1240px;
+}
+
+.resource-search-results__header {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.resource-search-results__header h2 {
+  margin: 5px 0 0;
+}
+
+.resource-search-clear {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  display: inline-flex;
+  flex: none;
+  gap: 7px;
+  padding: 10px 12px;
+}
+
+.resource-search-results__list {
+  display: grid;
+  gap: 18px;
+}
+
+.resource-search-result {
+  display: grid;
+  gap: 10px;
+}
+
+.resource-search-result__why {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.resource-search-result__why ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.resource-search-result__why li {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.resource-search-result > .prompt-deck-card {
+  min-height: 0;
+}
+
+.resource-search-empty {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 38px 24px;
+  text-align: center;
+}
+
+.resource-search-empty h3 {
+  margin-bottom: 8px;
+}
+
+.resource-search-empty p {
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+@media (max-width: 760px) {
+  .resource-search-results__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

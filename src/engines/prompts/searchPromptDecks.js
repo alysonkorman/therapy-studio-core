@@ -1,17 +1,15 @@
-function normalizeSearchValue(value) {
-  return value.trim().toLocaleLowerCase();
-}
+import { normalizeSearchText } from "../search/normalizeSearchText";
 
 function deckSearchText(deck) {
-  return [
-    deck.title,
-    deck.description,
-    deck.category,
-    ...deck.tags,
-    ...deck.prompts.map((prompt) => prompt.text),
-  ]
-    .join(" ")
-    .toLocaleLowerCase();
+  return normalizeSearchText(
+    [
+      deck.title,
+      deck.description,
+      deck.category,
+      ...deck.tags,
+      ...deck.prompts.map((prompt) => prompt.text),
+    ].join(" ")
+  );
 }
 
 export function getPromptDeckCategories(decks) {
@@ -21,7 +19,7 @@ export function getPromptDeckCategories(decks) {
 }
 
 export function searchPromptDecks(decks, { query = "", category = "" } = {}) {
-  const normalizedQuery = normalizeSearchValue(query);
+  const normalizedQuery = normalizeSearchText(query);
 
   return decks.filter((deck) => {
     const matchesCategory = !category || deck.category === category;
