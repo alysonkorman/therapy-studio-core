@@ -32,7 +32,7 @@ function makeDeck(overrides = {}) {
     title: "Body Clues",
     description: null,
     category: "conversation",
-    color: "#abc",
+    color: "#aabbcc",
     iconId: "body",
     archived: false,
     tags: ["feelings"],
@@ -82,6 +82,10 @@ describe("importPromptDecks", () => {
       description: "",
       source: "",
       category: "conversation",
+      categoryId: "prompt-category-conversation",
+      color: "#aabbcc",
+      iconId: "body",
+      sortOrder: 0,
       goals: ["Emotion identification"],
       createdAt: exportedAt,
       updatedAt: exportedAt,
@@ -90,6 +94,7 @@ describe("importPromptDecks", () => {
       id: "4",
       text: "Where do you feel frustration in your body?",
       source: "",
+      sortOrder: 0,
     });
   });
 

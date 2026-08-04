@@ -5,6 +5,12 @@ export const THERAPY_STUDIO_DATABASE_VERSION = 1;
 export const THERAPY_STUDIO_VERSION_1_SCHEMA = Object.freeze({
   resources: "id",
 });
+export const THERAPY_STUDIO_DATABASE_LATEST_VERSION = 2;
+export const THERAPY_STUDIO_VERSION_2_SCHEMA = Object.freeze({
+  resources: "id",
+  categories: "id",
+  playlists: "id",
+});
 
 export function createTherapyStudioDatabase({
   name = THERAPY_STUDIO_DATABASE_NAME,
@@ -19,6 +25,9 @@ export function createTherapyStudioDatabase({
   database
     .version(THERAPY_STUDIO_DATABASE_VERSION)
     .stores(THERAPY_STUDIO_VERSION_1_SCHEMA);
+  database
+    .version(THERAPY_STUDIO_DATABASE_LATEST_VERSION)
+    .stores(THERAPY_STUDIO_VERSION_2_SCHEMA);
 
   return database;
 }

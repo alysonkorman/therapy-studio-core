@@ -1,11 +1,14 @@
+import Dexie from "dexie";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { IDBKeyRange, indexedDB } from "../../test/indexedDb";
 import {
   createTherapyStudioDatabase,
+  THERAPY_STUDIO_DATABASE_LATEST_VERSION,
   THERAPY_STUDIO_DATABASE_NAME,
   THERAPY_STUDIO_DATABASE_VERSION,
   THERAPY_STUDIO_VERSION_1_SCHEMA,
+  THERAPY_STUDIO_VERSION_2_SCHEMA,
 } from "./database";
 
 const databases = [];
@@ -30,20 +33,49 @@ afterEach(async () => {
 });
 
 describe("Therapy Studio database", () => {
-  it("declares the application name and version 1 Resource-only schema", () => {
+  it("declares the application name and additive schemas", () => {
     expect(THERAPY_STUDIO_DATABASE_NAME).toBe("therapy-studio");
     expect(THERAPY_STUDIO_DATABASE_VERSION).toBe(1);
     expect(THERAPY_STUDIO_VERSION_1_SCHEMA).toEqual({ resources: "id" });
+    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(2);
+    expect(THERAPY_STUDIO_VERSION_2_SCHEMA).toEqual({
+      resources: "id",
+      categories: "id",
+      playlists: "id",
+    });
   });
 
-  it("initializes version 1 with only the resources table and stable-ID primary key", async () => {
+  it("initializes version 2 with additive authoring tables", async () => {
     const database = createTestDatabase();
     await database.open();
 
-    expect(database.verno).toBe(1);
-    expect(database.tables.map((table) => table.name)).toEqual(["resources"]);
+    expect(database.verno).toBe(2);
+    expect(database.tables.map((table) => table.name).sort()).toEqual([
+      "categories",
+      "playlists",
+      "resources",
+    ]);
     expect(database.table("resources").schema.primKey.name).toBe("id");
     expect(database.table("resources").schema.indexes).toEqual([]);
+  });
+
+  it("preserves version-1 Resource data during the additive migration", async () => {
+    const name = `therapy-studio-test-${crypto.randomUUID()}`;
+    const versionOne = new Dexie(name, { indexedDB, IDBKeyRange });
+    versionOne.version(1).stores(THERAPY_STUDIO_VERSION_1_SCHEMA);
+    await versionOne.table("resources").put({ id: "existing-resource", title: "Kept" });
+    versionOne.close();
+
+    const migrated = createTherapyStudioDatabase({ name, indexedDB, IDBKeyRange });
+    databases.push(migrated);
+    await migrated.open();
+
+    expect(await migrated.table("resources").get("existing-resource")).toMatchObject({
+      title: "Kept",
+    });
+    expect(migrated.tables.map((table) => table.name)).toEqual(
+      expect.arrayContaining(["categories", "playlists"])
+    );
   });
 
   it("keeps temporary databases isolated", async () => {

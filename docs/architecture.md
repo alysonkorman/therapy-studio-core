@@ -154,11 +154,18 @@ Therapy Studio has one local Resource persistence boundary under `src/lib/data`.
 `resourceRepository.js` owns validated reads, writes, archive state, explicit seeding,
 and structured errors. UI components do not import Dexie.
 
-Database version 1 contains only the `resources` table with stable Resource IDs as its
-primary keys. It is not seeded automatically. The Prompt Library and other features
-continue using their existing in-repository data modules until a later milestone
-explicitly changes feature reads. Zustand remains the temporary Current Session state
-mechanism and is not persistence.
+Database version 1 contains the original `resources` table. Additive version 2 retains
+that table and adds `categories` and `playlists`, all keyed by stable IDs. Prompt Decks
+remain Resources rather than moving to a duplicate table. The Prompt Library uses its
+immutable imported module until Alyson explicitly seeds it; after a successful seed,
+the Prompt Authoring Toolkit reads and writes through focused repositories. It never
+seeds on application startup and a later seed reports edited-record conflicts instead
+of overwriting them. Zustand remains the temporary Current Session state mechanism.
+
+Prompt authoring persistence is split among `promptDeckRepository.js`,
+`categoryRepository.js`, and `playlistRepository.js`. React accesses these boundaries
+through `usePromptAuthoring` and never imports Dexie. Pure import transformation remains
+under `src/engines/prompts`; authoring controls remain under `src/features/prompts`.
 
 Do not store clinical data directly from page components. Before persistent client or
 session data is implemented, the relevant milestone must define privacy, data
@@ -188,11 +195,18 @@ Use Lucide for ordinary interface/navigation symbols where suitable. The curated
 Flaticon SVG library is a preserved project asset for child-facing and activity-facing
 visuals. Attribution and license files must remain intact.
 
-Curated icons should be accessed through the shared icon area/registry when that
-registry is implemented by an approved milestone. Do not rename, mass-format,
-reorganize, or import the entire raw library into feature code. Existing spacing,
-casing, empty directories, and legacy filenames are asset-management concerns, not a
-reason to alter unrelated features.
+The shared Icon Service under `src/services/icons` is the only Vite-specific discovery
+boundary for the curated library. It exposes deterministic semantic IDs, manifest
+metadata, folder counts, normalized search, lazy loading, resolution, and fallback
+behavior. Feature components never import raw curated SVGs or persist asset paths.
+
+The reusable Icon Browser under `src/features/icons` consumes that public service. It
+exposes the complete curated library with folder browsing, search, and incremental
+rendering, and is currently reused for Prompt Deck and Category identity. SVG assets
+load only when a visible icon renderer requests them. The former limited Prompt-only
+registry is retired. Do not rename, mass-format, or reorganize the raw library;
+existing spacing, casing, empty directories, and legacy filenames remain preserved
+asset-management concerns.
 
 ## Testing Philosophy
 

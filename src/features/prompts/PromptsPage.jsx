@@ -1,24 +1,46 @@
 import { Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { promptDecks } from "../../data/resources";
 import {
   getPromptDeckCategories,
   searchPromptDecks,
 } from "../../engines/prompts/searchPromptDecks";
 import PromptDeckCard from "./PromptDeckCard";
+import PromptAuthoringPanel from "./PromptAuthoringPanel";
+import { usePromptAuthoring } from "./usePromptAuthoring";
 import "./PromptsPage.css";
 
-export default function PromptsPage({ decks = promptDecks }) {
+export default function PromptsPage({ decks: suppliedDecks, repositories }) {
+  const authoring = usePromptAuthoring({ enabled: !suppliedDecks, repositories });
+  const [showArchived, setShowArchived] = useState(false);
+  const [reorderMode, setReorderMode] = useState(false);
+  const decks = suppliedDecks ?? authoring.decks;
+  const visibleDecks = decks.filter((deck) => showArchived || !deck.archived);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
-  const categories = useMemo(() => getPromptDeckCategories(decks), [decks]);
+  const categories = useMemo(() => getPromptDeckCategories(visibleDecks), [visibleDecks]);
   const matchingDecks = useMemo(
-    () => searchPromptDecks(decks, { query, category }),
-    [category, decks, query]
+    () => searchPromptDecks(visibleDecks, { query, category }),
+    [category, query, visibleDecks]
   );
   const hasActiveFilters = Boolean(query || category);
-  const totalPromptCount = decks.reduce((total, deck) => total + deck.prompts.length, 0);
+  const totalPromptCount = visibleDecks.reduce(
+    (total, deck) => total + deck.prompts.length,
+    0
+  );
+
+  async function moveDeck(index, offset) {
+    const ordered = visibleDecks.map(({ id }) => id);
+    const target = index + offset;
+    if (target < 0 || target >= ordered.length) return;
+    [ordered[index], ordered[target]] = [ordered[target], ordered[index]];
+    const archivedIds = decks
+      .filter((deck) => deck.archived && !ordered.includes(deck.id))
+      .map(({ id }) => id);
+    await authoring.run(() =>
+      authoring.repositories.decks.reorderPromptDecks([...ordered, ...archivedIds])
+    );
+  }
 
   function clearResults() {
     setQuery("");
@@ -38,6 +60,28 @@ export default function PromptsPage({ decks = promptDecks }) {
           Browse {decks.length} decks with {totalPromptCount.toLocaleString()} prompts.
         </p>
       </header>
+
+      {!suppliedDecks ? (
+        <PromptAuthoringPanel
+          authoring={authoring}
+          setShowArchived={setShowArchived}
+          showArchived={showArchived}
+        />
+      ) : null}
+      {!suppliedDecks && authoring.seeded ? (
+        <button
+          className="reorder-toggle"
+          onClick={() => setReorderMode((value) => !value)}
+          type="button"
+        >
+          {reorderMode ? "Finish reordering" : "Reorder decks"}
+        </button>
+      ) : null}
+      {authoring.error && authoring.seeded ? (
+        <p className="authoring-error" role="alert">
+          {authoring.error}
+        </p>
+      ) : null}
 
       <form
         aria-label="Search prompt decks"
@@ -77,13 +121,35 @@ export default function PromptsPage({ decks = promptDecks }) {
       </form>
 
       <p className="prompts-page__summary" aria-live="polite">
-        Showing {matchingDecks.length} of {decks.length} decks
+        Showing {matchingDecks.length} of {visibleDecks.length} decks
       </p>
 
       {matchingDecks.length ? (
         <div className="prompt-deck-grid">
           {matchingDecks.map((deck) => (
-            <PromptDeckCard deck={deck} key={deck.id} />
+            <PromptDeckCard
+              authoring={
+                reorderMode
+                  ? {
+                      move: moveDeck,
+                      duplicate: (id) =>
+                        void authoring.run(() =>
+                          authoring.repositories.decks.duplicatePromptDeck(id)
+                        ),
+                      toggleArchive: (item) =>
+                        void authoring.run(() =>
+                          item.archived
+                            ? authoring.repositories.decks.restorePromptDeck(item.id)
+                            : authoring.repositories.decks.archivePromptDeck(item.id)
+                        ),
+                    }
+                  : null
+              }
+              deck={deck}
+              index={visibleDecks.findIndex(({ id }) => id === deck.id)}
+              key={deck.id}
+              total={visibleDecks.length}
+            />
           ))}
         </div>
       ) : (

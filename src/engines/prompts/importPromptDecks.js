@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { promptDeckSchema } from "../../models/prompt";
+import { promptCategoryIdForName } from "../../models/promptAuthoring";
 
 const importedIdSchema = z.union([z.string(), z.number()]);
 
@@ -62,7 +63,7 @@ function assertUniqueIds(records, scope) {
   }
 }
 
-function transformPrompt(prompt, provenance) {
+function transformPrompt(prompt, provenance, sortOrder) {
   return {
     id: String(prompt.id),
     text: prompt.text,
@@ -75,6 +76,7 @@ function transformPrompt(prompt, provenance) {
     diagnoses: prompt.diagnoses,
     settings: prompt.settings,
     depth: prompt.depth,
+    sortOrder,
     ...(prompt.legacyId === undefined ? {} : { legacyId: prompt.legacyId }),
     source: prompt.source ?? "",
     legacyMetadata: {
@@ -86,7 +88,7 @@ function transformPrompt(prompt, provenance) {
   };
 }
 
-function transformDeck(deck, exportedAt, provenance) {
+function transformDeck(deck, exportedAt, provenance, sortOrder) {
   assertUniqueIds(deck.prompts, `prompt in deck ${String(deck.id)}`);
 
   return promptDeckSchema.parse({
@@ -115,8 +117,14 @@ function transformDeck(deck, exportedAt, provenance) {
     createdAt: exportedAt,
     updatedAt: exportedAt,
     category: deck.category,
+    categoryId: promptCategoryIdForName(deck.category),
+    color: deck.color,
+    iconId: deck.iconId,
+    sortOrder,
     tags: deck.tags,
-    prompts: deck.prompts.map((prompt) => transformPrompt(prompt, provenance)),
+    prompts: deck.prompts.map((prompt, index) =>
+      transformPrompt(prompt, provenance, index)
+    ),
     legacyMetadata: {
       originalId: deck.id,
       color: deck.color,
@@ -149,8 +157,8 @@ export function importPromptDecks(input) {
     source: imported.source,
   };
 
-  return imported.decks.map((deck) =>
-    transformDeck(deck, imported.exportedAt, provenance)
+  return imported.decks.map((deck, index) =>
+    transformDeck(deck, imported.exportedAt, provenance, index)
   );
 }
 

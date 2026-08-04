@@ -37,6 +37,9 @@ not read or transform the raw JSON directly.
 `promptDeckSchema` extends `resourceSchema` with:
 
 - `category`
+- nullable `categoryId`
+- validated `color` and safe `iconId`
+- non-negative `sortOrder`
 - `tags`
 - `prompts`
 - `legacyMetadata`
@@ -60,6 +63,7 @@ Individual prompts are lightweight nested records, not independent Resources.
 - required string `id` and required non-empty `text`;
 - `type`, `category`, nullable `subcategory`, and nullable `depth`;
 - `tags`, `ageRanges`, `goals`, `diagnoses`, and `settings`;
+- non-negative `sortOrder`;
 - optional `legacyId` for repaired prompt-ID collisions;
 - normalized `source`; and
 - `legacyMetadata` containing the original typed ID, artwork, attribution, and export
@@ -73,8 +77,26 @@ deck after conversion, empty prompt text, unsupported export versions, mismatche
 declared counts, and all other Zod validation failures. It does not remove duplicate
 prompt text or normalize taxonomy values.
 
-Persistence, editing, favorites, ratings, usage history, search, and collaboration for
-prompt decks remain deferred.
+Imported items retain their stable IDs. New user-authored decks and prompts receive an
+ID once at repository creation; updates preserve identity and `createdAt` while changing
+`updatedAt` on the deck. Prompt text, clinical matching arrays, source, and imported
+legacy metadata are validated before every write. Favorites, ratings, usage history,
+and collaboration remain deferred.
+
+## Prompt Authoring Records
+
+`promptCategorySchema` validates persistent category identity, name, six-digit color,
+icon reference, order, archive state, and lifecycle timestamps. Category names are
+unique without case sensitivity; taxonomy values are otherwise not normalized.
+
+`promptPlaylistSchema` validates title, description, order/archive/lifecycle fields,
+and ordered `prompt-deck` or `prompt-item` references. Prompt Item references include
+both their owning deck ID and prompt ID. Repositories reject broken references.
+
+Inline single-line fields save with Enter and cancel with Escape. Multiline deck
+descriptions and prompt text use explicit Save/Cancel controls. Failed saves retain the
+draft. Basic bulk add treats each nonblank line as one prompt, keeps duplicate wording,
+and does not interpret headings or metadata. Smart Paste remains deferred.
 
 ## Fields
 

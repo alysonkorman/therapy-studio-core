@@ -1,0 +1,399 @@
+import { nanoid } from "nanoid";
+
+import { createResourceRepository } from "./resourceRepository";
+import { getTherapyStudioDatabase } from "./database";
+import {
+  assertOnlyFields,
+  assertUniqueIds,
+  authoringError,
+  authoringErrorCodes,
+  ensureAuthoringDatabaseOpen,
+  normalizeMetadataValues,
+  rethrowAuthoringError,
+} from "./promptAuthoringRepositoryUtils";
+import {
+  assertPromptDeckResource,
+  deckFields,
+  deckToRecord,
+  metadataFields,
+  parseDeck,
+  parsePrompt,
+  preparedPrompt,
+  promptDecksFromResources,
+  promptFields,
+  recordToDeck,
+} from "./promptDeckRepositorySupport";
+
+export function createPromptDeckRepository({
+  database = getTherapyStudioDatabase(),
+  now = () => new Date().toISOString(),
+  createId = () => nanoid(),
+} = {}) {
+  const resourceRepository = createResourceRepository({ database, now });
+
+  async function getAllPromptDecks({ includeArchived = false } = {}) {
+    const resources = await resourceRepository.getAllResources({ includeArchived: true });
+    return promptDecksFromResources(resources, includeArchived);
+  }
+
+  async function getPromptDeckById(id) {
+    return assertPromptDeckResource(await resourceRepository.getResourceById(id), id);
+  }
+
+  async function createPromptDeck(input) {
+    assertOnlyFields(input, deckFields);
+    const timestamp = now();
+    const existing = await getAllPromptDecks({ includeArchived: true });
+    const deck = parseDeck({
+      id: createId(),
+      type: "prompt-deck",
+      title: input.title,
+      description: input.description ?? "",
+      category: input.category ?? "",
+      categoryId: input.categoryId ?? null,
+      color: input.color ?? "#6C46C3",
+      iconId: input.iconId ?? "prompt-default",
+      sortOrder: existing.length,
+      diagnoses: normalizeMetadataValues(input.diagnoses ?? []),
+      goals: normalizeMetadataValues(input.goals ?? []),
+      ageRanges: normalizeMetadataValues(input.ageRanges ?? []),
+      tags: normalizeMetadataValues(input.tags ?? []),
+      prompts: [],
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+    return resourceRepository.createResourceRecord(deck);
+  }
+
+  async function updatePromptDeck(id, changes) {
+    assertOnlyFields(changes, deckFields);
+    const normalized = { ...changes };
+    for (const field of metadataFields) {
+      if (field in normalized)
+        normalized[field] = normalizeMetadataValues(normalized[field]);
+    }
+    return resourceRepository.updateResourceRecord(id, normalized);
+  }
+
+  async function duplicatePromptDeck(id) {
+    const source = await getPromptDeckById(id);
+    const sourceDeck = { ...source };
+    delete sourceDeck.archived;
+    const timestamp = now();
+    const decks = await getAllPromptDecks({ includeArchived: true });
+    const duplicate = parseDeck({
+      ...sourceDeck,
+      id: createId(),
+      title: `${source.title} Copy`,
+      sortOrder: decks.length,
+      prompts: source.prompts.map((prompt, index) => ({
+        ...prompt,
+        id: createId(),
+        sortOrder: index,
+      })),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+    return resourceRepository.createResourceRecord(duplicate);
+  }
+
+  const archivePromptDeck = (id) => resourceRepository.archiveResource(id);
+  const restorePromptDeck = (id) => resourceRepository.restoreResource(id);
+
+  async function reorderPromptDecks(orderedIds) {
+    await ensureAuthoringDatabaseOpen(database);
+    const decks = await getAllPromptDecks({ includeArchived: true });
+    assertUniqueIds(
+      orderedIds,
+      decks.map(({ id }) => id)
+    );
+    try {
+      await database.transaction("rw", database.table("resources"), async () => {
+        const table = database.table("resources");
+        for (const [sortOrder, id] of orderedIds.entries()) {
+          const record = await table.get(id);
+          const deck = recordToDeck(record);
+          await table.put(
+            deckToRecord({ ...deck, sortOrder, updatedAt: now() }, record.archived)
+          );
+        }
+      });
+      return getAllPromptDecks({ includeArchived: true });
+    } catch (error) {
+      rethrowAuthoringError(
+        error,
+        authoringErrorCodes.transactionFailed,
+        "Deck order could not be saved."
+      );
+    }
+  }
+
+  async function mutateDeck(id, mutation, message) {
+    await ensureAuthoringDatabaseOpen(database);
+    try {
+      return await database.transaction("rw", database.table("resources"), async () => {
+        const table = database.table("resources");
+        const record = await table.get(id);
+        if (!record || record.type !== "prompt-deck") {
+          throw authoringError(
+            authoringErrorCodes.notFound,
+            `Prompt Deck not found: ${id}`
+          );
+        }
+        const current = recordToDeck(record);
+        const changed = parseDeck({ ...mutation(current), updatedAt: now() });
+        await table.put(deckToRecord(changed, record.archived));
+        return { ...changed, archived: record.archived };
+      });
+    } catch (error) {
+      rethrowAuthoringError(error, authoringErrorCodes.transactionFailed, message);
+    }
+  }
+
+  function addPrompt(deckId, input) {
+    assertOnlyFields(input, promptFields);
+    return mutateDeck(
+      deckId,
+      (deck) => ({
+        ...deck,
+        prompts: [
+          ...deck.prompts,
+          preparedPrompt(input, { id: createId(), sortOrder: deck.prompts.length }),
+        ],
+      }),
+      "Prompt could not be added."
+    );
+  }
+
+  async function bulkAddPrompts(deckId, promptTexts) {
+    if (!Array.isArray(promptTexts)) {
+      throw authoringError(
+        authoringErrorCodes.invalidInput,
+        "Bulk prompts must be an array."
+      );
+    }
+    const texts = promptTexts.map((text) => String(text).trim()).filter(Boolean);
+    if (!texts.length) {
+      throw authoringError(authoringErrorCodes.invalidInput, "Add at least one prompt.");
+    }
+    return mutateDeck(
+      deckId,
+      (deck) => ({
+        ...deck,
+        prompts: [
+          ...deck.prompts,
+          ...texts.map((text, index) =>
+            preparedPrompt(
+              { text },
+              { id: createId(), sortOrder: deck.prompts.length + index }
+            )
+          ),
+        ],
+      }),
+      "Prompt batch could not be added."
+    );
+  }
+
+  function updatePrompt(deckId, promptId, changes) {
+    assertOnlyFields(changes, promptFields);
+    return mutateDeck(
+      deckId,
+      (deck) => {
+        const index = deck.prompts.findIndex(({ id }) => id === promptId);
+        if (index < 0)
+          throw authoringError(
+            authoringErrorCodes.notFound,
+            `Prompt not found: ${promptId}`
+          );
+        const normalized = { ...changes };
+        for (const field of metadataFields) {
+          if (field in normalized)
+            normalized[field] = normalizeMetadataValues(normalized[field]);
+        }
+        const prompts = [...deck.prompts];
+        prompts[index] = parsePrompt({ ...prompts[index], ...normalized });
+        return { ...deck, prompts };
+      },
+      "Prompt could not be updated."
+    );
+  }
+
+  function duplicatePrompt(deckId, promptId) {
+    return mutateDeck(
+      deckId,
+      (deck) => {
+        const index = deck.prompts.findIndex(({ id }) => id === promptId);
+        if (index < 0)
+          throw authoringError(
+            authoringErrorCodes.notFound,
+            `Prompt not found: ${promptId}`
+          );
+        const prompts = [...deck.prompts];
+        prompts.splice(index + 1, 0, { ...prompts[index], id: createId() });
+        return {
+          ...deck,
+          prompts: prompts.map((prompt, sortOrder) => ({ ...prompt, sortOrder })),
+        };
+      },
+      "Prompt could not be duplicated."
+    );
+  }
+
+  function deletePrompt(deckId, promptId) {
+    return mutateDeck(
+      deckId,
+      (deck) => {
+        if (!deck.prompts.some(({ id }) => id === promptId)) {
+          throw authoringError(
+            authoringErrorCodes.notFound,
+            `Prompt not found: ${promptId}`
+          );
+        }
+        return {
+          ...deck,
+          prompts: deck.prompts
+            .filter(({ id }) => id !== promptId)
+            .map((prompt, sortOrder) => ({ ...prompt, sortOrder })),
+        };
+      },
+      "Prompt could not be deleted."
+    );
+  }
+
+  function reorderPrompts(deckId, orderedPromptIds) {
+    return mutateDeck(
+      deckId,
+      (deck) => {
+        assertUniqueIds(
+          orderedPromptIds,
+          deck.prompts.map(({ id }) => id)
+        );
+        const prompts = new Map(deck.prompts.map((prompt) => [prompt.id, prompt]));
+        return {
+          ...deck,
+          prompts: orderedPromptIds.map((id, sortOrder) => ({
+            ...prompts.get(id),
+            sortOrder,
+          })),
+        };
+      },
+      "Prompt order could not be saved."
+    );
+  }
+
+  async function transferPrompt(sourceDeckId, promptId, targetDeckId, targetIndex, copy) {
+    await ensureAuthoringDatabaseOpen(database);
+    try {
+      return await database.transaction("rw", database.table("resources"), async () => {
+        const table = database.table("resources");
+        const sourceRecord = await table.get(sourceDeckId);
+        const targetRecord = await table.get(targetDeckId);
+        const source = recordToDeck(sourceRecord);
+        const target =
+          sourceDeckId === targetDeckId ? source : recordToDeck(targetRecord);
+        const prompt = source.prompts.find(({ id }) => id === promptId);
+        if (!prompt)
+          throw authoringError(
+            authoringErrorCodes.notFound,
+            `Prompt not found: ${promptId}`
+          );
+        const insertionIndex = Math.min(
+          Math.max(targetIndex ?? target.prompts.length, 0),
+          target.prompts.length
+        );
+        const transferred = { ...prompt, id: copy ? createId() : prompt.id };
+        let sourcePrompts = copy
+          ? source.prompts
+          : source.prompts.filter(({ id }) => id !== promptId);
+        let targetPrompts =
+          sourceDeckId === targetDeckId ? sourcePrompts : target.prompts;
+        targetPrompts = [...targetPrompts];
+        targetPrompts.splice(insertionIndex, 0, transferred);
+        const timestamp = now();
+        const nextTarget = parseDeck({
+          ...target,
+          prompts: targetPrompts.map((item, sortOrder) => ({ ...item, sortOrder })),
+          updatedAt: timestamp,
+        });
+        await table.put(deckToRecord(nextTarget, targetRecord.archived));
+        if (sourceDeckId !== targetDeckId && !copy) {
+          const nextSource = parseDeck({
+            ...source,
+            prompts: sourcePrompts.map((item, sortOrder) => ({ ...item, sortOrder })),
+            updatedAt: timestamp,
+          });
+          await table.put(deckToRecord(nextSource, sourceRecord.archived));
+        }
+        return nextTarget;
+      });
+    } catch (error) {
+      rethrowAuthoringError(
+        error,
+        authoringErrorCodes.transactionFailed,
+        "Prompt transfer failed."
+      );
+    }
+  }
+
+  const movePrompt = (sourceDeckId, promptId, targetDeckId, targetIndex) =>
+    transferPrompt(sourceDeckId, promptId, targetDeckId, targetIndex, false);
+  const copyPrompt = (sourceDeckId, promptId, targetDeckId, targetIndex) =>
+    transferPrompt(sourceDeckId, promptId, targetDeckId, targetIndex, true);
+  async function seedImportedPromptDecks(decks) {
+    await ensureAuthoringDatabaseOpen(database);
+    const validated = decks.map(parseDeck);
+    try {
+      return await database.transaction("rw", database.table("resources"), async () => {
+        let created = 0;
+        let unchanged = 0;
+        const conflicts = [];
+        for (const deck of validated) {
+          const existing = await database.table("resources").get(deck.id);
+          if (!existing) {
+            await database.table("resources").add(deckToRecord(deck));
+            created += 1;
+          } else {
+            const existingDeck = recordToDeck(existing);
+            if (
+              JSON.stringify(existingDeck) === JSON.stringify(deck) &&
+              !existing.archived
+            ) {
+              unchanged += 1;
+            } else {
+              conflicts.push(deck.id);
+            }
+          }
+        }
+        return { created, unchanged, conflicts, total: validated.length };
+      });
+    } catch (error) {
+      rethrowAuthoringError(
+        error,
+        authoringErrorCodes.transactionFailed,
+        "Prompt Decks could not be seeded."
+      );
+    }
+  }
+
+  return {
+    getAllPromptDecks,
+    getPromptDeckById,
+    createPromptDeck,
+    updatePromptDeck,
+    duplicatePromptDeck,
+    archivePromptDeck,
+    restorePromptDeck,
+    reorderPromptDecks,
+    addPrompt,
+    bulkAddPrompts,
+    updatePrompt,
+    duplicatePrompt,
+    deletePrompt,
+    reorderPrompts,
+    movePrompt,
+    copyPrompt,
+    seedImportedPromptDecks,
+  };
+}
+
+export const promptDeckRepository = createPromptDeckRepository();

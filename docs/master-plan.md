@@ -51,6 +51,8 @@ resource forms.
 - Finish the requested vertical slice before refactoring or generalizing it.
 - Prefer focused reusable components and avoid duplicated rendering.
 - Keep ordinary use simple; place secondary clinical metadata behind advanced views.
+- A feature is not complete unless its primary workflow is reachable and discoverable
+  in the routed application.
 - Do not reorganize unrelated files, install packages, redesign working visuals, or
   introduce persistence/state systems without a milestone that requires them.
 - Preserve curated resources, icons, documentation, attribution, and working visual
@@ -127,13 +129,28 @@ This documentation milestone was completed after 0.5A in repository history; its
 number describes the agreed foundation order rather than the chronological order in
 which the work happened.
 
-### Resource Persistence Foundation — implemented, pending commit
+### Resource Persistence Foundation — complete
 
 - Added the version 1 Dexie/IndexedDB Resource database boundary.
 - Added validated repository reads, writes, archive/restore, permanent deletion, and
   explicit transactional seeding.
 - Verified ordinary Resource and complete Prompt Deck compatibility without changing
   feature reads or startup behavior.
+- Committed as `2d6d508`.
+
+### Prompt Authoring Toolkit — implemented, pending commit
+
+- Added explicit, conflict-reporting seeding for all 137 imported decks and 8,679
+  prompts; imported JSON remains immutable.
+- Added editable deck and prompt schemas, persistent categories and playlists, focused
+  repositories, inline editing, bulk add, metadata/appearance controls, ordering, and
+  archive/restore workflows.
+- Added the additive database version 2 migration without changing existing Resource
+  records.
+- Replaced the temporary Prompt-only icon choices with one reusable Icon Browser and a
+  shared lazy Icon Service covering the full curated SVG library. Prompt Decks and
+  Categories persist semantic IDs only; Lucide remains for interface controls and
+  fallback presentation.
 
 ## Remaining Milestones
 
@@ -190,8 +207,9 @@ The currently agreed order is:
    4. Generic Client Profile Foundation.
    5. Resource Reflection and Outcome Tracking.
 
-Steps 1 through 3 are complete. Resource Persistence Foundation is implemented and
-pending commit; Prompt Authoring Toolkit is next after that commit. The Prompt
+Steps 1 through 4 are complete through Resource Persistence Foundation. Prompt
+Authoring Toolkit is implemented and pending commit; Therapist Resource Memory is next
+after that commit. The Prompt
 Authoring Toolkit scope is deck creation, editing, archiving, and duplication; inline
 editing where appropriate; bulk prompt addition; category creation and editing; deck
 colors and icon assignment; deck and prompt reordering;

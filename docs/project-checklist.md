@@ -14,10 +14,10 @@ This is the concise execution tracker and source of truth for what comes next. S
 ## Current Snapshot
 
 - **Branch:** `main`, aligned with `origin/main`
-- **Working tree:** Resource Persistence Foundation is implemented and ready for commit
-- **Current next milestone:** Prompt Authoring Toolkit, after persistence is committed
-- **Last verified milestone:** Resource Persistence Foundation, ready for commit
-- **Last complete and committed milestone:** First Usable Prompt Library (`97815a5`)
+- **Working tree:** Prompt Authoring Toolkit is implemented and pending Alyson's review
+- **Current next milestone:** Therapist Resource Memory, after authoring is committed
+- **Last verified milestone:** Prompt Authoring Toolkit, pending commit
+- **Last complete and committed milestone:** Resource Persistence Foundation (`2d6d508`)
 - **Checklist updated:** August 3, 2026
 
 ## Phase 0 — Foundation
@@ -47,11 +47,11 @@ This is the concise execution tracker and source of truth for what comes next. S
 - [x] **Current Session Context** — Temporary whitelisted context, dashboard controls,
       transparent search boosts, and focused tests are verified. Depends on Universal
       Resource Search. Commit: pending.
-- [~] **Resource Persistence Foundation** — The Dexie Resource database, validated
-  repository, explicit transactional seed pathway, and isolated tests are verified.
-  Feature reads remain unchanged. Commit: pending.
-- [ ] **Therapist Resource Memory** — Planned after persistence; favorites, ratings,
-      notes, and recent-use metadata.
+- [x] **Resource Persistence Foundation** — The Dexie Resource database, validated
+      repository, explicit transactional seed pathway, and isolated tests are verified.
+      Commit `2d6d508`.
+- [>] **Therapist Resource Memory** — Planned after authoring; favorites, ratings,
+  notes, and recent-use metadata.
 - [ ] **Generic Client Profile Foundation** — Planned after Therapist Resource Memory;
       generic profile model, repository, and UI shell only.
 - [ ] **Resource Reflection and Outcome Tracking** — Planned after profiles; lightweight
@@ -61,12 +61,13 @@ This is the concise execution tracker and source of truth for what comes next. S
 
 - [!] **Full Intervention Library migration** — The first Resource-based intervention
   exists, but the complete library import and repository integration are missing.
-- [>] **Prompt Authoring Toolkit** — Create, edit, archive, and duplicate decks; inline
+- [~] **Prompt Authoring Toolkit** — Create, edit, archive, and duplicate decks; inline
   editing where appropriate; bulk add prompts; create and edit categories; choose deck
   colors; assign icons; reorder decks and prompts; create playlists or collections;
   and associate diagnoses, goals, age ranges, and tags. Smart Paste, advanced bulk
   parsing, AI-assisted authoring, and final visual polish are deferred. Planned
-  immediately after Resource Persistence Foundation.
+  implemented on Resource Persistence Foundation. Its reusable Icon Browser exposes
+  the full curated library through the shared lazy Icon Service. Commit: pending.
 - [ ] **Worksheet Library** — Planned connected worksheet resources.
 - [ ] **Worksheet Builder** — Planned authoring workflow.
 - [ ] **Workbook Builder** — Planned connected workbook authoring.
@@ -100,7 +101,7 @@ This is the concise execution tracker and source of truth for what comes next. S
 
 - Prompt bundle splitting and lazy loading
 - Taxonomy normalization
-- Final icon registry
+- Future icon-browser reuse beyond Prompt Decks and Categories
 - Final visual design pass
 - Smart Paste or advanced bulk parsing
 - Replacement of the generic Vite README
@@ -118,6 +119,7 @@ A milestone is complete only when:
 - `npm run test:run` passes;
 - `npm run build` passes;
 - the Git diff is reviewed;
+- the feature is reachable and discoverable in the routed application;
 - Codex reports remaining limitations;
 - Alyson reviews the result;
 - changes are committed and pushed; and

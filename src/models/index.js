@@ -1,2 +1,8 @@
 export { createResource, resourceSchema, resourceTypes } from "./resource";
-export { promptDeckSchema, promptItemSchema } from "./prompt";
+export { promptColorSchema, promptDeckSchema, promptItemSchema } from "./prompt";
+export {
+  playlistItemSchema,
+  promptCategoryIdForName,
+  promptCategorySchema,
+  promptPlaylistSchema,
+} from "./promptAuthoring";

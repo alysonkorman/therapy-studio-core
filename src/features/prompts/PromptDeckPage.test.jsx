@@ -9,6 +9,8 @@ const decks = [
   {
     id: "check-in",
     title: "Check In",
+    color: "#3267A8",
+    iconId: "ideas",
     prompts: [
       { id: "one", text: "First question" },
       { id: "two", text: "Second question" },
@@ -36,11 +38,53 @@ function renderDeckPage(path, suppliedDecks = decks) {
   );
 }
 
+function seededRepositories(seedDecks) {
+  return {
+    decks: {
+      getAllPromptDecks: vi.fn(async () => seedDecks),
+      updatePromptDeck: vi.fn(async () => undefined),
+      addPrompt: vi.fn(async () => undefined),
+      bulkAddPrompts: vi.fn(async () => undefined),
+      updatePrompt: vi.fn(async () => undefined),
+      duplicatePrompt: vi.fn(async () => undefined),
+      deletePrompt: vi.fn(async () => undefined),
+      reorderPrompts: vi.fn(async () => undefined),
+      movePrompt: vi.fn(async () => undefined),
+      copyPrompt: vi.fn(async () => undefined),
+    },
+    categories: { getAllCategories: vi.fn(async () => []) },
+    playlists: {
+      getAllPlaylists: vi.fn(async () => []),
+      addPlaylistItem: vi.fn(async () => undefined),
+    },
+  };
+}
+
+function renderSeededDeckPage(path, repositories) {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        <Route
+          element={<PromptDeckPage repositories={repositories} />}
+          path="/prompts/:deckId"
+        />
+        <Route element={<h1>Prompt Library Home</h1>} path="/prompts" />
+      </Routes>
+    </MemoryRouter>
+  );
+}
+
 describe("PromptDeckPage", () => {
-  it("opens a deck at its direct route and shows one prompt", () => {
+  it("opens a deck at its direct route and shows one prompt", async () => {
     render(renderDeckPage("/prompts/check-in"));
 
     expect(screen.getByText("First question")).toBeVisible();
+    const header = document.querySelector(".prompt-deck-page__header");
+    expect(header).toHaveStyle({
+      "--prompt-identity-color": "#3267A8",
+      "--prompt-identity-soft": "#3267A81F",
+    });
+    expect(await screen.findByRole("img", { name: "Ideas" })).toBeVisible();
     expect(screen.queryByText("Second question")).toBeNull();
     expect(screen.getByText("1 of 3")).toBeVisible();
     expect(screen.getByRole("button", { name: /previous/i })).toBeDisabled();
@@ -107,5 +151,71 @@ describe("PromptDeckPage", () => {
 
     await user.click(screen.getByRole("link", { name: /back to prompt library/i }));
     expect(screen.getByRole("heading", { name: "Prompt Library Home" })).toBeVisible();
+  });
+
+  it("keeps Manage Deck visible before setup and presents focused guidance", async () => {
+    const user = userEvent.setup();
+    render(renderDeckPage("/prompts/check-in"));
+
+    expect(screen.getByText("First question")).toBeVisible();
+    const manageDeck = screen.getByRole("button", { name: /manage deck/i });
+    expect(manageDeck.closest("header")).toHaveTextContent("Check In");
+    await user.click(manageDeck);
+    const guidance = screen.getByRole("heading", { name: /set up authoring first/i });
+    expect(guidance).toBeVisible();
+    expect(guidance.closest("section")).toHaveFocus();
+    expect(
+      screen.getByRole("link", { name: /set up in prompt library/i })
+    ).toHaveAttribute("href", "/prompts");
+    expect(screen.getByText("First question")).toBeVisible();
+  });
+
+  it("opens the existing manage view from a seeded routed deck", async () => {
+    const user = userEvent.setup();
+    const editableDeck = {
+      ...decks[0],
+      description: "Opening questions",
+      category: "Connection",
+      categoryId: null,
+      color: "#6C46C3",
+      iconId: "prompt-default",
+      diagnoses: [],
+      goals: [],
+      ageRanges: [],
+      tags: [],
+      archived: false,
+      prompts: decks[0].prompts.map((prompt, sortOrder) => ({
+        ...prompt,
+        diagnoses: [],
+        goals: [],
+        ageRanges: [],
+        tags: [],
+        sortOrder,
+      })),
+    };
+    const repositories = seededRepositories([editableDeck]);
+    renderSeededDeckPage("/prompts/check-in", repositories);
+
+    await user.click(await screen.findByRole("button", { name: /manage deck/i }));
+    expect(screen.getByRole("region", { name: /manage deck/i })).toHaveFocus();
+    expect(screen.getByRole("button", { name: /edit deck title/i })).toBeVisible();
+    expect(screen.getAllByRole("button", { name: /edit prompt text/i })).toHaveLength(3);
+    expect(screen.getByRole("group", { name: /deck color/i })).toBeVisible();
+    expect(screen.getByRole("group", { name: /deck icon/i })).toBeVisible();
+    expect(screen.getByRole("combobox", { name: /^category$/i })).toBeVisible();
+    expect(screen.queryByRole("button", { name: /save metadata/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /^add prompt$/i })).toBeVisible();
+    expect(screen.getByRole("button", { name: /review complete/i })).toBeVisible();
+    expect(screen.queryByRole("button", { name: /^duplicate$/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^delete$/i })).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: /show clinical metadata/i }));
+    expect(screen.getByRole("button", { name: /save metadata/i })).toBeVisible();
+    await user.click(
+      screen.getByRole("button", { name: /show options for first question/i })
+    );
+    expect(screen.getAllByRole("button", { name: /save metadata/i })).toHaveLength(2);
+    expect(screen.getByRole("button", { name: /^duplicate$/i })).toBeVisible();
+    expect(screen.getByRole("button", { name: /^delete$/i })).toBeVisible();
   });
 });

@@ -6,18 +6,20 @@ The application database is named `therapy-studio`. It uses Dexie over IndexedDB
 database is created lazily through `src/lib/data/database.js`; importing application
 modules does not open or seed it.
 
-Version 1 contains one table:
+Version 1 introduced one table. Additive version 2 has this final schema:
 
-| Table       | Primary key | Secondary indexes |
-| ----------- | ----------- | ----------------- |
-| `resources` | `id`        | None              |
+| Table        | Primary key | Secondary indexes |
+| ------------ | ----------- | ----------------- |
+| `resources`  | `id`        | None              |
+| `categories` | `id`        | None              |
+| `playlists`  | `id`        | None              |
 
 Stable Resource IDs are the IndexedDB primary keys. No secondary index is justified by
 the current repository operations or collection size. Repository archive state is
 stored as a boolean alongside each Resource but is not part of the shared Resource
 schema and is not indexed.
 
-Version 1 contains no profiles, sessions, outcomes, preferences, canvas data,
+Version 2 contains no profiles, sessions, outcomes, preferences, canvas data,
 documents, or collaboration state.
 
 ## Resource Compatibility
@@ -27,14 +29,25 @@ Resources through `promptDeckSchema`. Prompt Decks retain their nested prompt or
 stable deck and prompt IDs, repaired UUIDs, `legacyId` values, legacy metadata,
 attribution, and provenance.
 
-The immutable prompt export under `imports/` remains the Prompt Library source of
-truth. The library continues reading through its existing data module; database-backed
-feature reads are deferred.
+The immutable prompt export under `imports/` remains the imported source. An explicit
+user action seeds it idempotently. Once seeded, Prompt Library authoring reads and
+writes the database; an edited imported record is reported as a conflict and is never
+silently replaced.
+
+Categories store `id`, `name`, validated six-digit `color`, `iconId`, `sortOrder`,
+`archived`, `createdAt`, and `updatedAt`. Playlists store the same lifecycle/order
+fields plus title, description, and ordered references to Prompt Decks or nested Prompt
+Items. Reference writes validate the target before committing.
+
+Deck, prompt, category, and playlist order is stored as a non-negative integer
+`sortOrder`; repository reorder operations require every unique known ID and write in
+one transaction.
 
 ## Repository Boundary
 
-`src/lib/data/resourceRepository.js` owns Resource persistence. Components do not
-import Dexie. The public repository operations are:
+`src/lib/data/resourceRepository.js` owns general Resource persistence. Focused Prompt
+Deck, Category, and Playlist repositories own authoring operations. Components do not
+import Dexie. The general public operations are:
 
 - `getAllResources(options?)`
 - `getResourceById(id)`
@@ -94,7 +107,8 @@ repository refuses its test-clear operation for a non-test database name.
 
 ## Migration Principles
 
-Version 1 remains immutable after release. Future schema changes must add a new Dexie
+Released versions remain immutable. Version 2 is additive and preserves version-1
+Resource data while adding Category and Playlist tables. Future schema changes must add a new Dexie
 version and use a transactional migration. Migrations must preserve stable Resource
 IDs and validate transformed records. Tests must exercise each new version and cleanup
 without touching the application database.
