@@ -14,11 +14,11 @@ This is the concise execution tracker and source of truth for what comes next. S
 ## Current Snapshot
 
 - **Branch:** `main`, aligned with `origin/main`
-- **Working tree:** Therapist Resource Memory is implemented and pending verification
-- **Current next milestone:** Generic Client Profile Foundation, after memory is committed
-- **Last verified milestone:** Prompt Authoring Toolkit and Icon Browser (`6bd1434`)
-- **Last complete and committed milestone:** Prompt Authoring Toolkit (`6bd1434`)
-- **Checklist updated:** August 3, 2026
+- **Working tree:** Session Profiles are implemented and pending verification
+- **Current next milestone:** Resource Reflection and Outcome Tracking, after Session Profiles are committed
+- **Last verified milestone:** Therapist Resource Memory (`9ccf88b`)
+- **Last complete and committed milestone:** Therapist Resource Memory (`9ccf88b`)
+- **Checklist updated:** August 4, 2026
 
 ## Phase 0 — Foundation
 
@@ -50,13 +50,13 @@ This is the concise execution tracker and source of truth for what comes next. S
 - [x] **Resource Persistence Foundation** — The Dexie Resource database, validated
       repository, explicit transactional seed pathway, and isolated tests are verified.
       Commit `2d6d508`.
-- [~] **Therapist Resource Memory** — Separate favorites, ratings, meaningful use,
-  private resource notes, matching lists, Saved collections, and Prompt browse
-  controls are implemented. Commit: pending.
-- [ ] **Generic Client Profile Foundation** — Planned after Therapist Resource Memory;
-      generic profile model, repository, and UI shell only.
-- [ ] **Resource Reflection and Outcome Tracking** — Planned after profiles; lightweight
-      reflection and outcome records.
+- [x] **Therapist Resource Memory** — Separate favorites, ratings, meaningful use,
+      private resource notes, matching lists, Saved collections, and Prompt browse
+      controls are implemented. Commit `9ccf88b`.
+- [~] **Session Profiles** — Non-identifying reusable context, local repository, active
+  selection, explicit Current Session loading, and descriptive compatibility indicators. Commit: pending.
+- [>] **Resource Reflection and Outcome Tracking** — Planned after profiles; lightweight
+  reflection and outcome records.
 
 ## Phase 1 — Content Expansion
 

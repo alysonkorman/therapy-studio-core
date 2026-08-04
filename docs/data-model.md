@@ -6,23 +6,33 @@ The application database is named `therapy-studio`. It uses Dexie over IndexedDB
 database is created lazily through `src/lib/data/database.js`; importing application
 modules does not open or seed it.
 
-Version 1 introduced one table. Additive version 3 has this final schema:
+Version 1 introduced one table. Additive version 4 has this final schema:
 
-| Table            | Primary key  | Secondary indexes                              |
-| ---------------- | ------------ | ---------------------------------------------- |
-| `resources`      | `id`         | None                                           |
-| `categories`     | `id`         | None                                           |
-| `playlists`      | `id`         | None                                           |
-| `resourceMemory` | `resourceId` | `favorite`, `rating`, `lastUsedAt`, `useCount` |
+| Table             | Primary key  | Secondary indexes                              |
+| ----------------- | ------------ | ---------------------------------------------- |
+| `resources`       | `id`         | None                                           |
+| `categories`      | `id`         | None                                           |
+| `playlists`       | `id`         | None                                           |
+| `resourceMemory`  | `resourceId` | `favorite`, `rating`, `lastUsedAt`, `useCount` |
+| `sessionProfiles` | `id`         | `archived`, `updatedAt`, `lastOpenedAt`        |
 
 Stable Resource IDs are the IndexedDB primary keys. No secondary index is justified by
 the current repository operations or collection size. Repository archive state is
 stored as a boolean alongside each Resource but is not part of the shared Resource
 schema and is not indexed.
 
-Version 3 contains no profiles, sessions, outcomes, preferences, canvas data,
-documents, or collaboration state. Resource Memory remains separate from source
-Resources.
+Version 4 adds non-identifying Session Profiles without storing Current Session state,
+Resource history, outcomes, documents, or collaboration data. Resource Memory remains
+separate from both source Resources and profiles.
+
+## Session Profiles
+
+`sessionProfileRepository.js` owns validated profile creation, reading, editing,
+duplication, archive/restore, permanent deletion, opened timestamps, and local search.
+Profiles contain generic reusable matching context only. They exclude legal names,
+contact details, dates of birth, clinical documentation, billing, medications, and
+person-linked histories. Recently opened ordering uses `lastOpenedAt`, then `updatedAt`,
+then stable ID.
 
 ## Resource Compatibility
 

@@ -4,6 +4,7 @@ export {
   resourceMemorySchema,
   resourceMemoryValuesSchema,
 } from "./resourceMemory";
+export { createSessionProfile, sessionProfileSchema } from "./sessionProfile";
 export { promptColorSchema, promptDeckSchema, promptItemSchema } from "./prompt";
 export {
   playlistItemSchema,

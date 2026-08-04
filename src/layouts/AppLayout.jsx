@@ -19,7 +19,7 @@ const navigationItems = [
   { label: "Interventions", path: "/interventions", icon: Brain },
   { label: "Games", path: "/games", icon: Gamepad2 },
   { label: "Worksheets", path: "/worksheets", icon: FileText },
-  { label: "Profiles", path: "/clients", icon: Users },
+  { label: "Session Profiles", path: "/clients", icon: Users },
   { label: "Saved", path: "/saved", icon: Heart },
 ];
 

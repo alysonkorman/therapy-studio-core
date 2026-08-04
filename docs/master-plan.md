@@ -153,14 +153,22 @@ which the work happened.
   fallback presentation.
 - Committed as `6bd1434`.
 
-### Therapist Resource Memory — implemented, pending commit
+### Therapist Resource Memory — complete and committed
 
 - Added additive database version 3 and a separate strict Resource Memory model and
   repository without changing imported or authored Resource content.
 - Added favorites, ratings, meaningful-use history, private non-identifying notes and
   therapist matching lists, card controls, Prompt browse options, and Saved collections.
 - Profiles, outcomes, recommendations, AI, remote sync, and ranking boosts remain
-  deferred. Commit: pending.
+  separate milestones. Committed as `9ccf88b`.
+
+### Session Profiles — implemented, pending commit
+
+- Added non-identifying reusable profile context, additive local persistence, active
+  selection, explicit Current Session loading, and descriptive Resource compatibility.
+- Profiles remain independent from Resource Memory and temporary Current Session state.
+- Outcomes, recommendation ranking, AI, documentation, and remote sync remain deferred.
+  Commit: pending.
 
 ## Remaining Milestones
 
@@ -217,9 +225,9 @@ The currently agreed order is:
    4. Generic Client Profile Foundation.
    5. Resource Reflection and Outcome Tracking.
 
-Steps 1 through 4 are complete through Prompt Authoring Toolkit. Therapist Resource
-Memory is implemented and pending verification and commit; Generic Client Profile
-Foundation is next only after that commit. The Prompt
+Steps 1 through 4 are complete through Therapist Resource Memory. Session Profiles
+implement the Generic Client Profile Foundation and are pending verification and commit;
+Resource Reflection and Outcome Tracking remains next after that gate. The Prompt
 Authoring Toolkit scope is deck creation, editing, archiving, and duplication; inline
 editing where appropriate; bulk prompt addition; category creation and editing; deck
 colors and icon assignment; deck and prompt reordering;

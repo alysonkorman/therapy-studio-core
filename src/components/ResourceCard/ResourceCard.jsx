@@ -2,6 +2,7 @@ import { ChevronDown, ChevronUp, Clock3, Monitor } from "lucide-react";
 import { useState } from "react";
 
 import ResourceMemoryControls from "../../features/resource-memory/ResourceMemoryControls";
+import ResourceCompatibilityIndicators from "../../features/clients/ResourceCompatibilityIndicators";
 
 import "./ResourceCard.css";
 
@@ -58,6 +59,7 @@ export default function ResourceCard({
           <span>Ages {resource.ageRanges.join(", ")}</span>
         )}
       </div>
+      <ResourceCompatibilityIndicators resource={resource} />
 
       <div className="resource-card-content-grid">
         <DetailSection items={resource.worksWellWhen} title="Works Well When" />

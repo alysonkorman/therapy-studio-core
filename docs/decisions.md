@@ -26,6 +26,13 @@ future feature work.
 - Interventions use an explicit Mark Used action until a launch boundary exists.
 - Profiles, outcomes, recommendations, remote use, and ranking boosts remain deferred.
 
+## Session Profiles
+
+- Session Profiles are reusable, non-identifying therapeutic context, not clinical records.
+- Database version 4 adds a separate `sessionProfiles` table; profiles never contain Resource Memory or Current Session snapshots.
+- Selecting a profile never changes Current Session. Loading is explicit and either fills empty fields or replaces matching fields after confirmation.
+- Profile and Current Session edits remain independent. Compatibility labels are descriptive only and do not rank or recommend Resources.
+
 ## Prompt Authoring Foundation
 
 - Prompt Items remain nested inside Prompt Deck Resources.

@@ -5,6 +5,7 @@ import {
   hasCurrentSessionContext,
   useCurrentSessionStore,
 } from "../../stores/currentSessionStore";
+import ActiveSessionProfileControls from "../clients/ActiveSessionProfileControls";
 import "./CurrentSessionCard.css";
 
 const basicTextFields = [
@@ -82,6 +83,8 @@ export default function CurrentSessionCard() {
         is not saved after the app closes. Do not enter full names or detailed
         psychotherapy notes.
       </p>
+
+      <ActiveSessionProfileControls />
 
       <div className="session-fields">
         {basicTextFields.slice(0, 1).map(([field, label, placeholder]) => (

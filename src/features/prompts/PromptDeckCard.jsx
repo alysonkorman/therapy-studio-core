@@ -2,6 +2,7 @@ import { Archive, ArrowDown, ArrowRight, ArrowUp, Copy } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { IconRenderer } from "../icons";
+import ResourceCompatibilityIndicators from "../clients/ResourceCompatibilityIndicators";
 import ResourceMemoryControls from "../resource-memory/ResourceMemoryControls";
 import { promptAccentStyle } from "./promptAppearance";
 import formatPromptDisplayLabel from "./formatPromptDisplayLabel";
@@ -40,6 +41,7 @@ export default function PromptDeckCard({
         repository={memoryRepository}
         resourceId={deck.id}
       />
+      <ResourceCompatibilityIndicators resource={deck} />
       {authoring ? (
         <div className="authoring-actions prompt-deck-card__actions">
           <button

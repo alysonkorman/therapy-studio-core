@@ -174,6 +174,12 @@ collections. Prompt sessions mark use only when their first prompt displays; car
 searches, Manage mode, and prompt navigation do not. Interventions use an explicit Mark
 Used action. `/saved` presents Favorites, Recently Used, Most Used, and Highest Rated.
 
+Additive database version 4 adds `sessionProfiles` for generic, non-identifying reusable
+session context. `sessionProfileRepository.js` is the only persistence boundary for
+profiles. A focused Zustand store keeps the active selection across route navigation;
+profiles enter Current Session only through an explicit fill-empty or replace action.
+Compatibility helpers are descriptive and never alter search ranking.
+
 Do not store clinical data directly from page components. Before persistent client or
 session data is implemented, the relevant milestone must define privacy, data
 boundaries, migrations, backup, and failure behavior. Resource Memory permits private
