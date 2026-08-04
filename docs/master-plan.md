@@ -138,7 +138,7 @@ which the work happened.
   feature reads or startup behavior.
 - Committed as `2d6d508`.
 
-### Prompt Authoring Toolkit — implemented, pending commit
+### Prompt Authoring Toolkit — complete
 
 - Added explicit, conflict-reporting seeding for all 137 imported decks and 8,679
   prompts; imported JSON remains immutable.
@@ -151,6 +151,16 @@ which the work happened.
   shared lazy Icon Service covering the full curated SVG library. Prompt Decks and
   Categories persist semantic IDs only; Lucide remains for interface controls and
   fallback presentation.
+- Committed as `6bd1434`.
+
+### Therapist Resource Memory — implemented, pending commit
+
+- Added additive database version 3 and a separate strict Resource Memory model and
+  repository without changing imported or authored Resource content.
+- Added favorites, ratings, meaningful-use history, private non-identifying notes and
+  therapist matching lists, card controls, Prompt browse options, and Saved collections.
+- Profiles, outcomes, recommendations, AI, remote sync, and ranking boosts remain
+  deferred. Commit: pending.
 
 ## Remaining Milestones
 
@@ -207,9 +217,9 @@ The currently agreed order is:
    4. Generic Client Profile Foundation.
    5. Resource Reflection and Outcome Tracking.
 
-Steps 1 through 4 are complete through Resource Persistence Foundation. Prompt
-Authoring Toolkit is implemented and pending commit; Therapist Resource Memory is next
-after that commit. The Prompt
+Steps 1 through 4 are complete through Prompt Authoring Toolkit. Therapist Resource
+Memory is implemented and pending verification and commit; Generic Client Profile
+Foundation is next only after that commit. The Prompt
 Authoring Toolkit scope is deck creation, editing, archiving, and duplication; inline
 editing where appropriate; bulk prompt addition; category creation and editing; deck
 colors and icon assignment; deck and prompt reordering;

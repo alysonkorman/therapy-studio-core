@@ -13,8 +13,18 @@ future feature work.
 - Seeding never runs at application startup and never overwrites edited records.
 - Database version 2 additively stores Categories and Playlists; Prompt Decks stay in
   the Resource table.
-- No identifiable client information, therapist notes, profiles, or outcomes are stored
-  by this milestone.
+- Database version 3 adds Resource Memory keyed by Resource ID without mutating source
+  Resources.
+
+## Therapist Resource Memory
+
+- Resource Memory stores favorites, optional ratings, meaningful use, private
+  non-identifying resource notes, Works Well When, Kids Who Usually Like This, and
+  adaptations separately from Resource content.
+- Prompt use begins when the first prompt of an intentionally opened session displays;
+  browse/search rendering, Manage mode, and prompt navigation do not count.
+- Interventions use an explicit Mark Used action until a launch boundary exists.
+- Profiles, outcomes, recommendations, remote use, and ranking boosts remain deferred.
 
 ## Prompt Authoring Foundation
 

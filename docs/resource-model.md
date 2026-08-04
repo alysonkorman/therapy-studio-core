@@ -80,8 +80,21 @@ prompt text or normalize taxonomy values.
 Imported items retain their stable IDs. New user-authored decks and prompts receive an
 ID once at repository creation; updates preserve identity and `createdAt` while changing
 `updatedAt` on the deck. Prompt text, clinical matching arrays, source, and imported
-legacy metadata are validated before every write. Favorites, ratings, usage history,
-and collaboration remain deferred.
+legacy metadata are validated before every write. Favorites, ratings, and usage are
+stored separately as Resource Memory. Collaboration remains deferred.
+
+## Therapist Resource Memory
+
+`resourceMemorySchema` is a strict record keyed by `resourceId`. Defaults are
+`favorite: false`, `rating: null`, `useCount: 0`, `lastUsedAt: null`, empty private
+notes, and empty `worksWellWhen`, `kidsWhoUsuallyLikeThis`, and `adaptations` arrays.
+Identity includes stable ISO `createdAt` and `updatedAt` values.
+
+Ratings accept only integers 1–5 or null; use counts cannot be negative. Plain text
+rejects HTML. List values trim blanks and remove case-insensitive duplicates while
+preserving the first retained wording. Memory never mutates imported source,
+attribution, evidence, provenance, or nested prompts. Profiles, outcomes,
+recommendations, and ranking boosts remain deferred.
 
 ## Prompt Authoring Records
 

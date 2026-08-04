@@ -2,10 +2,18 @@ import { Archive, ArrowDown, ArrowRight, ArrowUp, Copy } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { IconRenderer } from "../icons";
+import ResourceMemoryControls from "../resource-memory/ResourceMemoryControls";
 import { promptAccentStyle } from "./promptAppearance";
 import formatPromptDisplayLabel from "./formatPromptDisplayLabel";
 
-export default function PromptDeckCard({ deck, authoring, index, total }) {
+export default function PromptDeckCard({
+  deck,
+  authoring,
+  index,
+  memoryRepository,
+  onMemoryChange,
+  total,
+}) {
   return (
     <article className="prompt-deck-card" style={promptAccentStyle(deck.color)}>
       <div className="prompt-deck-card__band">
@@ -27,6 +35,11 @@ export default function PromptDeckCard({ deck, authoring, index, total }) {
           <ArrowRight aria-hidden="true" size={18} />
         </Link>
       </div>
+      <ResourceMemoryControls
+        onChange={onMemoryChange}
+        repository={memoryRepository}
+        resourceId={deck.id}
+      />
       {authoring ? (
         <div className="authoring-actions prompt-deck-card__actions">
           <button

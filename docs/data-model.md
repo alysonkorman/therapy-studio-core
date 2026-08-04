@@ -6,21 +6,23 @@ The application database is named `therapy-studio`. It uses Dexie over IndexedDB
 database is created lazily through `src/lib/data/database.js`; importing application
 modules does not open or seed it.
 
-Version 1 introduced one table. Additive version 2 has this final schema:
+Version 1 introduced one table. Additive version 3 has this final schema:
 
-| Table        | Primary key | Secondary indexes |
-| ------------ | ----------- | ----------------- |
-| `resources`  | `id`        | None              |
-| `categories` | `id`        | None              |
-| `playlists`  | `id`        | None              |
+| Table            | Primary key  | Secondary indexes                              |
+| ---------------- | ------------ | ---------------------------------------------- |
+| `resources`      | `id`         | None                                           |
+| `categories`     | `id`         | None                                           |
+| `playlists`      | `id`         | None                                           |
+| `resourceMemory` | `resourceId` | `favorite`, `rating`, `lastUsedAt`, `useCount` |
 
 Stable Resource IDs are the IndexedDB primary keys. No secondary index is justified by
 the current repository operations or collection size. Repository archive state is
 stored as a boolean alongside each Resource but is not part of the shared Resource
 schema and is not indexed.
 
-Version 2 contains no profiles, sessions, outcomes, preferences, canvas data,
-documents, or collaboration state.
+Version 3 contains no profiles, sessions, outcomes, preferences, canvas data,
+documents, or collaboration state. Resource Memory remains separate from source
+Resources.
 
 ## Resource Compatibility
 
@@ -85,6 +87,11 @@ Repository failures use `ResourceRepositoryError` with stable codes:
 
 Errors retain their underlying cause when one exists and surface to callers.
 
+`resourceMemoryRepository.js` separately owns favorites, ratings, meaningful usage,
+private notes, Works Well When, Kids Who Usually Like This, and adaptations. It
+validates reads and writes, verifies Resource IDs, returns unwritten defaults lazily,
+and exposes deterministically ordered memory collections.
+
 ## Archive and Deletion
 
 Archive and restore preserve Resource content. Archived Resources are hidden from the
@@ -107,14 +114,16 @@ repository refuses its test-clear operation for a non-test database name.
 
 ## Migration Principles
 
-Released versions remain immutable. Version 2 is additive and preserves version-1
-Resource data while adding Category and Playlist tables. Future schema changes must add a new Dexie
+Released versions remain immutable. Version 2 preserves version-1 Resources while
+adding Category and Playlist tables. Version 3 preserves all earlier data and adds
+Resource Memory. Future schema changes must add a new Dexie
 version and use a transactional migration. Migrations must preserve stable Resource
 IDs and validate transformed records. Tests must exercise each new version and cleanup
 without touching the application database.
 
 ## Privacy Boundary
 
-This milestone persists Resources only. It does not store Current Session context,
-identifiable client information, therapist notes, profiles, outcomes, or clinical
-records. Therapy Studio remains outside EHR scope.
+Resource Memory is local therapist-facing data. It must not contain client identifiers,
+session narratives, psychotherapy or progress notes, risk information, treatment
+plans, billing, contact details, or person-linked diagnoses. Profiles, outcomes,
+recommendations, remote services, and ranking boosts remain deferred.

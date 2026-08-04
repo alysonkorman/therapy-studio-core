@@ -5,11 +5,17 @@ export const THERAPY_STUDIO_DATABASE_VERSION = 1;
 export const THERAPY_STUDIO_VERSION_1_SCHEMA = Object.freeze({
   resources: "id",
 });
-export const THERAPY_STUDIO_DATABASE_LATEST_VERSION = 2;
+export const THERAPY_STUDIO_DATABASE_LATEST_VERSION = 3;
 export const THERAPY_STUDIO_VERSION_2_SCHEMA = Object.freeze({
   resources: "id",
   categories: "id",
   playlists: "id",
+});
+export const THERAPY_STUDIO_VERSION_3_SCHEMA = Object.freeze({
+  resources: "id",
+  categories: "id",
+  playlists: "id",
+  resourceMemory: "resourceId, favorite, rating, lastUsedAt, useCount",
 });
 
 export function createTherapyStudioDatabase({
@@ -28,6 +34,9 @@ export function createTherapyStudioDatabase({
   database
     .version(THERAPY_STUDIO_DATABASE_LATEST_VERSION)
     .stores(THERAPY_STUDIO_VERSION_2_SCHEMA);
+  database
+    .version(THERAPY_STUDIO_DATABASE_LATEST_VERSION)
+    .stores(THERAPY_STUDIO_VERSION_3_SCHEMA);
 
   return database;
 }

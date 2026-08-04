@@ -24,12 +24,33 @@ const decks = [
   },
 ];
 
-function renderDeckPage(path, suppliedDecks = decks) {
+const emptyMemory = (resourceId) => ({
+  resourceId,
+  createdAt: "2026-08-04T12:00:00.000Z",
+  updatedAt: "2026-08-04T12:00:00.000Z",
+  favorite: false,
+  rating: null,
+  useCount: 0,
+  lastUsedAt: null,
+  therapistNotes: "",
+  worksWellWhen: [],
+  kidsWhoUsuallyLikeThis: [],
+  adaptations: [],
+});
+
+function memoryRepository() {
+  return {
+    getResourceMemory: vi.fn(async (id) => emptyMemory(id)),
+    markResourceUsed: vi.fn(async (id) => ({ ...emptyMemory(id), useCount: 1 })),
+  };
+}
+
+function renderDeckPage(path, suppliedDecks = decks, memory = memoryRepository()) {
   return (
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route
-          element={<PromptDeckPage decks={suppliedDecks} />}
+          element={<PromptDeckPage decks={suppliedDecks} memoryRepository={memory} />}
           path="/prompts/:deckId"
         />
         <Route element={<h1>Prompt Library Home</h1>} path="/prompts" />
@@ -60,12 +81,14 @@ function seededRepositories(seedDecks) {
   };
 }
 
-function renderSeededDeckPage(path, repositories) {
+function renderSeededDeckPage(path, repositories, memory = memoryRepository()) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route
-          element={<PromptDeckPage repositories={repositories} />}
+          element={
+            <PromptDeckPage memoryRepository={memory} repositories={repositories} />
+          }
           path="/prompts/:deckId"
         />
         <Route element={<h1>Prompt Library Home</h1>} path="/prompts" />
@@ -76,7 +99,8 @@ function renderSeededDeckPage(path, repositories) {
 
 describe("PromptDeckPage", () => {
   it("opens a deck at its direct route and shows one prompt", async () => {
-    render(renderDeckPage("/prompts/check-in"));
+    const memory = memoryRepository();
+    render(renderDeckPage("/prompts/check-in", decks, memory));
 
     expect(screen.getByText("First question")).toBeVisible();
     const header = document.querySelector(".prompt-deck-page__header");
@@ -88,6 +112,18 @@ describe("PromptDeckPage", () => {
     expect(screen.queryByText("Second question")).toBeNull();
     expect(screen.getByText("1 of 3")).toBeVisible();
     expect(screen.getByRole("button", { name: /previous/i })).toBeDisabled();
+    expect(memory.markResourceUsed).toHaveBeenCalledTimes(1);
+  });
+
+  it("counts one meaningful use per newly entered session", async () => {
+    const user = userEvent.setup();
+    const memory = memoryRepository();
+    render(renderDeckPage("/prompts/check-in", decks, memory));
+
+    await screen.findByText("First question");
+    expect(memory.markResourceUsed).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole("button", { name: /^next/i }));
+    expect(memory.markResourceUsed).toHaveBeenCalledTimes(1);
   });
 
   it("moves next and previous and updates the position", async () => {

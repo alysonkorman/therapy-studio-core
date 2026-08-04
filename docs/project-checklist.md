@@ -14,10 +14,10 @@ This is the concise execution tracker and source of truth for what comes next. S
 ## Current Snapshot
 
 - **Branch:** `main`, aligned with `origin/main`
-- **Working tree:** Prompt Authoring Toolkit is implemented and pending Alyson's review
-- **Current next milestone:** Therapist Resource Memory, after authoring is committed
-- **Last verified milestone:** Prompt Authoring Toolkit, pending commit
-- **Last complete and committed milestone:** Resource Persistence Foundation (`2d6d508`)
+- **Working tree:** Therapist Resource Memory is implemented and pending verification
+- **Current next milestone:** Generic Client Profile Foundation, after memory is committed
+- **Last verified milestone:** Prompt Authoring Toolkit and Icon Browser (`6bd1434`)
+- **Last complete and committed milestone:** Prompt Authoring Toolkit (`6bd1434`)
 - **Checklist updated:** August 3, 2026
 
 ## Phase 0 — Foundation
@@ -50,8 +50,9 @@ This is the concise execution tracker and source of truth for what comes next. S
 - [x] **Resource Persistence Foundation** — The Dexie Resource database, validated
       repository, explicit transactional seed pathway, and isolated tests are verified.
       Commit `2d6d508`.
-- [>] **Therapist Resource Memory** — Planned after authoring; favorites, ratings,
-  notes, and recent-use metadata.
+- [~] **Therapist Resource Memory** — Separate favorites, ratings, meaningful use,
+  private resource notes, matching lists, Saved collections, and Prompt browse
+  controls are implemented. Commit: pending.
 - [ ] **Generic Client Profile Foundation** — Planned after Therapist Resource Memory;
       generic profile model, repository, and UI shell only.
 - [ ] **Resource Reflection and Outcome Tracking** — Planned after profiles; lightweight
@@ -61,13 +62,13 @@ This is the concise execution tracker and source of truth for what comes next. S
 
 - [!] **Full Intervention Library migration** — The first Resource-based intervention
   exists, but the complete library import and repository integration are missing.
-- [~] **Prompt Authoring Toolkit** — Create, edit, archive, and duplicate decks; inline
-  editing where appropriate; bulk add prompts; create and edit categories; choose deck
-  colors; assign icons; reorder decks and prompts; create playlists or collections;
-  and associate diagnoses, goals, age ranges, and tags. Smart Paste, advanced bulk
-  parsing, AI-assisted authoring, and final visual polish are deferred. Planned
-  implemented on Resource Persistence Foundation. Its reusable Icon Browser exposes
-  the full curated library through the shared lazy Icon Service. Commit: pending.
+- [x] **Prompt Authoring Toolkit** — Create, edit, archive, and duplicate decks; inline
+      editing where appropriate; bulk add prompts; create and edit categories; choose deck
+      colors; assign icons; reorder decks and prompts; create playlists or collections;
+      and associate diagnoses, goals, age ranges, and tags. Smart Paste, advanced bulk
+      parsing, AI-assisted authoring, and final visual polish are deferred. Planned
+      implemented on Resource Persistence Foundation. Its reusable Icon Browser exposes
+      the full curated library through the shared lazy Icon Service. Commit `6bd1434`.
 - [ ] **Worksheet Library** — Planned connected worksheet resources.
 - [ ] **Worksheet Builder** — Planned authoring workflow.
 - [ ] **Workbook Builder** — Planned connected workbook authoring.

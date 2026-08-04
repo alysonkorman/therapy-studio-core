@@ -13,7 +13,7 @@ export default function InterventionsPage() {
 
       <div className="resource-list">
         {interventions.map((resource) => (
-          <ResourceCard key={resource.id} resource={resource} />
+          <ResourceCard allowMarkUsed key={resource.id} resource={resource} />
         ))}
       </div>
     </>

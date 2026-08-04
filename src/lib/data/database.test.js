@@ -9,6 +9,7 @@ import {
   THERAPY_STUDIO_DATABASE_VERSION,
   THERAPY_STUDIO_VERSION_1_SCHEMA,
   THERAPY_STUDIO_VERSION_2_SCHEMA,
+  THERAPY_STUDIO_VERSION_3_SCHEMA,
 } from "./database";
 
 const databases = [];
@@ -37,26 +38,52 @@ describe("Therapy Studio database", () => {
     expect(THERAPY_STUDIO_DATABASE_NAME).toBe("therapy-studio");
     expect(THERAPY_STUDIO_DATABASE_VERSION).toBe(1);
     expect(THERAPY_STUDIO_VERSION_1_SCHEMA).toEqual({ resources: "id" });
-    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(2);
+    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(3);
     expect(THERAPY_STUDIO_VERSION_2_SCHEMA).toEqual({
       resources: "id",
       categories: "id",
       playlists: "id",
     });
+    expect(THERAPY_STUDIO_VERSION_3_SCHEMA).toEqual({
+      resources: "id",
+      categories: "id",
+      playlists: "id",
+      resourceMemory: "resourceId, favorite, rating, lastUsedAt, useCount",
+    });
   });
 
-  it("initializes version 2 with additive authoring tables", async () => {
+  it("initializes version 3 with additive authoring and Resource Memory tables", async () => {
     const database = createTestDatabase();
     await database.open();
 
-    expect(database.verno).toBe(2);
+    expect(database.verno).toBe(3);
     expect(database.tables.map((table) => table.name).sort()).toEqual([
       "categories",
       "playlists",
+      "resourceMemory",
       "resources",
     ]);
     expect(database.table("resources").schema.primKey.name).toBe("id");
     expect(database.table("resources").schema.indexes).toEqual([]);
+  });
+
+  it("preserves version-2 authoring data during the Resource Memory migration", async () => {
+    const name = `therapy-studio-test-${crypto.randomUUID()}`;
+    const versionTwo = new Dexie(name, { indexedDB, IDBKeyRange });
+    versionTwo.version(2).stores(THERAPY_STUDIO_VERSION_2_SCHEMA);
+    await versionTwo.table("resources").put({ id: "resource", title: "Kept" });
+    await versionTwo.table("categories").put({ id: "category", name: "Kept" });
+    await versionTwo.table("playlists").put({ id: "playlist", title: "Kept" });
+    versionTwo.close();
+
+    const migrated = createTherapyStudioDatabase({ name, indexedDB, IDBKeyRange });
+    databases.push(migrated);
+    await migrated.open();
+
+    expect(await migrated.table("resources").get("resource")).toBeTruthy();
+    expect(await migrated.table("categories").get("category")).toBeTruthy();
+    expect(await migrated.table("playlists").get("playlist")).toBeTruthy();
+    expect(await migrated.table("resourceMemory").count()).toBe(0);
   });
 
   it("preserves version-1 Resource data during the additive migration", async () => {

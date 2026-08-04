@@ -1,23 +1,36 @@
 import { ArrowLeft, Settings } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { IconRenderer } from "../icons";
+import ResourceMemoryControls from "../resource-memory/ResourceMemoryControls";
+import { resourceMemoryRepository } from "../../lib/data";
 import PromptSession from "./PromptSession";
 import PromptManageView from "./PromptManageView";
 import { promptAccentStyle } from "./promptAppearance";
 import { usePromptAuthoring } from "./usePromptAuthoring";
 import "./PromptsPage.css";
 
-export default function PromptDeckPage({ decks: suppliedDecks, repositories }) {
+export default function PromptDeckPage({
+  decks: suppliedDecks,
+  memoryRepository = resourceMemoryRepository,
+  repositories,
+}) {
   const authoring = usePromptAuthoring({ enabled: !suppliedDecks, repositories });
   const [mode, setMode] = useState("session");
   const [showSetupGuidance, setShowSetupGuidance] = useState(false);
   const guidanceRef = useRef(null);
   const manageViewRef = useRef(null);
+  const sessionUseReported = useRef(false);
   const decks = suppliedDecks ?? authoring.decks;
   const { deckId } = useParams();
   const deck = decks.find((candidate) => candidate.id === deckId);
+
+  const reportSessionUse = useCallback(() => {
+    if (sessionUseReported.current || !deck) return;
+    sessionUseReported.current = true;
+    void memoryRepository.markResourceUsed(deck.id).catch(() => {});
+  }, [deck, memoryRepository]);
 
   useEffect(() => {
     if (showSetupGuidance) guidanceRef.current?.focus();
@@ -68,7 +81,11 @@ export default function PromptDeckPage({ decks: suppliedDecks, repositories }) {
               return;
             }
             setShowSetupGuidance(false);
-            setMode((value) => (value === "session" ? "manage" : "session"));
+            setMode((value) => {
+              const nextMode = value === "session" ? "manage" : "session";
+              if (nextMode === "session") sessionUseReported.current = false;
+              return nextMode;
+            });
           }}
           type="button"
         >
@@ -104,9 +121,25 @@ export default function PromptDeckPage({ decks: suppliedDecks, repositories }) {
             repositories={authoring.repositories}
             run={authoring.run}
           />
+          <ResourceMemoryControls
+            repository={memoryRepository}
+            resourceId={deck.id}
+            showEditor
+          />
         </section>
       ) : (
-        <PromptSession deck={deck} key={deck.id} />
+        <>
+          <PromptSession
+            deck={deck}
+            key={deck.id}
+            onFirstPromptDisplayed={reportSessionUse}
+          />
+          <ResourceMemoryControls
+            repository={memoryRepository}
+            resourceId={deck.id}
+            showEditor
+          />
+        </>
       )}
     </div>
   );

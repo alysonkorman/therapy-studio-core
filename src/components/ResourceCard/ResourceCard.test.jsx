@@ -1,8 +1,26 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { createResource } from "../../models";
 import ResourceCard from "./ResourceCard";
+
+const memory = {
+  resourceId: "test",
+  createdAt: "2026-08-04T12:00:00.000Z",
+  updatedAt: "2026-08-04T12:00:00.000Z",
+  favorite: false,
+  rating: null,
+  useCount: 0,
+  lastUsedAt: null,
+  therapistNotes: "",
+  worksWellWhen: [],
+  kidsWhoUsuallyLikeThis: [],
+  adaptations: [],
+};
+
+const memoryRepository = {
+  getResourceMemory: async (resourceId) => ({ ...memory, resourceId }),
+};
 
 function makeResource(overrides = {}) {
   return createResource({
@@ -24,13 +42,14 @@ function makeResource(overrides = {}) {
 }
 
 describe("ResourceCard", () => {
-  it("renders core resource information and handles an unrated resource", () => {
-    render(<ResourceCard resource={makeResource()} />);
+  it("renders core resource information and Resource Memory controls", async () => {
+    render(
+      <ResourceCard memoryRepository={memoryRepository} resource={makeResource()} />
+    );
 
     expect(screen.getByText("intervention")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Feelings Jenga" })).toBeInTheDocument();
     expect(screen.getByText(/Identify and discuss emotions/)).toBeInTheDocument();
-    expect(screen.getByText("Not rated")).toBeInTheDocument();
     expect(screen.getByText("15 min")).toBeInTheDocument();
     expect(screen.getByText("Telehealth")).toBeInTheDocument();
     expect(screen.getByText("Ages 8–10")).toBeInTheDocument();
@@ -39,14 +58,15 @@ describe("ResourceCard", () => {
     expect(screen.getByText("Emotion identification")).toBeInTheDocument();
     expect(screen.getByText("Jenga blocks")).toBeInTheDocument();
     expect(screen.getByText("Emotion prompts")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Add Feelings Jenga to favorites/ })
-    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Add Favorite" })).toBeInTheDocument()
+    );
   });
 
   it("does not render empty optional sections", () => {
     render(
       <ResourceCard
+        memoryRepository={memoryRepository}
         resource={makeResource({ materials: [], useWith: [], ageRanges: [] })}
       />
     );
@@ -57,7 +77,9 @@ describe("ResourceCard", () => {
   });
 
   it("reveals and hides advanced information", () => {
-    render(<ResourceCard resource={makeResource()} />);
+    render(
+      <ResourceCard memoryRepository={memoryRepository} resource={makeResource()} />
+    );
 
     expect(screen.queryByText("Clinical library")).not.toBeInTheDocument();
     expect(screen.queryByText("Supporting study")).not.toBeInTheDocument();

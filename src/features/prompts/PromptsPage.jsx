@@ -1,5 +1,5 @@
 import { Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   getPromptDeckCategories,
@@ -9,8 +9,13 @@ import PromptDeckCard from "./PromptDeckCard";
 import PromptAuthoringPanel from "./PromptAuthoringPanel";
 import { usePromptAuthoring } from "./usePromptAuthoring";
 import "./PromptsPage.css";
+import { resourceMemoryRepository } from "../../lib/data";
 
-export default function PromptsPage({ decks: suppliedDecks, repositories }) {
+export default function PromptsPage({
+  decks: suppliedDecks,
+  memoryRepository = resourceMemoryRepository,
+  repositories,
+}) {
   const authoring = usePromptAuthoring({ enabled: !suppliedDecks, repositories });
   const [showArchived, setShowArchived] = useState(false);
   const [reorderMode, setReorderMode] = useState(false);
@@ -18,12 +23,48 @@ export default function PromptsPage({ decks: suppliedDecks, repositories }) {
   const visibleDecks = decks.filter((deck) => showArchived || !deck.archived);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
+  const [memoryFilter, setMemoryFilter] = useState("");
+  const [memorySort, setMemorySort] = useState("");
+  const [memoryMap, setMemoryMap] = useState(new Map());
   const categories = useMemo(() => getPromptDeckCategories(visibleDecks), [visibleDecks]);
-  const matchingDecks = useMemo(
-    () => searchPromptDecks(visibleDecks, { query, category }),
-    [category, query, visibleDecks]
-  );
-  const hasActiveFilters = Boolean(query || category);
+  useEffect(() => {
+    void memoryRepository
+      .getResourceMemoryMap(decks.map(({ id }) => id))
+      .then(setMemoryMap)
+      .catch(() => setMemoryMap(new Map()));
+  }, [decks, memoryRepository]);
+
+  const refreshMemory = () =>
+    void memoryRepository
+      .getResourceMemoryMap(decks.map(({ id }) => id))
+      .then(setMemoryMap);
+
+  const matchingDecks = useMemo(() => {
+    const searched = searchPromptDecks(visibleDecks, { query, category }).filter(
+      (deck) => memoryFilter !== "favorites" || memoryMap.get(deck.id)?.favorite
+    );
+    if (!memorySort) return searched;
+    return [...searched].sort((left, right) => {
+      const leftMemory = memoryMap.get(left.id);
+      const rightMemory = memoryMap.get(right.id);
+      if (memorySort === "rating")
+        return (
+          (rightMemory?.rating ?? 0) - (leftMemory?.rating ?? 0) ||
+          left.id.localeCompare(right.id)
+        );
+      if (memorySort === "recent")
+        return (
+          String(rightMemory?.lastUsedAt ?? "").localeCompare(
+            String(leftMemory?.lastUsedAt ?? "")
+          ) || left.id.localeCompare(right.id)
+        );
+      return (
+        (rightMemory?.useCount ?? 0) - (leftMemory?.useCount ?? 0) ||
+        left.id.localeCompare(right.id)
+      );
+    });
+  }, [category, memoryFilter, memoryMap, memorySort, query, visibleDecks]);
+  const hasActiveFilters = Boolean(query || category || memoryFilter || memorySort);
   const totalPromptCount = visibleDecks.reduce(
     (total, deck) => total + deck.prompts.length,
     0
@@ -45,6 +86,8 @@ export default function PromptsPage({ decks: suppliedDecks, repositories }) {
   function clearResults() {
     setQuery("");
     setCategory("");
+    setMemoryFilter("");
+    setMemorySort("");
   }
 
   function handleSearchSubmit(event) {
@@ -104,6 +147,28 @@ export default function PromptsPage({ decks: suppliedDecks, repositories }) {
           </span>
         </label>
         <label>
+          Resource Memory
+          <select
+            onChange={(event) => setMemoryFilter(event.target.value)}
+            value={memoryFilter}
+          >
+            <option value="">All decks</option>
+            <option value="favorites">Favorites</option>
+          </select>
+        </label>
+        <label>
+          Sort
+          <select
+            onChange={(event) => setMemorySort(event.target.value)}
+            value={memorySort}
+          >
+            <option value="">Library order</option>
+            <option value="rating">Highest rated</option>
+            <option value="recent">Recently used</option>
+            <option value="used">Most used</option>
+          </select>
+        </label>
+        <label>
           Category
           <select onChange={(event) => setCategory(event.target.value)} value={category}>
             <option value="">All categories</option>
@@ -148,6 +213,8 @@ export default function PromptsPage({ decks: suppliedDecks, repositories }) {
               deck={deck}
               index={visibleDecks.findIndex(({ id }) => id === deck.id)}
               key={deck.id}
+              memoryRepository={memoryRepository}
+              onMemoryChange={refreshMemory}
               total={visibleDecks.length}
             />
           ))}

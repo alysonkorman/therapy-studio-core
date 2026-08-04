@@ -142,8 +142,8 @@ one feature genuinely needs the same behavior or presentation. Prefer compositio
 small feature-local helpers before creating a generalized system.
 
 `ResourceCard` is already shared. It presents core information first, hides empty
-optional sections, and expands source, research, Alyson's notes, and usage information
-on demand. Persistence is deliberately outside the card. Shared foundation components
+optional sections, and expands source and research on demand. It composes Resource
+Memory controls while persistence remains behind the repository boundary. Shared foundation components
 also include the application error boundary and a neutral loading status. Component
 folders expose small barrel files where that improves stable imports.
 
@@ -167,11 +167,18 @@ Prompt authoring persistence is split among `promptDeckRepository.js`,
 through `usePromptAuthoring` and never imports Dexie. Pure import transformation remains
 under `src/engines/prompts`; authoring controls remain under `src/features/prompts`.
 
+Additive database version 3 adds `resourceMemory`, keyed by stable Resource ID, without
+changing Resources, Categories, Playlists, authoring data, or icon selections.
+`resourceMemoryRepository.js` owns validation, writes, structured failures, and ordered
+collections. Prompt sessions mark use only when their first prompt displays; cards,
+searches, Manage mode, and prompt navigation do not. Interventions use an explicit Mark
+Used action. `/saved` presents Favorites, Recently Used, Most Used, and Highest Rated.
+
 Do not store clinical data directly from page components. Before persistent client or
 session data is implemented, the relevant milestone must define privacy, data
-boundaries, migrations, backup, and failure behavior. Version 1 stores no client,
-session, profile, therapist-memory, or outcome data. Therapy Studio must not drift into
-EHR behavior.
+boundaries, migrations, backup, and failure behavior. Resource Memory permits private
+non-identifying resource notes, but no client, session, profile, or outcome data.
+Therapy Studio must not drift into EHR behavior.
 
 Yjs and WebSocket collaboration dependencies are installed for the eventual
 two-player direction, but no collaboration architecture is currently active. That work

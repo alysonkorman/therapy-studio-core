@@ -1,0 +1,106 @@
+.resource-memory-controls {
+  border-top: 1px solid var(--border, #dfdce8);
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+}
+.resource-memory-controls__row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.resource-memory-controls button {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.35rem;
+}
+.resource-memory-controls .is-favorite {
+  color: var(--accent, #6654a3);
+}
+.resource-memory-rating {
+  align-items: center;
+  border: 0;
+  display: flex;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0;
+}
+.resource-memory-rating legend {
+  float: left;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-right: 0.35rem;
+}
+.resource-memory-rating button {
+  min-width: 2rem;
+  padding: 0.35rem;
+}
+.resource-memory-status,
+.resource-memory-last-used {
+  color: var(--muted, #6d6978);
+  font-size: 0.82rem;
+  margin: 0.5rem 0 0;
+}
+.resource-memory-disclosure {
+  background: transparent;
+  border: 0;
+  font-weight: 700;
+  margin-top: 0.65rem;
+  padding: 0.35rem 0;
+}
+.resource-memory-editor > div {
+  background: var(--surface-soft, #f0eef8);
+  border-radius: 14px;
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding: 1rem;
+}
+.resource-memory-editor label {
+  display: grid;
+  font-weight: 700;
+  gap: 0.35rem;
+}
+.resource-memory-editor textarea,
+.resource-memory-add-row input {
+  border: 1px solid var(--border, #dfdce8);
+  border-radius: 8px;
+  font: inherit;
+  padding: 0.55rem;
+}
+.resource-memory-editor__actions,
+.resource-memory-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.resource-memory-list-editor {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.resource-memory-list-editor legend {
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.resource-memory-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+.resource-memory-chips li {
+  align-items: center;
+  background: var(--surface, #fff);
+  border-radius: 999px;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem 0.35rem 0.25rem 0.65rem;
+}
+.resource-memory-chips button {
+  border: 0;
+  border-radius: 50%;
+  padding: 0.15rem 0.35rem;
+}

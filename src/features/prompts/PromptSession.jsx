@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, RotateCcw, Shuffle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function shufflePrompts(prompts) {
   const shuffled = [...prompts];
@@ -12,11 +12,19 @@ function shufflePrompts(prompts) {
   return shuffled;
 }
 
-export default function PromptSession({ deck }) {
+export default function PromptSession({ deck, onFirstPromptDisplayed }) {
   const [promptOrder, setPromptOrder] = useState(deck.prompts);
   const [position, setPosition] = useState(0);
+  const usageReported = useRef(false);
 
   const currentPrompt = promptOrder[position];
+
+  useEffect(() => {
+    if (currentPrompt && !usageReported.current) {
+      usageReported.current = true;
+      onFirstPromptDisplayed?.();
+    }
+  }, [currentPrompt, onFirstPromptDisplayed]);
 
   if (!currentPrompt) {
     return (

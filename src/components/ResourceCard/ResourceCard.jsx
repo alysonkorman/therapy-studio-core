@@ -1,5 +1,7 @@
-import { ChevronDown, ChevronUp, Clock3, Heart, Monitor } from "lucide-react";
+import { ChevronDown, ChevronUp, Clock3, Monitor } from "lucide-react";
 import { useState } from "react";
+
+import ResourceMemoryControls from "../../features/resource-memory/ResourceMemoryControls";
 
 import "./ResourceCard.css";
 
@@ -19,23 +21,12 @@ function DetailSection({ title, items }) {
   );
 }
 
-function Rating({ value }) {
-  if (value === null || value === undefined) {
-    return <span className="resource-card-unrated">Not rated</span>;
-  }
-
-  return (
-    <div aria-label={`${value} out of 5 stars`} className="resource-card-rating">
-      {Array.from({ length: 5 }, (_, index) => (
-        <span aria-hidden="true" key={index}>
-          {index < Math.round(value) ? "★" : "☆"}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-export default function ResourceCard({ resource }) {
+export default function ResourceCard({
+  allowMarkUsed = false,
+  memoryRepository,
+  onMemoryChange,
+  resource,
+}) {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   return (
@@ -46,23 +37,9 @@ export default function ResourceCard({ resource }) {
           <h2>{resource.title}</h2>
           <p className="resource-card-description">{resource.description}</p>
         </div>
-
-        <button
-          aria-label={
-            resource.favorite
-              ? `Remove ${resource.title} from favorites`
-              : `Add ${resource.title} to favorites`
-          }
-          className={`resource-favorite-button ${resource.favorite ? "is-favorite" : ""}`}
-          type="button"
-        >
-          <Heart fill={resource.favorite ? "currentColor" : "none"} size={21} />
-        </button>
       </header>
 
       <div className="resource-card-summary">
-        <Rating value={resource.rating} />
-
         {resource.durationMinutes !== null && (
           <span>
             <Clock3 size={17} />
@@ -139,6 +116,13 @@ export default function ResourceCard({ resource }) {
           </>
         )}
       </button>
+      <ResourceMemoryControls
+        allowMarkUsed={allowMarkUsed}
+        repository={memoryRepository}
+        resourceId={resource.id}
+        showEditor
+        onChange={onMemoryChange}
+      />
     </article>
   );
 }
