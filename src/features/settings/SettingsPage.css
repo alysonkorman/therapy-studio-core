@@ -1,0 +1,113 @@
+.settings-page .studio-page__content {
+  max-width: 52rem;
+}
+
+.settings-backup {
+  background: var(--surface-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-6);
+}
+
+.settings-backup__heading {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--space-5);
+  justify-content: space-between;
+}
+
+.settings-backup__heading h2,
+.settings-backup__confirmation h3 {
+  margin: 0;
+}
+
+.settings-backup__heading > p,
+.settings-backup__notice p,
+.settings-backup__confirmation p {
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.settings-backup__heading > p {
+  text-align: right;
+}
+
+.settings-backup__eyebrow {
+  color: var(--accent-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0 0 var(--space-1);
+  text-transform: uppercase;
+}
+
+.settings-backup__notice,
+.settings-backup__confirmation {
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.settings-backup__actions,
+.settings-backup__confirmation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.settings-backup__actions .studio-button,
+.settings-backup__confirmation-actions .studio-button {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+.settings-backup__file-input {
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+  clip-path: inset(50%);
+}
+
+.settings-backup__status {
+  border-radius: var(--radius-md);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+}
+
+.settings-backup__status--success {
+  background: var(--success-soft, #ecfdf3);
+  color: var(--success-dark, #176b3a);
+}
+
+.settings-backup__status--error {
+  background: var(--danger-soft, #fff1f2);
+  color: var(--danger-dark, #9f1239);
+}
+
+@media (max-width: 600px) {
+  .settings-backup {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .settings-backup__heading {
+    display: grid;
+  }
+
+  .settings-backup__heading > p {
+    text-align: left;
+  }
+
+  .settings-backup__actions .studio-button,
+  .settings-backup__confirmation-actions .studio-button {
+    justify-content: center;
+    width: 100%;
+  }
+}

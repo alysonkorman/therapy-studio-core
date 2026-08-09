@@ -29,3 +29,9 @@ export {
   promptCategorySchema,
   promptPlaylistSchema,
 } from "./promptAuthoring";
+export {
+  therapyStudioBackupDataSchema,
+  therapyStudioBackupEnvelopeSchema,
+  THERAPY_STUDIO_BACKUP_FORMAT,
+  THERAPY_STUDIO_BACKUP_VERSION,
+} from "./backup";

@@ -242,6 +242,27 @@ page, and block IDs before saving the editable copy. Starter Resources also join
 canonical static Resource aggregate, so Universal Search, Saved, recent use, and Resource
 Memory reuse their existing type-aware behavior without a Worksheet-specific subsystem.
 
+Manual data protection uses the same local persistence boundary. Settings exposes a
+versioned JSON export with format `therapy-studio-backup` and version `1`. The backup
+contains the six persisted tables: Resources, Prompt categories, Prompt playlists,
+Resource Memory, Session Profiles, and Worksheet documents. Stored Prompt Deck copies
+and categories are included because therapist edits cannot be reconstructed reliably;
+private Resource Memory fields are included intentionally. Temporary Current Session
+context and bundled static content are excluded.
+
+Restore validates the complete envelope, every stored record, globally unique Resource
+IDs, and Worksheet Resource/document pairing before opening a write transaction. A
+confirmed restore atomically replaces all six browser-local tables. Bundled
+Interventions and immutable Worksheet starters remain available because they live
+outside IndexedDB; restored stored Prompt Decks preserve exact authoring changes. The
+backup never leaves the browser through Therapy Studio, but the downloaded file may
+contain private clinical information and must be stored securely.
+
+Because IndexedDB is isolated by origin, manual export and restore is the supported MVP
+path for moving therapist-created data from a development origin such as localhost to a
+deployed Therapy Studio origin. No cloud synchronization, account, encryption, or
+automatic backup service is part of this boundary.
+
 Do not store clinical data directly from page components. Before persistent client or
 session data is implemented, the relevant milestone must define privacy, data
 boundaries, migrations, backup, and failure behavior. Resource Memory permits private

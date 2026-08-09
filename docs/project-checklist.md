@@ -91,6 +91,11 @@ This is the concise execution tracker and source of truth for what comes next. S
   print surfaces remain free of Resource Memory, and real-browser Dashboard Enter
   submission now works for Prompt and Intervention queries. Focused and full quality
   gates pass. Commit: pending.
+- [~] **Local Data Backup & Restore** — Settings now exports and restores a validated,
+  versioned local JSON backup covering all six persisted tables. Restore requires
+  explicit confirmation, validates complete Worksheet pairs and unique Resource IDs,
+  and replaces browser-local data atomically while bundled starter content remains
+  available. Focused and full quality gates pass. Commit: pending.
 - [x] **Session Profiles** — Non-identifying reusable context, local repository, active
       selection, explicit Current Session loading, and descriptive compatibility indicators.
       Commit `4ecff03`.

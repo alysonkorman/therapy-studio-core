@@ -4,14 +4,12 @@ import { screen } from "@testing-library/react";
 import { renderWithRouter } from "../test/test-utils";
 import GamesPage from "./games/GamesPage";
 import SceneBuilderPage from "./scene-builder/SceneBuilderPage";
-import SettingsPage from "./settings/SettingsPage";
 import WhiteboardPage from "./whiteboard/WhiteboardPage";
 import WorkbooksPage from "./workbooks/WorkbooksPage";
 
 const pages = [
   ["Games", GamesPage],
   ["Scene Builder", SceneBuilderPage],
-  ["Settings", SettingsPage],
   ["Whiteboard", WhiteboardPage],
   ["Workbooks", WorkbooksPage],
 ];

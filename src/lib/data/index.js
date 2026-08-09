@@ -44,3 +44,11 @@ export {
   worksheetRepositoryErrorCodes,
   WorksheetRepositoryError,
 } from "./worksheetRepository";
+export {
+  backupErrorCodes,
+  BackupRepositoryError,
+  backupRepository,
+  createBackupRepository,
+  parseBackupJson,
+  validateBackup,
+} from "./backupRepository";

@@ -1,12 +1,15 @@
-import { EmptyState, Page } from "../../components/layout";
+import { Page } from "../../components/layout";
+import DataBackupSection from "./DataBackupSection";
+import "./SettingsPage.css";
 
 export default function SettingsPage() {
   return (
     <Page
-      description="Therapy Studio preferences will live here as they become available."
+      className="settings-page"
+      description="Manage Therapy Studio settings and protect information stored in this browser."
       title="Settings"
     >
-      <EmptyState description="Coming soon." title="Settings Are Coming Later" />
+      <DataBackupSection />
     </Page>
   );
 }
