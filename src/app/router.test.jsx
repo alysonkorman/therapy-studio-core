@@ -18,6 +18,7 @@ const paths = [
   "/workbooks",
   "/whiteboard",
   "/scene-builder",
+  "/workspace-lab",
   "/clients",
   "/saved",
   "/settings",
@@ -34,9 +35,9 @@ describe("application routes", () => {
     expect(matches?.at(-1)?.route.path).toBe("*");
   });
 
-  it("keeps the parallel collaborative workspace prototype out of the active app", () => {
+  it("keeps the collaborative workspace available as an isolated lab route", () => {
     const matches = matchRoutes(appRoutes, "/workspace-lab");
 
-    expect(matches?.at(-1)?.route.path).toBe("*");
+    expect(matches?.at(-1)?.route.path).toBe("workspace-lab");
   });
 });

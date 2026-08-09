@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import ClientsPage from "../features/clients/ClientsPage";
+import CollaborativeWorkspacePrototype from "../features/collaborative-workspace/CollaborativeWorkspacePrototype";
 import DashboardPage from "../features/dashboard/DashboardPage";
 import GamesPage from "../features/games/GamesPage";
 import InterventionsPage from "../features/interventions/InterventionsPage";
@@ -82,6 +83,10 @@ export const appRoutes = [
       {
         path: "scene-builder",
         element: <SceneBuilderPage />,
+      },
+      {
+        path: "workspace-lab",
+        element: <CollaborativeWorkspacePrototype />,
       },
       {
         path: "clients",
