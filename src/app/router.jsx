@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import ClientsPage from "../features/clients/ClientsPage";
-import CollaborativeWorkspacePrototype from "../features/collaborative-workspace/CollaborativeWorkspacePrototype";
 import DashboardPage from "../features/dashboard/DashboardPage";
 import GamesPage from "../features/games/GamesPage";
 import InterventionsPage from "../features/interventions/InterventionsPage";
@@ -22,90 +21,102 @@ import WorksheetSessionPage from "../features/worksheets/WorksheetSessionPage";
 import AppLayout from "../layouts/AppLayout";
 import { ErrorFallback } from "../shared/components/ErrorBoundary";
 
-export const appRoutes = [
-  {
-    path: "/",
-    element: <AppLayout />,
-    errorElement: <ErrorFallback />,
-    children: [
-      {
-        index: true,
-        element: <DashboardPage />,
-      },
-      {
-        path: "prompts",
-        element: <PromptsPage />,
-      },
-      {
-        path: "prompts/:deckId",
-        element: <PromptDeckPage />,
-      },
-      {
-        path: "interventions",
-        element: <InterventionsPage />,
-      },
-      {
-        path: "interventions/:interventionId",
-        element: <InterventionDetailPage />,
-      },
-      {
-        path: "games",
-        element: <GamesPage />,
-      },
-      {
-        path: "worksheets",
-        element: <WorksheetsPage />,
-      },
-      {
-        path: "worksheets/:worksheetId",
-        element: <WorksheetDetailPage />,
-      },
-      {
-        path: "worksheets/:worksheetId/build",
-        element: <WorksheetBuilderPage />,
-      },
-      {
-        path: "worksheets/:worksheetId/preview",
-        element: <WorksheetPreviewPage />,
-      },
-      {
-        path: "worksheets/:worksheetId/session",
-        element: <WorksheetSessionPage />,
-      },
-      {
-        path: "workbooks",
-        element: <WorkbooksPage />,
-      },
-      {
-        path: "whiteboard",
-        element: <WhiteboardPage />,
-      },
-      {
-        path: "scene-builder",
-        element: <SceneBuilderPage />,
-      },
-      {
-        path: "workspace-lab",
-        element: <CollaborativeWorkspacePrototype />,
-      },
-      {
-        path: "clients",
-        element: <ClientsPage />,
-      },
-      {
-        path: "saved",
-        element: <SavedPage />,
-      },
-      {
-        path: "settings",
-        element: <SettingsPage />,
-      },
-      {
-        path: "*",
-        element: <NotFoundPage />,
-      },
-    ],
-  },
-];
+function workspaceLabRoute() {
+  return {
+    path: "workspace-lab",
+    lazy: async () => {
+      const { default: Component } =
+        await import("../features/collaborative-workspace/CollaborativeWorkspacePrototype");
+      return { Component };
+    },
+  };
+}
+
+export function createAppRoutes({ enableWorkspaceLab = import.meta.env.DEV } = {}) {
+  return [
+    {
+      path: "/",
+      element: <AppLayout />,
+      errorElement: <ErrorFallback />,
+      children: [
+        {
+          index: true,
+          element: <DashboardPage />,
+        },
+        {
+          path: "prompts",
+          element: <PromptsPage />,
+        },
+        {
+          path: "prompts/:deckId",
+          element: <PromptDeckPage />,
+        },
+        {
+          path: "interventions",
+          element: <InterventionsPage />,
+        },
+        {
+          path: "interventions/:interventionId",
+          element: <InterventionDetailPage />,
+        },
+        {
+          path: "games",
+          element: <GamesPage />,
+        },
+        {
+          path: "worksheets",
+          element: <WorksheetsPage />,
+        },
+        {
+          path: "worksheets/:worksheetId",
+          element: <WorksheetDetailPage />,
+        },
+        {
+          path: "worksheets/:worksheetId/build",
+          element: <WorksheetBuilderPage />,
+        },
+        {
+          path: "worksheets/:worksheetId/preview",
+          element: <WorksheetPreviewPage />,
+        },
+        {
+          path: "worksheets/:worksheetId/session",
+          element: <WorksheetSessionPage />,
+        },
+        {
+          path: "workbooks",
+          element: <WorkbooksPage />,
+        },
+        {
+          path: "whiteboard",
+          element: <WhiteboardPage />,
+        },
+        {
+          path: "scene-builder",
+          element: <SceneBuilderPage />,
+        },
+        ...(enableWorkspaceLab ? [workspaceLabRoute()] : []),
+        {
+          path: "clients",
+          element: <ClientsPage />,
+        },
+        {
+          path: "saved",
+          element: <SavedPage />,
+        },
+        {
+          path: "settings",
+          element: <SettingsPage />,
+        },
+        {
+          path: "*",
+          element: <NotFoundPage />,
+        },
+      ],
+    },
+  ];
+}
+
+export const appRoutes = createAppRoutes();
 
 export const router = createBrowserRouter(appRoutes);

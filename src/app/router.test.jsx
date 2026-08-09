@@ -1,7 +1,7 @@
 import { matchRoutes } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
-import { appRoutes } from "./router";
+import { appRoutes, createAppRoutes } from "./router";
 
 const paths = [
   "/",
@@ -39,5 +39,12 @@ describe("application routes", () => {
     const matches = matchRoutes(appRoutes, "/workspace-lab");
 
     expect(matches?.at(-1)?.route.path).toBe("workspace-lab");
+  });
+
+  it("excludes the collaborative workspace from production routes", () => {
+    const productionRoutes = createAppRoutes({ enableWorkspaceLab: false });
+    const matches = matchRoutes(productionRoutes, "/workspace-lab");
+
+    expect(matches?.at(-1)?.route.path).toBe("*");
   });
 });
