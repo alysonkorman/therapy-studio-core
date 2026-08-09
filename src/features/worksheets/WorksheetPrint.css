@@ -1,0 +1,24 @@
+@media print {
+  .sidebar,
+  .worksheet-preview-controls,
+  .worksheet-session-header {
+    display: none !important;
+  }
+
+  .main-content {
+    margin: 0;
+    padding: 0;
+  }
+
+  .worksheet-paper {
+    box-shadow: none;
+    break-after: page;
+    max-width: none;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .worksheet-paper:last-child {
+    break-after: auto;
+  }
+}

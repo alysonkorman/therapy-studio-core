@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { resourceSchema } from "../../models";
+import { interventionGuidanceSchema } from "../../models";
 import { promptDecks } from "./promptDecks";
 
 describe("intervention seeds", () => {
@@ -18,9 +19,24 @@ describe("intervention seeds", () => {
   });
 
   it("validates the static intervention through the shared Resource schema", async () => {
-    const intervention = (await import("./interventions")).interventions[0];
+    const { interventions } = await import("./interventions");
 
-    expect(resourceSchema.parse(intervention)).toEqual(intervention);
+    expect(interventions).toHaveLength(8);
+    interventions.forEach((intervention) => {
+      expect(resourceSchema.parse(intervention)).toEqual(intervention);
+    });
+  });
+
+  it("provides validated guidance for every Intervention without invented evidence", async () => {
+    const { interventions, interventionGuidanceById } = await import("./interventions");
+
+    interventions.forEach((intervention) => {
+      const guidance = interventionGuidanceById.get(intervention.id);
+      expect(interventionGuidanceSchema.parse(guidance)).toEqual(guidance);
+      expect(JSON.stringify(guidance)).not.toMatch(
+        /evidence-based|research-backed|validated/i
+      );
+    });
   });
 
   it("does not change imported Prompt Deck IDs or data", async () => {

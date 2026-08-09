@@ -1,4 +1,5 @@
 import { Heart } from "lucide-react";
+import { useState } from "react";
 
 import { resourceMemoryRepository } from "../../lib/data";
 import ResourceMemoryEditor from "./ResourceMemoryEditor";
@@ -11,12 +12,30 @@ export default function ResourceMemoryControls({
   repository = resourceMemoryRepository,
   resourceId,
   showEditor = false,
+  therapistOnly = false,
 }) {
+  const [openTherapistResourceId, setOpenTherapistResourceId] = useState(null);
+  const therapistControlsOpen = openTherapistResourceId === resourceId;
   const { error, loading, memory, run } = useResourceMemory(resourceId, repository);
 
   async function update(operation) {
     const result = await run(operation);
     if (result) onChange?.(result);
+  }
+
+  if (therapistOnly && !therapistControlsOpen) {
+    return (
+      <div className="resource-memory-controls resource-memory-controls--private">
+        <button
+          aria-expanded="false"
+          className="resource-memory-private-disclosure"
+          onClick={() => setOpenTherapistResourceId(resourceId)}
+          type="button"
+        >
+          Therapist Resource Memory <span aria-hidden="true">▾</span>
+        </button>
+      </div>
+    );
   }
 
   if (loading) return <p className="resource-memory-status">Loading Resource Memory…</p>;
@@ -25,6 +44,16 @@ export default function ResourceMemoryControls({
 
   return (
     <div className="resource-memory-controls">
+      {therapistOnly ? (
+        <button
+          aria-expanded="true"
+          className="resource-memory-private-disclosure"
+          onClick={() => setOpenTherapistResourceId(null)}
+          type="button"
+        >
+          Hide Therapist Resource Memory <span aria-hidden="true">▴</span>
+        </button>
+      ) : null}
       <div className="resource-memory-controls__row">
         <button
           aria-pressed={memory.favorite}

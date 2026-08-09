@@ -162,13 +162,13 @@ which the work happened.
 - Profiles, outcomes, recommendations, AI, remote sync, and ranking boosts remain
   separate milestones. Committed as `9ccf88b`.
 
-### Session Profiles — implemented, pending commit
+### Session Profiles — complete and committed
 
 - Added non-identifying reusable profile context, additive local persistence, active
   selection, explicit Current Session loading, and descriptive Resource compatibility.
 - Profiles remain independent from Resource Memory and temporary Current Session state.
 - Outcomes, recommendation ranking, AI, documentation, and remote sync remain deferred.
-  Commit: pending.
+  Committed as `4ecff03`.
 
 ## Remaining Milestones
 
@@ -225,9 +225,8 @@ The currently agreed order is:
    4. Generic Client Profile Foundation.
    5. Resource Reflection and Outcome Tracking.
 
-Steps 1 through 4 are complete through Therapist Resource Memory. Session Profiles
-implement the Generic Client Profile Foundation and are pending verification and commit;
-Resource Reflection and Outcome Tracking remains next after that gate. The Prompt
+Steps 1 through 4 are complete through Session Profiles, which implement the Generic
+Client Profile Foundation. Resource Reflection and Outcome Tracking remains next. The Prompt
 Authoring Toolkit scope is deck creation, editing, archiving, and duplication; inline
 editing where appropriate; bulk prompt addition; category creation and editing; deck
 colors and icon assignment; deck and prompt reordering;

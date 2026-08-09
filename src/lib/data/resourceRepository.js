@@ -2,6 +2,7 @@ import Dexie from "dexie";
 
 import { promptDeckSchema } from "../../models/prompt";
 import { resourceSchema } from "../../models/resource";
+import { worksheetSchema } from "../../models/worksheet";
 import { getTherapyStudioDatabase } from "./database";
 
 export const resourceRepositoryErrorCodes = Object.freeze({
@@ -31,7 +32,9 @@ function repositoryError(code, message, options) {
 }
 
 function schemaFor(resource) {
-  return resource?.type === "prompt-deck" ? promptDeckSchema : resourceSchema;
+  if (resource?.type === "prompt-deck") return promptDeckSchema;
+  if (resource?.type === "worksheet") return worksheetSchema;
+  return resourceSchema;
 }
 
 function hasUnknownTopLevelFields(input, parsed) {

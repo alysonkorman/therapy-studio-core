@@ -1,0 +1,181 @@
+import { nanoid } from "nanoid";
+
+import { worksheetDocumentSchema } from "../../models/worksheetDocument";
+
+const defaults = {
+  heading: { text: "New heading", level: 2, alignment: "left" },
+  instruction: { text: "Add instructions here.", alignment: "left" },
+  paragraph: { text: "Add text here.", alignment: "left" },
+  "short-response": { prompt: "Your response", placeholder: "", lineCount: 1 },
+  "long-response": { prompt: "Your response", placeholder: "", lineCount: 5 },
+  checklist: { prompt: "Choose what fits", items: ["First option"], allowOther: false },
+  "multiple-choice": {
+    prompt: "Choose one",
+    options: ["Option one", "Option two"],
+    selectionMode: "single",
+  },
+  "rating-scale": {
+    prompt: "How much?",
+    minimum: 1,
+    maximum: 5,
+    minimumLabel: "Not at all",
+    maximumLabel: "Very much",
+    showNumbers: true,
+  },
+  "feelings-scale": {
+    prompt: "How are you feeling?",
+    options: ["Calm", "Unsure", "Upset"],
+  },
+  "drawing-area": { prompt: "Draw here", height: "medium" },
+  divider: { style: "solid" },
+  spacer: { size: "medium" },
+};
+
+const normalize = (items) => items.map((item, sortOrder) => ({ ...item, sortOrder }));
+const parse = (document) => worksheetDocumentSchema.parse(document);
+
+function updatePage(document, pageId, change) {
+  let found = false;
+  const pages = document.pages.map((page) => {
+    if (page.id !== pageId) return page;
+    found = true;
+    return change(page);
+  });
+  if (!found) throw new Error(`Worksheet page not found: ${pageId}`);
+  return parse({ ...document, pages });
+}
+
+export function createWorksheetBlock(type, sortOrder, createId = () => nanoid()) {
+  if (!defaults[type]) throw new Error(`Unsupported Worksheet block type: ${type}`);
+  return { id: createId(), type, sortOrder, ...structuredClone(defaults[type]) };
+}
+
+export function addWorksheetBlock(document, pageId, type, createId) {
+  return updatePage(document, pageId, (page) => ({
+    ...page,
+    blocks: [...page.blocks, createWorksheetBlock(type, page.blocks.length, createId)],
+  }));
+}
+
+export function updateWorksheetBlock(document, pageId, blockId, changes) {
+  return updatePage(document, pageId, (page) => {
+    if (!page.blocks.some(({ id }) => id === blockId))
+      throw new Error(`Worksheet block not found: ${blockId}`);
+    return {
+      ...page,
+      blocks: page.blocks.map((block) =>
+        block.id === blockId
+          ? {
+              ...block,
+              ...changes,
+              id: block.id,
+              type: block.type,
+              sortOrder: block.sortOrder,
+            }
+          : block
+      ),
+    };
+  });
+}
+
+export function duplicateWorksheetBlock(
+  document,
+  pageId,
+  blockId,
+  createId = () => nanoid()
+) {
+  return updatePage(document, pageId, (page) => {
+    const index = page.blocks.findIndex(({ id }) => id === blockId);
+    if (index < 0) throw new Error(`Worksheet block not found: ${blockId}`);
+    const blocks = [...page.blocks];
+    blocks.splice(index + 1, 0, {
+      ...structuredClone(page.blocks[index]),
+      id: createId(),
+    });
+    return { ...page, blocks: normalize(blocks) };
+  });
+}
+
+export function deleteWorksheetBlock(document, pageId, blockId) {
+  return updatePage(document, pageId, (page) => ({
+    ...page,
+    blocks: normalize(page.blocks.filter(({ id }) => id !== blockId)),
+  }));
+}
+
+export function moveWorksheetBlock(document, pageId, blockId, offset) {
+  return updatePage(document, pageId, (page) => {
+    const index = page.blocks.findIndex(({ id }) => id === blockId);
+    const target = index + offset;
+    if (index < 0 || target < 0 || target >= page.blocks.length) return page;
+    const blocks = [...page.blocks];
+    [blocks[index], blocks[target]] = [blocks[target], blocks[index]];
+    return { ...page, blocks: normalize(blocks) };
+  });
+}
+
+export function addWorksheetPage(document, createId = () => nanoid()) {
+  return parse({
+    ...document,
+    pages: [
+      ...document.pages,
+      {
+        id: createId(),
+        title: `Page ${document.pages.length + 1}`,
+        sortOrder: document.pages.length,
+        settings: { paperSize: "letter", orientation: "portrait", margin: "normal" },
+        blocks: [],
+      },
+    ],
+  });
+}
+
+export function updateWorksheetPage(document, pageId, changes) {
+  return updatePage(document, pageId, (page) => ({
+    ...page,
+    ...changes,
+    id: page.id,
+    sortOrder: page.sortOrder,
+  }));
+}
+
+export function duplicateWorksheetPage(document, pageId, createId = () => nanoid()) {
+  const index = document.pages.findIndex(({ id }) => id === pageId);
+  if (index < 0) throw new Error(`Worksheet page not found: ${pageId}`);
+  const source = document.pages[index];
+  const copy = {
+    ...structuredClone(source),
+    id: createId(),
+    title: `${source.title || `Page ${index + 1}`} Copy`,
+    blocks: source.blocks.map((block) => ({ ...block, id: createId() })),
+  };
+  const pages = [...document.pages];
+  pages.splice(index + 1, 0, copy);
+  return parse({ ...document, pages: normalize(pages) });
+}
+
+export function deleteWorksheetPage(document, pageId, createId = () => nanoid()) {
+  const remaining = document.pages.filter(({ id }) => id !== pageId);
+  if (remaining.length) return parse({ ...document, pages: normalize(remaining) });
+  return parse({
+    ...document,
+    pages: [
+      {
+        id: createId(),
+        title: "Page 1",
+        sortOrder: 0,
+        settings: { paperSize: "letter", orientation: "portrait", margin: "normal" },
+        blocks: [],
+      },
+    ],
+  });
+}
+
+export function moveWorksheetPage(document, pageId, offset) {
+  const index = document.pages.findIndex(({ id }) => id === pageId);
+  const target = index + offset;
+  if (index < 0 || target < 0 || target >= document.pages.length) return document;
+  const pages = [...document.pages];
+  [pages[index], pages[target]] = [pages[target], pages[index]];
+  return parse({ ...document, pages: normalize(pages) });
+}

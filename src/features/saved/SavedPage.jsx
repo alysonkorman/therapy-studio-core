@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import ResourceCard from "../../components/ResourceCard";
+import { EmptyState, Page, Section } from "../../components/layout";
 import { resourceMemoryRepository } from "../../lib/data";
+import { getResourceKey } from "../../models";
 import PromptDeckCard from "../prompts/PromptDeckCard";
 import "./SavedPage.css";
 
@@ -14,6 +16,10 @@ const sections = [
 ];
 
 function MemoryResource({ item, onChange, repository }) {
+  const resourceDestination =
+    item.resource.type === "worksheet"
+      ? `/worksheets/${encodeURIComponent(item.resource.id)}`
+      : `/interventions/${encodeURIComponent(item.resource.id)}`;
   return item.resource.type === "prompt-deck" ? (
     <PromptDeckCard
       deck={item.resource}
@@ -27,8 +33,8 @@ function MemoryResource({ item, onChange, repository }) {
         onMemoryChange={onChange}
         resource={item.resource}
       />
-      <Link className="saved-page__resource-link" to="/interventions">
-        Open Intervention Library
+      <Link className="saved-page__resource-link" to={resourceDestination}>
+        Open {item.resource.type === "worksheet" ? "Worksheet" : "Intervention"}
       </Link>
     </div>
   );
@@ -67,35 +73,37 @@ export default function SavedPage({ repository = resourceMemoryRepository }) {
   }, [repository]);
 
   return (
-    <div className="saved-page">
-      <header>
-        <p className="eyebrow">Therapist Resource Memory</p>
-        <h1>Saved</h1>
-        <p>Return to resources you favorited, rated, or used in sessions.</p>
-      </header>
+    <Page
+      className="saved-page"
+      description="Return to resources you favorited, rated, or used in sessions."
+      title="Saved"
+    >
       {error ? <p role="alert">{error}</p> : null}
       {sections.map(([title]) => {
         const items = collections[title] ?? [];
         return (
-          <section className="saved-page__section" key={title}>
-            <h2>{title}</h2>
+          <Section className="saved-page__section" key={title} title={title}>
             {items.length ? (
               <div className="saved-page__grid">
                 {items.map((item) => (
                   <MemoryResource
                     item={item}
-                    key={item.memory.resourceId}
+                    key={getResourceKey(item.resource)}
                     onChange={refresh}
                     repository={repository}
                   />
                 ))}
               </div>
             ) : (
-              <p className="saved-page__empty">No resources here yet.</p>
+              <EmptyState
+                description="Resources will appear here as you use Therapy Studio."
+                headingLevel={3}
+                title={`No ${title} Yet`}
+              />
             )}
-          </section>
+          </Section>
         );
       })}
-    </div>
+    </Page>
   );
 }

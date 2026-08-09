@@ -11,6 +11,7 @@ import {
   THERAPY_STUDIO_VERSION_2_SCHEMA,
   THERAPY_STUDIO_VERSION_3_SCHEMA,
   THERAPY_STUDIO_VERSION_4_SCHEMA,
+  THERAPY_STUDIO_VERSION_5_SCHEMA,
 } from "./database";
 
 const databases = [];
@@ -39,7 +40,7 @@ describe("Therapy Studio database", () => {
     expect(THERAPY_STUDIO_DATABASE_NAME).toBe("therapy-studio");
     expect(THERAPY_STUDIO_DATABASE_VERSION).toBe(1);
     expect(THERAPY_STUDIO_VERSION_1_SCHEMA).toEqual({ resources: "id" });
-    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(4);
+    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(5);
     expect(THERAPY_STUDIO_VERSION_2_SCHEMA).toEqual({
       resources: "id",
       categories: "id",
@@ -54,22 +55,43 @@ describe("Therapy Studio database", () => {
     expect(THERAPY_STUDIO_VERSION_4_SCHEMA.sessionProfiles).toBe(
       "id, archived, updatedAt, lastOpenedAt"
     );
+    expect(THERAPY_STUDIO_VERSION_5_SCHEMA.worksheetDocuments).toBe("worksheetId");
   });
 
-  it("initializes version 4 with additive Session Profiles", async () => {
+  it("initializes version 5 with additive Worksheet Documents", async () => {
     const database = createTestDatabase();
     await database.open();
 
-    expect(database.verno).toBe(4);
+    expect(database.verno).toBe(5);
     expect(database.tables.map((table) => table.name).sort()).toEqual([
       "categories",
       "playlists",
       "resourceMemory",
       "resources",
       "sessionProfiles",
+      "worksheetDocuments",
     ]);
     expect(database.table("resources").schema.primKey.name).toBe("id");
     expect(database.table("resources").schema.indexes).toEqual([]);
+  });
+
+  it("preserves version-4 data during the Worksheet migration", async () => {
+    const name = `therapy-studio-test-${crypto.randomUUID()}`;
+    const versionFour = new Dexie(name, { indexedDB, IDBKeyRange });
+    versionFour.version(4).stores(THERAPY_STUDIO_VERSION_4_SCHEMA);
+    await versionFour.table("resources").put({ id: "resource", title: "Kept" });
+    await versionFour
+      .table("sessionProfiles")
+      .put({ id: "profile", displayName: "Kept" });
+    versionFour.close();
+
+    const migrated = createTherapyStudioDatabase({ name, indexedDB, IDBKeyRange });
+    databases.push(migrated);
+    await migrated.open();
+
+    expect(await migrated.table("resources").get("resource")).toBeTruthy();
+    expect(await migrated.table("sessionProfiles").get("profile")).toBeTruthy();
+    expect(await migrated.table("worksheetDocuments").count()).toBe(0);
   });
 
   it("preserves version-3 data during the Session Profile migration", async () => {

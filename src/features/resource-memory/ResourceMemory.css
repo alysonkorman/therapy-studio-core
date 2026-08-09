@@ -1,53 +1,165 @@
+/* -------------------------------------------------------------------------- */
+/* Compact controls                                                            */
+/* -------------------------------------------------------------------------- */
+
 .resource-memory-controls {
-  border-top: 1px solid var(--border, #dfdce8);
-  margin-top: 1rem;
-  padding-top: 0.85rem;
+  margin: 0;
+  min-width: 0;
 }
+
 .resource-memory-controls__row {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem;
+  gap: 8px 12px;
+  justify-content: space-between;
 }
+
 .resource-memory-controls button {
   align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: var(--muted, #6d6978);
+  cursor: pointer;
   display: inline-flex;
+  font: inherit;
   gap: 0.35rem;
 }
-.resource-memory-controls .is-favorite {
-  color: var(--accent, #6654a3);
+
+.resource-memory-controls__row > button {
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 7px 8px;
 }
+
+.resource-memory-controls__row > button:hover {
+  background: rgb(59 45 85 / 6%);
+  color: var(--text, #252130);
+}
+
+.resource-memory-controls button:focus-visible {
+  outline: 3px solid var(--accent-soft, #e5def8);
+  outline-offset: 2px;
+}
+
+.resource-memory-controls .is-favorite {
+  color: var(--prompt-identity-color, var(--accent, #6654a3));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Rating                                                                      */
+/* -------------------------------------------------------------------------- */
+
 .resource-memory-rating {
   align-items: center;
   border: 0;
   display: flex;
-  gap: 0.15rem;
+  gap: 2px;
   margin: 0;
   padding: 0;
 }
+
 .resource-memory-rating legend {
+  color: var(--muted, #6d6978);
   float: left;
-  font-size: 0.82rem;
-  font-weight: 700;
-  margin-right: 0.35rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  margin: 0 5px 0 0;
+  padding: 0;
 }
+
 .resource-memory-rating button {
-  min-width: 2rem;
-  padding: 0.35rem;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  color: #898391;
+  display: inline-flex;
+  font-size: 1rem;
+  height: 28px;
+  justify-content: center;
+  min-width: 28px;
+  padding: 2px;
 }
+
+.resource-memory-rating button:hover,
+.resource-memory-rating button:focus-visible {
+  background: var(--prompt-identity-soft, var(--accent-soft, #e5def8));
+  color: var(--prompt-identity-color, var(--accent, #6654a3));
+}
+
+.resource-memory-rating button[aria-pressed="true"] {
+  color: var(--prompt-identity-color, var(--accent, #6654a3));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Status                                                                      */
+/* -------------------------------------------------------------------------- */
+
 .resource-memory-status,
 .resource-memory-last-used {
   color: var(--muted, #6d6978);
-  font-size: 0.82rem;
-  margin: 0.5rem 0 0;
+  font-size: 0.76rem;
+  margin: 7px 0 0;
 }
+
+.resource-memory-controls [role="alert"] {
+  color: #a3323a;
+  font-size: 0.78rem;
+  margin: 7px 0 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Disclosure and editor                                                       */
+/* -------------------------------------------------------------------------- */
+
 .resource-memory-disclosure {
+  appearance: none;
   background: transparent;
   border: 0;
+  border-radius: 8px;
+  color: var(--text, #252130);
+  cursor: pointer;
+  font: inherit;
   font-weight: 700;
   margin-top: 0.65rem;
-  padding: 0.35rem 0;
+  padding: 0.4rem 0.25rem;
 }
+
+.resource-memory-private-disclosure {
+  appearance: none;
+  background: var(--surface-soft, #f0eef8);
+  border: 1px solid var(--border, #dfdce8);
+  border-radius: 10px;
+  color: var(--text, #252130);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 0.6rem 0.75rem;
+}
+
+.resource-memory-private-disclosure:focus-visible {
+  outline: 3px solid var(--accent-soft, #e5def8);
+  outline-offset: 2px;
+}
+
+.resource-memory-controls--private {
+  align-items: flex-start;
+  display: flex;
+}
+
+.resource-memory-controls > .resource-memory-private-disclosure {
+  margin-bottom: 0.55rem;
+}
+
+.resource-memory-disclosure:focus-visible {
+  outline: 3px solid var(--accent-soft, #e5def8);
+  outline-offset: 2px;
+}
+
 .resource-memory-editor > div {
   background: var(--surface-soft, #f0eef8);
   border-radius: 14px;
@@ -56,11 +168,13 @@
   margin-top: 0.5rem;
   padding: 1rem;
 }
+
 .resource-memory-editor label {
   display: grid;
   font-weight: 700;
   gap: 0.35rem;
 }
+
 .resource-memory-editor textarea,
 .resource-memory-add-row input {
   border: 1px solid var(--border, #dfdce8);
@@ -68,21 +182,29 @@
   font: inherit;
   padding: 0.55rem;
 }
+
 .resource-memory-editor__actions,
 .resource-memory-add-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
 }
+
+/* -------------------------------------------------------------------------- */
+/* List editor                                                                 */
+/* -------------------------------------------------------------------------- */
+
 .resource-memory-list-editor {
   border: 0;
   margin: 0;
   padding: 0;
 }
+
 .resource-memory-list-editor legend {
   font-weight: 700;
   margin-bottom: 0.4rem;
 }
+
 .resource-memory-chips {
   display: flex;
   flex-wrap: wrap;
@@ -91,6 +213,7 @@
   margin: 0 0 0.5rem;
   padding: 0;
 }
+
 .resource-memory-chips li {
   align-items: center;
   background: var(--surface, #fff);
@@ -99,8 +222,36 @@
   gap: 0.25rem;
   padding: 0.25rem 0.35rem 0.25rem 0.65rem;
 }
+
 .resource-memory-chips button {
   border: 0;
   border-radius: 50%;
   padding: 0.15rem 0.35rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Prompt card placement                                                       */
+/* -------------------------------------------------------------------------- */
+
+.prompt-deck-card .resource-memory-controls__row {
+  justify-content: flex-start;
+}
+
+.prompt-deck-card .resource-memory-rating {
+  margin-left: auto;
+}
+
+.prompt-deck-card .resource-memory-last-used {
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .prompt-deck-card .resource-memory-controls__row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .prompt-deck-card .resource-memory-rating {
+    margin-left: 0;
+  }
 }

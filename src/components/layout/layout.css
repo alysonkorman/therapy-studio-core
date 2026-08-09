@@ -1,0 +1,121 @@
+.studio-page {
+  margin: 0 auto;
+  max-width: var(--page-content-width);
+  min-width: 0;
+  width: 100%;
+}
+
+.studio-page__header {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--space-5);
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.studio-page__heading {
+  min-width: 0;
+}
+
+.studio-page__heading h1 {
+  font-size: var(--page-title-size);
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.studio-page__heading p,
+.studio-section__header p,
+.studio-empty-state p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.studio-page__heading p {
+  margin: var(--space-3) 0 0;
+  max-width: 46rem;
+}
+
+.studio-page__actions,
+.studio-section__actions {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.studio-page__content {
+  display: grid;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.studio-section + .studio-section {
+  margin-top: var(--space-7);
+}
+
+.studio-section__header {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--space-4);
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.studio-section__header h2,
+.studio-empty-state h2,
+.studio-empty-state h3 {
+  font-size: var(--section-title-size);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.studio-section__header p {
+  margin: var(--space-2) 0 0;
+}
+
+.studio-empty-state {
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-7) var(--space-5);
+  text-align: center;
+}
+
+.studio-empty-state p {
+  margin: var(--space-3) auto 0;
+  max-width: 34rem;
+}
+
+.studio-empty-state__action {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-5);
+}
+
+@media (max-width: 600px) {
+  .studio-page__header,
+  .studio-section__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .studio-page__actions,
+  .studio-section__actions {
+    width: 100%;
+  }
+
+  .studio-page__actions > .studio-button {
+    width: 100%;
+  }
+
+  .studio-page__content {
+    gap: var(--space-5);
+  }
+
+  .studio-empty-state {
+    padding: var(--space-6) var(--space-4);
+  }
+}

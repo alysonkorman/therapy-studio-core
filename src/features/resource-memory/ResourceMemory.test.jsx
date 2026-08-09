@@ -12,10 +12,10 @@ const baseMemory = {
   rating: null,
   useCount: 0,
   lastUsedAt: null,
-  therapistNotes: "",
-  worksWellWhen: [],
-  kidsWhoUsuallyLikeThis: [],
-  adaptations: [],
+  therapistNotes: "Private line one\nPrivate line two",
+  worksWellWhen: ["Low verbal demand"],
+  kidsWhoUsuallyLikeThis: ["Animal fans"],
+  adaptations: ["Offer drawing"],
 };
 
 function setupRepository() {
@@ -53,7 +53,7 @@ describe("ResourceMemoryControls", () => {
     expect(repository.clearRating).toHaveBeenCalledWith("1");
   });
 
-  it("keeps private notes collapsed and saves line breaks explicitly", async () => {
+  it("does not render private values until the editor is explicitly opened", async () => {
     const user = userEvent.setup();
     const repository = setupRepository();
     render(<ResourceMemoryControls repository={repository} resourceId="1" showEditor />);
@@ -61,14 +61,77 @@ describe("ResourceMemoryControls", () => {
     const disclosure = await screen.findByRole("button", {
       name: /private resource memory/i,
     });
-    expect(screen.getByLabelText("Private Notes")).not.toBeVisible();
+    expect(screen.queryByText("Private line one")).toBeNull();
+    expect(screen.queryByText("Low verbal demand")).toBeNull();
+    expect(screen.queryByLabelText("Private Notes")).toBeNull();
     await user.click(disclosure);
     const notes = screen.getByLabelText("Private Notes");
+    expect(notes).toHaveValue("Private line one\nPrivate line two");
+    expect(screen.getByText("Low verbal demand")).toBeVisible();
+    await user.clear(notes);
     await user.type(notes, "First line{enter}Second line");
     await user.click(screen.getByRole("button", { name: "Save Notes" }));
     expect(repository.updateTherapistNotes).toHaveBeenCalledWith(
       "1",
       "First line\nSecond line"
     );
+
+    await user.click(disclosure);
+    expect(screen.queryByLabelText("Private Notes")).toBeNull();
+    expect(screen.queryByText("Low verbal demand")).toBeNull();
+  });
+
+  it("mounts all controls only after the therapist-only disclosure opens", async () => {
+    const user = userEvent.setup();
+    const repository = setupRepository();
+    const { rerender } = render(
+      <ResourceMemoryControls
+        allowMarkUsed
+        repository={repository}
+        resourceId="1"
+        showEditor
+        therapistOnly
+      />
+    );
+
+    const disclosure = screen.getByRole("button", {
+      name: "Therapist Resource Memory",
+    });
+    expect(disclosure).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("button", { name: "Add Favorite" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Mark Used" })).toBeNull();
+    expect(screen.queryByText("Private line one")).toBeNull();
+
+    await user.click(disclosure);
+    expect(
+      await screen.findByRole("button", { name: "Hide Therapist Resource Memory" })
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("button", { name: "Add Favorite" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Mark Used" })).toBeVisible();
+    expect(screen.queryByText("Private line one")).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: /private resource memory/i }));
+    expect(screen.getByLabelText("Private Notes")).toHaveValue(
+      "Private line one\nPrivate line two"
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Hide Therapist Resource Memory" })
+    );
+    expect(screen.queryByLabelText("Private Notes")).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Therapist Resource Memory" }));
+    rerender(
+      <ResourceMemoryControls
+        allowMarkUsed
+        repository={repository}
+        resourceId="2"
+        showEditor
+        therapistOnly
+      />
+    );
+    expect(
+      screen.getByRole("button", { name: "Therapist Resource Memory" })
+    ).toHaveAttribute("aria-expanded", "false");
   });
 });

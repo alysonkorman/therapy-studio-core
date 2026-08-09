@@ -72,12 +72,18 @@ describe("PromptsPage", () => {
     ).toHaveClass("prompt-deck-card__band");
     expect(await within(card).findByRole("img", { name: "Ideas" })).toBeVisible();
   });
-  it("shows an immediately visible first-run setup while keeping the library usable", async () => {
+  it("keeps first-run setup behind Library Tools while the library remains usable", async () => {
+    const user = userEvent.setup();
     const repositories = authoringRepositories();
     renderWithRouter(<PromptsPage repositories={repositories} />, {
       initialEntries: ["/prompts"],
     });
 
+    expect(screen.getByRole("searchbox", { name: /search prompts/i })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: /set up prompt authoring/i, hidden: true })
+    ).not.toBeVisible();
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
     expect(
       await screen.findByRole("heading", { name: /set up prompt authoring/i })
     ).toBeVisible();
@@ -102,6 +108,7 @@ describe("PromptsPage", () => {
       initialEntries: ["/prompts"],
     });
 
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
     const setup = await screen.findByRole("button", {
       name: /set up prompt authoring/i,
     });
@@ -133,6 +140,7 @@ describe("PromptsPage", () => {
     });
     renderWithRouter(<PromptsPage repositories={repositories} />);
 
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
     const setup = await screen.findByRole("button", { name: /set up prompt authoring/i });
     await user.click(setup);
     expect(await screen.findByRole("alert")).toHaveTextContent(/still available/i);
@@ -144,12 +152,48 @@ describe("PromptsPage", () => {
   });
 
   it("restores authoring controls from an already-seeded repository", async () => {
+    const user = userEvent.setup();
     const repositories = authoringRepositories({ initiallySeeded: true });
     renderWithRouter(<PromptsPage repositories={repositories} />);
 
+    expect(screen.getByRole("searchbox", { name: /search prompts/i })).toBeVisible();
+    expect(screen.queryByRole("button", { name: /new deck/i })).toBeNull();
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
     expect(await screen.findByText(/manage prompt library/i)).toBeVisible();
     expect(screen.queryByRole("button", { name: /set up prompt authoring/i })).toBeNull();
     expect(repositories.decks.seedImportedPromptDecks).not.toHaveBeenCalled();
+  });
+
+  it("keeps authoring controls closed by default and removes them again on close", async () => {
+    const user = userEvent.setup();
+    const repositories = authoringRepositories({ initiallySeeded: true });
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    const disclosure = screen.getByText("Library Tools", { selector: "summary" });
+    expect(disclosure).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("button", { name: /new deck/i })).toBeNull();
+
+    await user.click(disclosure);
+    expect(disclosure).toHaveAttribute("aria-expanded", "true");
+    expect(await screen.findByRole("button", { name: /new deck/i })).toBeVisible();
+    expect(screen.getByRole("button", { name: /new category/i })).toBeVisible();
+    expect(screen.getByRole("button", { name: /new playlist/i })).toBeVisible();
+    expect(screen.getByRole("button", { name: /reorder decks/i })).toBeVisible();
+
+    await user.click(disclosure);
+    expect(disclosure).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.getByRole("button", { name: /new deck/i, hidden: true })
+    ).not.toBeVisible();
+    expect(
+      screen.getByRole("button", { name: /reorder decks/i, hidden: true })
+    ).not.toBeVisible();
+
+    disclosure.focus();
+    await user.tab();
+    expect(
+      screen.getByRole("button", { name: /new deck/i, hidden: true })
+    ).not.toHaveFocus();
   });
 
   it("renders all imported decks and their represented prompt count", () => {

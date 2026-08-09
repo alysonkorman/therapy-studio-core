@@ -1,26 +1,11 @@
-.saved-page > header {
-  margin-bottom: 2rem;
-}
-.saved-page > header h1 {
-  margin-bottom: 0.4rem;
-}
-.saved-page > header p:last-child {
-  color: var(--muted, #6d6978);
-}
 .saved-page__section {
   border-top: 1px solid var(--border, #dfdce8);
   padding: 1.5rem 0;
-}
-.saved-page__section h2 {
-  margin: 0 0 1rem;
 }
 .saved-page__grid {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
-}
-.saved-page__empty {
-  color: var(--muted, #6d6978);
 }
 .saved-page__resource-link {
   display: inline-block;

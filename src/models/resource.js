@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import { z } from "zod";
 
-export const resourceTypes = [
+export const resourceTypes = Object.freeze([
   "prompt",
   "prompt-deck",
   "intervention",
@@ -9,17 +9,53 @@ export const resourceTypes = [
   "worksheet",
   "workbook",
   "psychoeducation",
+  "activity",
   "visual",
   "scene",
   "whiteboard",
-];
+]);
+
+export const resourceTypeSchema = z.enum(resourceTypes);
+
+export const resourceIdentitySchema = z
+  .object({
+    id: z.string().trim().min(1),
+    type: resourceTypeSchema,
+  })
+  .strict();
+
+export function getResourceKey(resource) {
+  const { id, type } = resourceIdentitySchema.parse({
+    id: resource?.id,
+    type: resource?.type,
+  });
+  return `${type}:${id}`;
+}
+
+export function assertUniqueResourceIds(resources) {
+  const ids = new Set();
+
+  for (const resource of resources) {
+    const { id } = resourceIdentitySchema.parse({
+      id: resource?.id,
+      type: resource?.type,
+    });
+    if (ids.has(id)) {
+      throw new Error(`Duplicate global Resource ID: ${id}`);
+    }
+    ids.add(id);
+  }
+
+  return resources;
+}
 
 export const resourceSchema = z.object({
   id: z.string(),
-  type: z.enum(resourceTypes),
+  type: resourceTypeSchema,
 
   title: z.string().min(1),
   description: z.string().default(""),
+  tags: z.array(z.string()).default([]),
 
   worksWellWhen: z.array(z.string()).default([]),
   useWith: z.array(z.string()).default([]),
@@ -57,6 +93,7 @@ export function createResource(input) {
     type: input.type,
     title: input.title,
     description: input.description ?? "",
+    tags: input.tags ?? [],
 
     worksWellWhen: input.worksWellWhen ?? [],
     useWith: input.useWith ?? [],

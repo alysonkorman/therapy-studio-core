@@ -20,8 +20,8 @@ const memory = {
   rating: 5,
   useCount: 2,
   lastUsedAt: "2026-08-04T12:00:00.000Z",
-  therapistNotes: "",
-  worksWellWhen: [],
+  therapistNotes: "Private saved note",
+  worksWellWhen: ["Private saved context"],
   kidsWhoUsuallyLikeThis: [],
   adaptations: [],
 };
@@ -47,5 +47,36 @@ describe("SavedPage", () => {
     expect(screen.getByRole("heading", { name: "Most Used" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "Highest Rated" })).toBeVisible();
     expect(screen.getAllByRole("heading", { name: "Check In" })).toHaveLength(4);
+    expect(screen.queryByText("Private saved note")).toBeNull();
+    expect(screen.queryByText("Private saved context")).toBeNull();
+  });
+
+  it("links a saved Intervention to its detail route", async () => {
+    const intervention = {
+      ...deck,
+      id: "intervention-1",
+      type: "intervention",
+      title: "Calm Plan",
+    };
+    const item = {
+      memory: { ...memory, resourceId: intervention.id },
+      resource: intervention,
+    };
+    const repository = {
+      getFavoriteResources: vi.fn(async () => [item]),
+      getRecentlyUsedResources: vi.fn(async () => []),
+      getMostUsedResources: vi.fn(async () => []),
+      getHighestRatedResources: vi.fn(async () => []),
+      getResourceMemory: vi.fn(async () => item.memory),
+    };
+    render(
+      <MemoryRouter>
+        <SavedPage repository={repository} />
+      </MemoryRouter>
+    );
+
+    expect(
+      await screen.findByRole("link", { name: "Open Intervention" })
+    ).toHaveAttribute("href", "/interventions/intervention-1");
   });
 });

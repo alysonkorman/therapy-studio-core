@@ -21,11 +21,17 @@ shell.
 
 Application-level wiring. It currently owns the route table. Keep route definitions
 centralized here unless a future approved milestone explicitly changes that approach.
+`navigation.js` is the single configuration for shell navigation labels, paths, icons,
+and parent-route matching; desktop and mobile presentations must consume that same
+definition.
 
 ### `src/layouts`
 
 Shared page structure. `AppLayout` owns the persistent Therapy Studio shell and primary
-navigation. It renders the active page through `Outlet`.
+navigation. It renders the active page through `Outlet`. The shell includes an
+accessible skip link, sticky toolbar, current-page context, and a permanent link to the
+existing Dashboard search. The fixed desktop sidebar becomes one controlled drawer at
+tablet and mobile widths rather than rendering a second set of navigation links.
 
 ### `src/features`
 
@@ -46,7 +52,10 @@ features must reuse this model rather than define parallel resource objects.
 
 Reusable application components that are not owned by one feature. `ResourceCard`
 provides the shared simple-by-default presentation for resource metadata and expandable
-advanced details.
+advanced details. `components/layout` owns the opt-in `Page`, `Section`, and `EmptyState`
+primitives used to standardize page width, heading hierarchy, actions, major section
+spacing, and quiet empty states without turning every area into a card. `components/ui`
+contains small shared controls, beginning with the composable `Button`.
 
 ### `src/data`
 
@@ -112,6 +121,26 @@ and the application entry wraps the router in the shared error boundary.
 styles are in `src/App.css`, with foundational document styles in `src/index.css`.
 Component-specific styles, such as `ResourceCard.css`, stay with their component.
 
+The restrained design-system foundation lives in `src/styles/design-system.css`. It
+defines the shared spacing and radius scales, surface and border concepts, subtle
+elevation, core page typography, control sizing, button variants, opt-in form-control
+styles, and the general-purpose surface treatment. Shared values remain CSS custom
+properties so feature styles can adopt them incrementally. Features retain specialized
+presentation where it communicates a real domain need; Prompt cards, Resource cards,
+the Worksheet canvas, and print layouts are intentionally not normalized by the page
+foundation.
+
+Representative route pages use `Page` for one semantic page title and responsive header
+actions. `Section` separates major page areas primarily through whitespace, and
+`EmptyState` provides a consistent low-emphasis fallback with an optional action. These
+primitives are additive; migration is incremental rather than a broad page rewrite.
+
+The shell keeps Settings available in its shared navigation at every width. Home uses
+exact route matching while nested Prompt and Worksheet routes retain their parent
+navigation state. Shell controls use explicit focus-visible treatment, and the global
+search entry targets the Dashboard's existing `#universal-search` section without
+moving, mounting, or duplicating `ResourceSearch` in the layout.
+
 Avoid inline styles. Preserve existing visuals unless a milestone explicitly includes
 design work. A feature may gain a focused stylesheet when that prevents unrelated
 global or inline styling.
@@ -122,10 +151,18 @@ Resources are the common language connecting prompts, interventions, games,
 worksheets, workbooks, psychoeducation, visuals, scenes, whiteboards, and other
 clinical activities.
 
-The current model validates identity, type, title, description, situational fit,
-related interests and goals, diagnoses, ages, settings, materials, duration,
-telehealth suitability, source and research, Alyson's notes, rating, favorite status,
-related resource IDs, usage history, and timestamps.
+The current model validates the common Resource contract: globally unique `id`,
+authoritative `type`, `title`, `description`, shared `tags`, situational fit, related
+interests and goals, diagnoses, ages, settings, materials, duration, telehealth
+suitability, source and research, relationship IDs, and lifecycle timestamps. Supported
+types are Prompt, Prompt Deck, Intervention, Game, Worksheet, Workbook,
+Psychoeducation, Activity, Visual, Scene, and Whiteboard.
+
+All persisted Resources share one `id`-keyed table, so IDs are globally unique across
+types. Repository creation and seeding reject collisions; the static Resource aggregate
+applies the same check. `getResourceKey` combines type and ID for cross-resource UI keys
+without changing or migrating stored IDs. Prompt Deck and Worksheet schemas extend the
+base only with feature-specific presentation and document data.
 
 `createResource` applies defaults and generates identity and timestamps. New resource
 data and resource UI must use the model and `ResourceCard` rather than create parallel
@@ -174,11 +211,36 @@ collections. Prompt sessions mark use only when their first prompt displays; car
 searches, Manage mode, and prompt navigation do not. Interventions use an explicit Mark
 Used action. `/saved` presents Favorites, Recently Used, Most Used, and Highest Rated.
 
+Resource Memory has an explicit presentation boundary for telehealth screen sharing.
+Prompt-session and Intervention-detail pages mount only a therapist-only disclosure by
+default; favorite, rating, use, and private narrative controls are not rendered until the
+therapist opens it. The narrative editor conditionally mounts its private values only after
+its own explicit disclosure and removes them again when closed. Changing Resources resets
+the therapist-only disclosure to its safe closed state. Generic browse cards may retain
+lightweight favorite, rating, and recent-use controls, but private notes and matching
+narratives are not mounted while their editor is closed. Worksheet preview, print, and
+session presentations do not include Resource Memory controls.
+
 Additive database version 4 adds `sessionProfiles` for generic, non-identifying reusable
 session context. `sessionProfileRepository.js` is the only persistence boundary for
 profiles. A focused Zustand store keeps the active selection across route navigation;
 profiles enter Current Session only through an explicit fill-empty or replace action.
 Compatibility helpers are descriptive and never alter search ranking.
+
+Additive database version 5 adds `worksheetDocuments`, keyed by the ID of a shared
+Worksheet Resource. `worksheetRepository.js` owns atomic Resource-and-document creation,
+validated document saves, archive/restore, and permanent deletion. Worksheet pages
+consume that repository and never access Dexie directly. Builder, preview, print, and
+session presentation share one document renderer.
+
+Therapy Studio starter Worksheets are deterministic, validated Resource-and-document
+pairs under `src/data/resources/worksheetStarters.js`. They remain immutable canonical
+content outside IndexedDB, while `worksheetRepository.js` presents them alongside saved
+therapist-created Worksheets. Preview and session routes may read a starter directly;
+customization uses the repository's atomic duplication path, which assigns new Resource,
+page, and block IDs before saving the editable copy. Starter Resources also join the
+canonical static Resource aggregate, so Universal Search, Saved, recent use, and Resource
+Memory reuse their existing type-aware behavior without a Worksheet-specific subsystem.
 
 Do not store clinical data directly from page components. Before persistent client or
 session data is implemented, the relevant milestone must define privacy, data
@@ -192,15 +254,38 @@ belongs to a dedicated milestone.
 
 ## Search Architecture
 
-Universal search will operate across the shared Resource model and combine resource
-metadata with optional current-session context. Search UI belongs in
-`src/features/search`; reusable resource query/index logic belongs in
-`src/engines/resources`; ranking and context-sensitive recommendations belong in
-`src/engines/recommendations`.
+Universal Search operates across the shared Resource model and combines deterministic
+text relevance with optional Current Session context. Search UI belongs in
+`src/features/search`; pure indexing and scoring live under `src/engines/search`.
+Recommendation logic remains deferred and belongs in `src/engines/recommendations`.
 
-Search must not create type-specific silos or duplicate Resource definitions. The
-engine, index, ranking behavior, and persistence of search data remain unimplemented
-until approved milestones define them.
+The default search source starts with the validated static Resource aggregate of
+imported Prompt Decks, the initial Interventions, and immutable Worksheet starters, then asynchronously adds active,
+validated Worksheet Resources from `worksheetRepository`. Worksheet documents remain
+separate and are never indexed as Resources. A pure assembly helper applies type-aware
+Resource keys so an accidental duplicate source entry resolves deterministically.
+Worksheet loading and read failures remain isolated, allowing the static search sources
+to stay usable while the page presents a quiet source-status message.
+
+## Intervention Architecture
+
+The Intervention Library is a seed-driven MVP built on the canonical Resource model.
+`src/data/resources/interventions.js` owns eight deterministic Intervention Resources
+and separately validated session guidance keyed by the same stable Resource IDs.
+`src/models/intervention.js` validates guidance without expanding the shared Resource
+contract or creating a parallel persistence system.
+
+`/interventions` owns local deterministic search and restrained goal, age, duration,
+and telehealth filters. `/interventions/:interventionId` presents concise session
+guidance and handles unknown IDs inside the shared shell. Resource Memory remains the
+only owner of favorites, ratings, therapist notes, and intentional-use history. Merely
+opening a detail page does not mark use; the therapist must choose Mark Used. Universal
+Search, Saved, and Dashboard recents link to the stable detail route.
+
+The older Therapy Toolkit source-based Intervention collection is not part of this
+starter library. Its provenance, copyright constraints, clinical warnings,
+duplication, and truncation require a separate Intervention Source Review & Migration
+milestone.
 
 ## Icon Strategy
 

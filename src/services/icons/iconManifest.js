@@ -1,20 +1,26 @@
-const CURATED_ROOT = "../../assets/icons/flaticon/Curated Redux Organized/";
+import compatibility from "./iconCompatibility.generated.json";
+
+const CURATED_ROOT = "../../assets/icons/flaticon/Curated Redux Reorganized/";
 
 const assetLoaders = import.meta.glob(
-  "../../assets/icons/flaticon/Curated Redux Organized/**/*.svg",
+  "../../assets/icons/flaticon/Curated Redux Reorganized/**/*.svg",
   { import: "default", query: "?url" }
 );
 
-const stableIdOverrides = {
-  "Hobbies SVG/009-drawing.svg": "creative",
-  "Nature 1 SVG/020-rainbow.svg": "nature",
-  "Selfcare SVG/001-reading.svg": "reading",
-  "Selfcare SVG/005-exercise.svg": "movement",
-  "Selfcare SVG/006-family.svg": "connection",
-  "Selfcare SVG/008-laughing.svg": "playful",
-  "Selfcare SVG/022-positive thinking.svg": "ideas",
-  "Selfcare SVG/029-meditation.svg": "calm",
-};
+const featuredIds = [
+  "calm",
+  "connection",
+  "creative",
+  "ideas",
+  "movement",
+  "nature",
+  "playful",
+  "reading",
+];
+
+const featuredIdsByPath = new Map(
+  featuredIds.map((id) => [compatibility.aliases[id], id]).filter(([path]) => path)
+);
 
 const labelOverrides = {
   calm: "Calm",
@@ -41,6 +47,15 @@ function slugify(value) {
   return normalizeIconText(value).replaceAll(" ", "-") || "icon";
 }
 
+function stablePathHash(value) {
+  let hash = 2166136261;
+  for (const character of value.normalize("NFC")) {
+    hash ^= character.codePointAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36).padStart(7, "0");
+}
+
 function readableLabel(filename) {
   return filename
     .replace(/\.svg$/i, "")
@@ -55,26 +70,50 @@ function createEntry([modulePath, load]) {
   const segments = relativePath.split("/");
   const filename = segments.pop();
   const group = segments.join(" / ").trim();
-  const id =
-    stableIdOverrides[relativePath] ??
-    `curated-${slugify(group)}-${slugify(filename.replace(/\.svg$/i, ""))}`;
-  const label = labelOverrides[id] ?? readableLabel(filename);
+  const featuredId = featuredIdsByPath.get(relativePath);
+  const baseId =
+    featuredId ?? `curated-${slugify(group)}-${slugify(filename.replace(/\.svg$/i, ""))}`;
+  const label = labelOverrides[featuredId] ?? readableLabel(filename);
 
-  return Object.freeze({
-    featured: Boolean(stableIdOverrides[relativePath]),
+  return {
+    baseId,
+    featured: Boolean(featuredId),
     filename,
     group,
-    id,
-    keywords: normalizeIconText(`${label} ${filename} ${group} ${id}`),
     label,
     load,
-  });
+    relativePath,
+  };
 }
 
 export function buildIconManifestEntries(loaders) {
+  const provisionalEntries = Object.entries(loaders).map(createEntry);
+  const baseIdCounts = provisionalEntries.reduce((counts, icon) => {
+    counts.set(icon.baseId, (counts.get(icon.baseId) ?? 0) + 1);
+    return counts;
+  }, new Map());
   const entries = Object.freeze(
-    Object.entries(loaders)
-      .map(createEntry)
+    provisionalEntries
+      .map((icon) => {
+        // Unique paths keep the readable base ID. Only collisions receive this stable,
+        // relative-path-derived FNV-1a suffix, independent of discovery order.
+        const id =
+          baseIdCounts.get(icon.baseId) === 1
+            ? icon.baseId
+            : `${icon.baseId}-${stablePathHash(icon.relativePath)}`;
+        return Object.freeze({
+          featured: icon.featured,
+          filename: icon.filename,
+          group: icon.group,
+          id,
+          keywords: normalizeIconText(
+            `${icon.label} ${icon.filename} ${icon.group} ${id}`
+          ),
+          label: icon.label,
+          load: icon.load,
+          relativePath: icon.relativePath,
+        });
+      })
       .sort(
         (left, right) =>
           Number(right.featured) - Number(left.featured) ||

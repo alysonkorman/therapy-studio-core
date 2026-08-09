@@ -19,6 +19,7 @@ export default function PromptsPage({
   const authoring = usePromptAuthoring({ enabled: !suppliedDecks, repositories });
   const [showArchived, setShowArchived] = useState(false);
   const [reorderMode, setReorderMode] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const decks = suppliedDecks ?? authoring.decks;
   const visibleDecks = decks.filter((deck) => showArchived || !deck.archived);
   const [query, setQuery] = useState("");
@@ -104,28 +105,6 @@ export default function PromptsPage({
         </p>
       </header>
 
-      {!suppliedDecks ? (
-        <PromptAuthoringPanel
-          authoring={authoring}
-          setShowArchived={setShowArchived}
-          showArchived={showArchived}
-        />
-      ) : null}
-      {!suppliedDecks && authoring.seeded ? (
-        <button
-          className="reorder-toggle"
-          onClick={() => setReorderMode((value) => !value)}
-          type="button"
-        >
-          {reorderMode ? "Finish reordering" : "Reorder decks"}
-        </button>
-      ) : null}
-      {authoring.error && authoring.seeded ? (
-        <p className="authoring-error" role="alert">
-          {authoring.error}
-        </p>
-      ) : null}
-
       <form
         aria-label="Search prompt decks"
         className="prompt-filters"
@@ -184,6 +163,41 @@ export default function PromptsPage({
           Clear results
         </button>
       </form>
+
+      {!suppliedDecks ? (
+        <details
+          className="prompt-library-tools"
+          onToggle={(event) => {
+            const open = event.currentTarget.open;
+            setToolsOpen(open);
+            if (!open) setReorderMode(false);
+          }}
+          open={toolsOpen}
+        >
+          <summary aria-expanded={toolsOpen}>Library Tools</summary>
+          <div className="prompt-library-tools__content">
+            <PromptAuthoringPanel
+              authoring={authoring}
+              setShowArchived={setShowArchived}
+              showArchived={showArchived}
+            />
+            {authoring.seeded ? (
+              <button
+                className="reorder-toggle"
+                onClick={() => setReorderMode((value) => !value)}
+                type="button"
+              >
+                {reorderMode ? "Finish reordering" : "Reorder decks"}
+              </button>
+            ) : null}
+            {authoring.error && authoring.seeded ? (
+              <p className="authoring-error" role="alert">
+                {authoring.error}
+              </p>
+            ) : null}
+          </div>
+        </details>
+      ) : null}
 
       <p className="prompts-page__summary" aria-live="polite">
         Showing {matchingDecks.length} of {visibleDecks.length} decks

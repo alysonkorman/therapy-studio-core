@@ -14,11 +14,12 @@ This is the concise execution tracker and source of truth for what comes next. S
 ## Current Snapshot
 
 - **Branch:** `main`, aligned with `origin/main`
-- **Working tree:** Session Profiles are implemented and pending verification
-- **Current next milestone:** Resource Reflection and Outcome Tracking, after Session Profiles are committed
-- **Last verified milestone:** Therapist Resource Memory (`9ccf88b`)
-- **Last complete and committed milestone:** Therapist Resource Memory (`9ccf88b`)
-- **Checklist updated:** August 4, 2026
+- **Working tree:** Dashboard, Worksheet Builder, Intervention Library, and telehealth
+  privacy work remain uncommitted; Layer 1 foundations are verified and pending commit
+- **Current next milestone:** Resource Reflection and Outcome Tracking
+- **Last verified milestone:** Session Profiles (`4ecff03`)
+- **Last complete and committed milestone:** Session Profiles (`4ecff03`)
+- **Checklist updated:** August 9, 2026
 
 ## Phase 0 — Foundation
 
@@ -27,6 +28,31 @@ This is the concise execution tracker and source of truth for what comes next. S
 - [x] **Shared AppLayout and routing foundation** — Established the active dashboard,
       shared shell, route tree, and route tests. Commit `97a8a04`; verified by tests and
       build.
+- [x] **Layer 1 Navigation & App Shell hardening** — Added one shared navigation
+      definition, accessible skip navigation, a current-page toolbar, permanent access
+      to the existing Dashboard search, complete Settings access, explicit focus
+      treatment, and one responsive desktop/mobile navigation implementation. Full test,
+      lint, build, and responsive verification gates pass. Commit: pending.
+- [x] **Layer 1 Page Layout System** — Added shared semantic Page, Section, and EmptyState
+      primitives and verified them across Interventions, Worksheets, Settings, and Saved
+      at desktop, tablet, and mobile widths. Commit: pending.
+- [x] **Layer 1 Design System foundation** — Added a restrained spacing, radius, surface,
+      border, shadow, typography, button, form-control, and general surface foundation.
+      Feature-specific Prompt, ResourceCard, Worksheet canvas, and print styles remain
+      intentionally independent. Full format, lint, test, and build gates pass. Commit:
+      pending.
+- [x] **Layer 1 Dashboard Clinical Workspace Pass** — Kept Universal Search primary,
+      surfaced up to three recently used Resources through the existing Resource Memory
+      repository, reduced tool access to six relevant destinations with honest placeholder
+      labeling, preserved Current Session context, and removed misleading unavailable
+      actions. Desktop, tablet, mobile, test, lint, and build verification pass. Commit:
+      pending.
+- [x] **Layer 1 Universal Resource Model completion** — Confirmed one canonical Resource
+      contract and repository boundary, made tags shared, added Activity to the
+      authoritative type definition, protected global ID uniqueness for static and
+      persisted Resources, and added type-aware UI identity without migrating stored IDs.
+      Prompt, Worksheet, and Intervention feature data remain focused extensions. Commit:
+      pending.
 - [x] **Documentation foundation** — Added governing agent, architecture, Resource, and
       master-plan documentation. Commit `97a8a04`; files verified.
 - [x] **Foundation cleanup and architecture hardening** — Added error handling, 404 and
@@ -44,6 +70,11 @@ This is the concise execution tracker and source of truth for what comes next. S
       Enter and button behavior, preserved filters, and tests are verified. Commit: pending.
 - [x] **Universal Resource Search** — Deterministic cross-Resource engine, dashboard UI,
       explanations, and tests are verified. Commit: pending.
+- [~] **Universal Search Data-Source Integration** — Universal Search now combines the
+  validated static Prompt Deck and Intervention aggregate with active persisted
+  Worksheet Resources, using deterministic type-aware deduplication, result-derived
+  type filtering, valid destinations, and isolated loading/failure behavior. Full
+  test, lint, and build gates pass. Commit: pending.
 - [x] **Current Session Context** — Temporary whitelisted context, dashboard controls,
       transparent search boosts, and focused tests are verified. Depends on Universal
       Resource Search. Commit: pending.
@@ -53,24 +84,45 @@ This is the concise execution tracker and source of truth for what comes next. S
 - [x] **Therapist Resource Memory** — Separate favorites, ratings, meaningful use,
       private resource notes, matching lists, Saved collections, and Prompt browse
       controls are implemented. Commit `9ccf88b`.
-- [~] **Session Profiles** — Non-identifying reusable context, local repository, active
-  selection, explicit Current Session loading, and descriptive compatibility indicators. Commit: pending.
+- [~] **Telehealth Session Privacy and Essential Interaction Repair** — Prompt and
+  Intervention use pages now keep all therapist memory controls behind a closed
+  therapist-only disclosure; private narrative values are conditionally mounted only
+  after explicit opening and reset closed across Resources. Worksheet presentation and
+  print surfaces remain free of Resource Memory, and real-browser Dashboard Enter
+  submission now works for Prompt and Intervention queries. Focused and full quality
+  gates pass. Commit: pending.
+- [x] **Session Profiles** — Non-identifying reusable context, local repository, active
+      selection, explicit Current Session loading, and descriptive compatibility indicators.
+      Commit `4ecff03`.
 - [>] **Resource Reflection and Outcome Tracking** — Planned after profiles; lightweight
   reflection and outcome records.
 
 ## Phase 1 — Content Expansion
 
-- [!] **Full Intervention Library migration** — The first Resource-based intervention
-  exists, but the complete library import and repository integration are missing.
+- [~] **Intervention Library MVP** — Eight deterministic canonical Intervention
+  Resources, separately validated session guidance, local search and lightweight
+  filters, detail routes, shared Resource Memory, and direct Universal Search,
+  Saved, and recent-resource destinations are implemented and verified. The older
+  source-based Toolkit collection remains excluded pending individual source and
+  clinical review. Commit: pending.
 - [x] **Prompt Authoring Toolkit** — Create, edit, archive, and duplicate decks; inline
       editing where appropriate; bulk add prompts; create and edit categories; choose deck
       colors; assign icons; reorder decks and prompts; create playlists or collections;
       and associate diagnoses, goals, age ranges, and tags. Smart Paste, advanced bulk
       parsing, AI-assisted authoring, and final visual polish are deferred. Planned
       implemented on Resource Persistence Foundation. Its reusable Icon Browser exposes
-      the full curated library through the shared lazy Icon Service. Commit `6bd1434`.
-- [ ] **Worksheet Library** — Planned connected worksheet resources.
-- [ ] **Worksheet Builder** — Planned authoring workflow.
+      the full curated library through the shared lazy Icon Service. The Prompt Library
+      now keeps session-time browsing controls prominent while placing secondary
+      authoring and reordering controls behind an accessible Library Tools disclosure.
+      Commit `6bd1434`.
+- [~] **Worksheet Library** — Ten original, validated Therapy Studio starter Worksheets
+  now support library search, preview, telehealth presentation, print/PDF access,
+  Universal Search, Saved, Resource Memory, and protected duplicate-to-edit behavior.
+  Broader Worksheet content expansion remains future work. Commit: pending.
+- [~] **Worksheet Builder** — Persisted Resource-and-document authoring, reopen/save,
+  block editing, preview, session presentation, printing, and editable starter copies
+  are implemented and verified. The full future Worksheet Studio remains incomplete.
+  Commit: pending.
 - [ ] **Workbook Builder** — Planned connected workbook authoring.
 - [ ] **Psychoeducation Builder** — Planned connected psychoeducation authoring.
 - [ ] **Games** — Planned clinical game resources and activities.
@@ -107,6 +159,8 @@ This is the concise execution tracker and source of truth for what comes next. S
 - Smart Paste or advanced bulk parsing
 - Replacement of the generic Vite README
 - Curated icon-library spacing, naming, and empty-folder review
+- Intervention Source Review & Migration for the older private/source-based Toolkit
+  collection
 - Deployment, privacy, backup, and clinical-data boundaries for persistent information
 
 ## Definition of Done

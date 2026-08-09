@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import compatibility from "./iconCompatibility.generated.json";
 import { getIconGroups } from "./iconGroups";
 import { loadIconAsset, loadIconEntry } from "./iconLoader";
 import { buildIconManifestEntries, getIconManifest } from "./iconManifest";
@@ -9,8 +10,8 @@ import { searchIcons } from "./iconSearch";
 describe("icon service", () => {
   it("discovers the deterministic curated manifest with stable unique semantic IDs", () => {
     const manifest = getIconManifest();
-    expect(manifest).toHaveLength(2466);
-    expect(new Set(manifest.map(({ id }) => id)).size).toBe(2466);
+    expect(manifest).toHaveLength(7768);
+    expect(new Set(manifest.map(({ id }) => id)).size).toBe(7768);
     expect(manifest).toEqual(
       [...manifest].sort((left, right) => {
         return (
@@ -22,7 +23,7 @@ describe("icon service", () => {
       })
     );
     expect(manifest.find(({ id }) => id === "reading")).toMatchObject({
-      group: "Selfcare SVG",
+      group: "Other & Unsorted",
       label: "Reading",
     });
     expect(manifest.every((icon) => !JSON.stringify(icon).includes("/Users/"))).toBe(
@@ -31,45 +32,62 @@ describe("icon service", () => {
     expect(manifest.every((icon) => !("load" in icon) && !("path" in icon))).toBe(true);
   });
 
-  it("detects duplicate semantic IDs without invoking lazy asset loaders", () => {
+  it("gives colliding normalized paths distinct deterministic IDs without loading assets", () => {
     const firstLoader = vi.fn();
     const secondLoader = vi.fn();
-    expect(() =>
-      buildIconManifestEntries({
-        "../../assets/icons/flaticon/Curated Redux Organized/Test Group/001-icon.svg":
-          firstLoader,
-        "../../assets/icons/flaticon/Curated Redux Organized/Test-Group/001-icon.svg":
-          secondLoader,
-      })
-    ).toThrow(/duplicate curated icon ids/i);
+    const root = "../../assets/icons/flaticon/Curated Redux Reorganized/";
+    const forward = buildIconManifestEntries({
+      [`${root}Test Group/creativity 2.svg`]: firstLoader,
+      [`${root}Test Group/creativity-2.svg`]: secondLoader,
+    });
+    const reverse = buildIconManifestEntries({
+      [`${root}Test Group/creativity-2.svg`]: secondLoader,
+      [`${root}Test Group/creativity 2.svg`]: firstLoader,
+    });
+
+    expect(forward.map(({ id }) => id)).toHaveLength(2);
+    expect(new Set(forward.map(({ id }) => id)).size).toBe(2);
+    expect(forward.map(({ id }) => id)).toEqual(reverse.map(({ id }) => id));
+    expect(forward.every(({ id }) => /^curated-test-group-creativity-2-/.test(id))).toBe(
+      true
+    );
     expect(firstLoader).not.toHaveBeenCalled();
     expect(secondLoader).not.toHaveBeenCalled();
   });
 
   it("preserves folder counts and supplies the All Icons group", () => {
     const groups = getIconGroups();
-    expect(groups).toHaveLength(79);
-    expect(groups[0]).toEqual({ count: 2466, id: "all", label: "All Icons" });
-    expect(groups).toContainEqual({ count: 31, id: "Dinos 3 SVG", label: "Dinos 3 SVG" });
+    expect(groups).toHaveLength(56);
+    expect(groups[0]).toEqual({ count: 7768, id: "all", label: "All Icons" });
     expect(groups).toContainEqual({
-      count: 100,
-      id: "Relationships / Human Relations and Emotions SVG",
-      label: "Relationships / Human Relations and Emotions SVG",
+      count: 7,
+      id: "Culture & Religion",
+      label: "Culture & Religion",
     });
   });
 
   it("normalizes search and returns deterministic filtered results", () => {
     const byPunctuation = searchIcons("POLAR__BEAR");
-    expect(byPunctuation).toHaveLength(1);
-    expect(byPunctuation[0].id).toBe("curated-animals-2-svg-036-polar-bear");
+    expect(byPunctuation.length).toBeGreaterThan(0);
     expect(searchIcons("polar-bear")).toEqual(byPunctuation);
-    expect(searchIcons("", { group: "World Food SVG" })).toHaveLength(21);
-    expect(searchIcons("curated animals 2 svg 036 polar bear")).toEqual(byPunctuation);
+    const compatiblePolarBear = getIconById("curated-animals-2-svg-036-polar-bear");
+    expect(compatiblePolarBear).not.toBeNull();
+    expect(byPunctuation).toContainEqual(compatiblePolarBear);
+    expect(searchIcons("", { group: "Culture & Religion" })).toHaveLength(7);
   });
 
-  it("resolves known, legacy, and unknown IDs without rewriting stored values", () => {
+  it("resolves current and byte-identical legacy IDs while unmatched IDs fall back", () => {
     expect(getIconById("ideas")).toMatchObject({ id: "ideas", label: "Ideas" });
-    expect(resolveIcon("camping-027-map").id).toBe("curated-camping-svg-027-map");
+    const legacyMap = getIconById("curated-camping-svg-027-map");
+    expect(legacyMap).not.toBeNull();
+    expect(resolveIcon("camping-027-map")).toEqual(legacyMap);
+    expect(compatibility.aliases).toHaveProperty(
+      "curated-camping-svg-027-map",
+      "Transportation & Travel/map 7.svg"
+    );
+    expect(Object.keys(compatibility.aliases)).toHaveLength(2427);
+    expect(compatibility.unmatched).toHaveLength(39);
+    expect(resolveIcon("curated-animals-1-svg-001-rabbit")).toBe(getFallbackIcon());
     expect(resolveIcon("unknown-icon")).toBe(getFallbackIcon());
   });
 

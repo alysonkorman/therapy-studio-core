@@ -236,7 +236,11 @@ describe("Resource repository", () => {
       0
     );
 
-    expect(result).toEqual({ created: 138, unchanged: 0, total: 138 });
+    expect(result).toEqual({
+      created: resources.length,
+      unchanged: 0,
+      total: resources.length,
+    });
     expect(storedDecks).toHaveLength(137);
     expect(promptCount).toBe(8679);
     expect(storedDecks.map(({ id }) => id).sort()).toEqual(

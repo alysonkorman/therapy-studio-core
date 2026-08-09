@@ -125,6 +125,7 @@ export default function PromptDeckPage({
             repository={memoryRepository}
             resourceId={deck.id}
             showEditor
+            therapistOnly
           />
         </section>
       ) : (
@@ -138,6 +139,7 @@ export default function PromptDeckPage({
             repository={memoryRepository}
             resourceId={deck.id}
             showEditor
+            therapistOnly
           />
         </>
       )}

@@ -6,15 +6,16 @@ The application database is named `therapy-studio`. It uses Dexie over IndexedDB
 database is created lazily through `src/lib/data/database.js`; importing application
 modules does not open or seed it.
 
-Version 1 introduced one table. Additive version 4 has this final schema:
+Version 1 introduced one table. Additive version 5 has this final schema:
 
-| Table             | Primary key  | Secondary indexes                              |
-| ----------------- | ------------ | ---------------------------------------------- |
-| `resources`       | `id`         | None                                           |
-| `categories`      | `id`         | None                                           |
-| `playlists`       | `id`         | None                                           |
-| `resourceMemory`  | `resourceId` | `favorite`, `rating`, `lastUsedAt`, `useCount` |
-| `sessionProfiles` | `id`         | `archived`, `updatedAt`, `lastOpenedAt`        |
+| Table                | Primary key   | Secondary indexes                              |
+| -------------------- | ------------- | ---------------------------------------------- |
+| `resources`          | `id`          | None                                           |
+| `categories`         | `id`          | None                                           |
+| `playlists`          | `id`          | None                                           |
+| `resourceMemory`     | `resourceId`  | `favorite`, `rating`, `lastUsedAt`, `useCount` |
+| `sessionProfiles`    | `id`          | `archived`, `updatedAt`, `lastOpenedAt`        |
+| `worksheetDocuments` | `worksheetId` | None                                           |
 
 Stable Resource IDs are the IndexedDB primary keys. No secondary index is justified by
 the current repository operations or collection size. Repository archive state is
@@ -24,6 +25,11 @@ schema and is not indexed.
 Version 4 adds non-identifying Session Profiles without storing Current Session state,
 Resource history, outcomes, documents, or collaboration data. Resource Memory remains
 separate from both source Resources and profiles.
+
+Version 5 adds versioned Worksheet Documents. A document is keyed by its Worksheet
+Resource ID and contains ordered pages, page settings, and ordered validated blocks.
+Creation and save operations update Resource and document records transactionally.
+Authored text is plain text and rejects HTML.
 
 ## Session Profiles
 

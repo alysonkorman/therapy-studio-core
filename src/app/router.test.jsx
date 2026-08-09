@@ -8,8 +8,13 @@ const paths = [
   "/prompts",
   "/prompts/example-deck",
   "/interventions",
+  "/interventions/example-intervention",
   "/games",
   "/worksheets",
+  "/worksheets/example-worksheet",
+  "/worksheets/example-worksheet/build",
+  "/worksheets/example-worksheet/preview",
+  "/worksheets/example-worksheet/session",
   "/workbooks",
   "/whiteboard",
   "/scene-builder",
@@ -25,6 +30,12 @@ describe("application routes", () => {
 
   it("matches unknown paths through the not-found route", () => {
     const matches = matchRoutes(appRoutes, "/missing-page");
+
+    expect(matches?.at(-1)?.route.path).toBe("*");
+  });
+
+  it("keeps the parallel collaborative workspace prototype out of the active app", () => {
+    const matches = matchRoutes(appRoutes, "/workspace-lab");
 
     expect(matches?.at(-1)?.route.path).toBe("*");
   });

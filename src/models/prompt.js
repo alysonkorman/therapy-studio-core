@@ -43,7 +43,6 @@ export const promptDeckSchema = resourceSchema
     color: promptColorSchema.default("#6C46C3"),
     iconId: z.string().default("prompt-default"),
     sortOrder: z.number().int().nonnegative().default(0),
-    tags: z.array(z.string()).default([]),
     prompts: z.array(promptItemSchema).default([]),
     legacyMetadata: z
       .object({

@@ -13,19 +13,16 @@ describe("Icon Browser", () => {
 
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
     expect(screen.getByRole("dialog", { name: /choose deck icon/i })).toBeVisible();
-    expect(screen.getByText("Showing 60 of 2466 icons")).toBeVisible();
+    expect(screen.getByText("Showing 60 of 7768 icons")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: /load more icons/i }));
-    expect(screen.getByText("Showing 120 of 2466 icons")).toBeVisible();
+    expect(screen.getByText("Showing 120 of 7768 icons")).toBeVisible();
 
-    await user.type(
-      screen.getByRole("searchbox", { name: /search icons/i }),
-      "polar_bear"
-    );
-    const polarBear = screen.getByRole("button", { name: /select polar bear/i });
-    expect(polarBear).toBeVisible();
-    await user.dblClick(polarBear);
-    expect(save).toHaveBeenLastCalledWith("curated-animals-2-svg-036-polar-bear");
+    await user.type(screen.getByRole("searchbox", { name: /search icons/i }), "wat_arun");
+    const watArun = screen.getByRole("button", { name: /select wat arun/i });
+    expect(watArun).toBeVisible();
+    await user.dblClick(watArun);
+    expect(save).toHaveBeenLastCalledWith("curated-culture-religion-wat-arun");
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(save.mock.calls.flat().some((value) => String(value).includes("/"))).toBe(
       false
@@ -37,8 +34,8 @@ describe("Icon Browser", () => {
     const save = vi.fn();
     render(<IconBrowserField label="Category Icon" onSave={save} value="calm" />);
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
-    await user.click(screen.getByRole("button", { name: /world food svg/i }));
-    expect(screen.getByText("Showing 21 of 21 icons")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: /culture & religion/i }));
+    expect(screen.getByText("Showing 7 of 7 icons")).toBeVisible();
 
     const icon = screen.getAllByRole("button", { name: /select /i })[0];
     icon.focus();
@@ -57,13 +54,18 @@ describe("Icon Browser", () => {
     const user = userEvent.setup();
     render(<IconBrowserField label="Deck Icon" onSave={vi.fn()} value="ideas" />);
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
-    await user.click(screen.getByRole("button", { name: /basics svg/i }));
-    await user.click(screen.getByRole("button", { name: /load more icons/i }));
-    expect(screen.getByText("Showing 98 of 98 icons")).toBeVisible();
-    expect(screen.getByRole("button", { name: /basics svg/i })).toHaveAttribute(
-      "aria-current",
-      "true"
+    await user.click(
+      screen.getByRole("button", {
+        name: /activities, hobbies & sports \/ arts and crafts/i,
+      })
     );
+    await user.click(screen.getByRole("button", { name: /load more icons/i }));
+    expect(screen.getByText("Showing 82 of 82 icons")).toBeVisible();
+    expect(
+      screen.getByRole("button", {
+        name: /activities, hobbies & sports \/ arts and crafts/i,
+      })
+    ).toHaveAttribute("aria-current", "true");
 
     const search = screen.getByRole("searchbox", { name: /search icons/i });
     await user.type(search, "no icon has this exact label");
@@ -107,16 +109,13 @@ describe("Icon Browser", () => {
     );
 
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
-    await user.type(
-      screen.getByRole("searchbox", { name: /search icons/i }),
-      "polar bear"
-    );
-    await user.dblClick(screen.getByRole("button", { name: /select polar bear/i }));
+    await user.type(screen.getByRole("searchbox", { name: /search icons/i }), "wat arun");
+    await user.dblClick(screen.getByRole("button", { name: /select wat arun/i }));
     view.unmount();
 
     render(
       <IconBrowserField label="Deck Icon" onSave={vi.fn()} value={persistedIconId} />
     );
-    expect(await screen.findByRole("img", { name: "Polar Bear" })).toBeVisible();
+    expect(await screen.findByRole("img", { name: "Wat Arun" })).toBeVisible();
   });
 });

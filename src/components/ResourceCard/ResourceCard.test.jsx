@@ -12,8 +12,8 @@ const memory = {
   rating: null,
   useCount: 0,
   lastUsedAt: null,
-  therapistNotes: "",
-  worksWellWhen: [],
+  therapistNotes: "Private card note",
+  worksWellWhen: ["Private matching note"],
   kidsWhoUsuallyLikeThis: [],
   adaptations: [],
 };
@@ -61,6 +61,8 @@ describe("ResourceCard", () => {
     await waitFor(() =>
       expect(screen.getByRole("button", { name: "Add Favorite" })).toBeInTheDocument()
     );
+    expect(screen.queryByText("Private card note")).toBeNull();
+    expect(screen.queryByText("Private matching note")).toBeNull();
   });
 
   it("does not render empty optional sections", () => {

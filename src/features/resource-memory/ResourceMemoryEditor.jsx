@@ -70,57 +70,59 @@ export default function ResourceMemoryEditor({ memory, repository, resourceId, r
       >
         Private Resource Memory <span aria-hidden="true">{expanded ? "▴" : "▾"}</span>
       </button>
-      <div hidden={!expanded}>
-        <p>Private resource notes. Do not enter identifying client information.</p>
-        <p>
-          Used {memory.useCount} {memory.useCount === 1 ? "time" : "times"}
-          {memory.lastUsedAt
-            ? ` · Last used ${new Date(memory.lastUsedAt).toLocaleDateString()}`
-            : ""}
-        </p>
-        <label>
-          Private Notes
-          <textarea
-            onChange={(event) => setNotes(event.target.value)}
-            rows="4"
-            value={notes}
-          />
-        </label>
-        <div className="resource-memory-editor__actions">
-          <button
-            onClick={() =>
-              void run(() => repository.updateTherapistNotes(resourceId, notes))
+      {expanded ? (
+        <div>
+          <p>Private resource notes. Do not enter identifying client information.</p>
+          <p>
+            Used {memory.useCount} {memory.useCount === 1 ? "time" : "times"}
+            {memory.lastUsedAt
+              ? ` · Last used ${new Date(memory.lastUsedAt).toLocaleDateString()}`
+              : ""}
+          </p>
+          <label>
+            Private Notes
+            <textarea
+              onChange={(event) => setNotes(event.target.value)}
+              rows="4"
+              value={notes}
+            />
+          </label>
+          <div className="resource-memory-editor__actions">
+            <button
+              onClick={() =>
+                void run(() => repository.updateTherapistNotes(resourceId, notes))
+              }
+              type="button"
+            >
+              Save Notes
+            </button>
+            <button onClick={() => setNotes(memory.therapistNotes)} type="button">
+              Cancel
+            </button>
+          </div>
+          <ListEditor
+            label="Works Well When"
+            onSave={(items) =>
+              void run(() => repository.updateWorksWellWhen(resourceId, items))
             }
-            type="button"
-          >
-            Save Notes
-          </button>
-          <button onClick={() => setNotes(memory.therapistNotes)} type="button">
-            Cancel
-          </button>
+            values={memory.worksWellWhen}
+          />
+          <ListEditor
+            label="Kids Who Usually Like This"
+            onSave={(items) =>
+              void run(() => repository.updateKidsWhoUsuallyLikeThis(resourceId, items))
+            }
+            values={memory.kidsWhoUsuallyLikeThis}
+          />
+          <ListEditor
+            label="Adaptations"
+            onSave={(items) =>
+              void run(() => repository.updateAdaptations(resourceId, items))
+            }
+            values={memory.adaptations}
+          />
         </div>
-        <ListEditor
-          label="Works Well When"
-          onSave={(items) =>
-            void run(() => repository.updateWorksWellWhen(resourceId, items))
-          }
-          values={memory.worksWellWhen}
-        />
-        <ListEditor
-          label="Kids Who Usually Like This"
-          onSave={(items) =>
-            void run(() => repository.updateKidsWhoUsuallyLikeThis(resourceId, items))
-          }
-          values={memory.kidsWhoUsuallyLikeThis}
-        />
-        <ListEditor
-          label="Adaptations"
-          onSave={(items) =>
-            void run(() => repository.updateAdaptations(resourceId, items))
-          }
-          values={memory.adaptations}
-        />
-      </div>
+      ) : null}
     </section>
   );
 }

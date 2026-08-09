@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+*.zip
+/Zip/
+/src/features/prompts/PromptsPage.css.backup
 
 # Editor directories and files
 .vscode/*

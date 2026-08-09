@@ -7,7 +7,6 @@ import SceneBuilderPage from "./scene-builder/SceneBuilderPage";
 import SettingsPage from "./settings/SettingsPage";
 import WhiteboardPage from "./whiteboard/WhiteboardPage";
 import WorkbooksPage from "./workbooks/WorkbooksPage";
-import WorksheetsPage from "./worksheets/WorksheetsPage";
 
 const pages = [
   ["Games", GamesPage],
@@ -15,7 +14,6 @@ const pages = [
   ["Settings", SettingsPage],
   ["Whiteboard", WhiteboardPage],
   ["Workbooks", WorkbooksPage],
-  ["Worksheets", WorksheetsPage],
 ];
 
 describe("placeholder pages", () => {
@@ -23,5 +21,6 @@ describe("placeholder pages", () => {
     renderWithRouter(<Page />);
 
     expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
+    expect(screen.getByText("Coming soon.")).toBeInTheDocument();
   });
 });

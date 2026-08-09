@@ -1,5 +1,9 @@
 @import "./PromptAuthoring.css";
 
+/* -------------------------------------------------------------------------- */
+/* Page                                                                        */
+/* -------------------------------------------------------------------------- */
+
 .prompts-page,
 .prompt-deck-page,
 .prompt-route-message {
@@ -23,6 +27,10 @@
   color: var(--muted);
   line-height: 1.55;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Filters                                                                     */
+/* -------------------------------------------------------------------------- */
 
 .prompt-filters {
   align-items: end;
@@ -49,6 +57,7 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   color: var(--text);
+  font: inherit;
   padding: 11px 12px;
   width: 100%;
 }
@@ -62,16 +71,6 @@
   min-width: 0;
 }
 
-.prompt-filters input:focus,
-.prompt-filters select:focus,
-.prompt-filters button:focus-visible,
-.prompt-deck-card__link:focus-visible,
-.prompt-back-link:focus-visible,
-.prompt-session__controls button:focus-visible {
-  outline: 3px solid var(--accent-soft);
-  outline-offset: 2px;
-}
-
 .prompt-filters button,
 .prompt-session__controls button {
   align-items: center;
@@ -79,7 +78,9 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   color: var(--text);
+  cursor: pointer;
   display: inline-flex;
+  font: inherit;
   gap: 8px;
   justify-content: center;
   padding: 11px 14px;
@@ -91,51 +92,107 @@
   opacity: 0.45;
 }
 
+.prompt-filters input:focus,
+.prompt-filters select:focus,
+.prompt-filters button:focus-visible,
+.prompt-deck-card__link:focus-visible,
+.prompt-back-link:focus-visible,
+.prompt-session__controls button:focus-visible {
+  outline: 3px solid var(--accent-soft);
+  outline-offset: 2px;
+}
+
 .prompts-page__summary {
   color: var(--muted);
   margin: 0 0 16px;
 }
 
+.prompt-library-tools {
+  margin: -8px 0 20px;
+}
+
+.prompt-library-tools > summary {
+  align-items: center;
+  color: var(--accent-dark);
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 700;
+  gap: 8px;
+  padding: 8px 2px;
+}
+
+.prompt-library-tools > summary:focus-visible {
+  border-radius: 8px;
+  outline: 3px solid var(--accent-soft);
+  outline-offset: 2px;
+}
+
+.prompt-library-tools__content {
+  margin-top: 10px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Deck grid                                                                   */
+/* -------------------------------------------------------------------------- */
+
 .prompt-deck-grid {
   display: grid;
-  gap: 16px;
+  gap: 20px;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 }
 
+/* -------------------------------------------------------------------------- */
+/* Deck card                                                                   */
+/* -------------------------------------------------------------------------- */
+
 .prompt-deck-card {
-  background: linear-gradient(
-    180deg,
-    var(--prompt-identity-softer, var(--surface)) 0,
-    var(--surface) 52%
-  );
-  border: 1px solid var(--prompt-identity-color, var(--border));
-  border-radius: 16px;
+  background: var(--prompt-identity-softer, #fbfafc);
+  border: 1px solid var(--prompt-identity-soft, var(--border));
+  border-radius: 20px;
+  box-shadow: 0 5px 18px rgb(43 32 67 / 8%);
   display: flex;
   flex-direction: column;
-  min-height: 220px;
+  min-height: 330px;
   overflow: hidden;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
-.prompt-deck-card__band {
+.prompt-deck-card:hover {
+  border-color: var(--prompt-identity-color, var(--accent));
+  box-shadow: 0 14px 30px rgb(43 32 67 / 13%);
+  transform: translateY(-3px);
+}
+
+.prompt-deck-card__band,
+.prompt-deck-card__identity {
   align-items: center;
-  background: var(--prompt-identity-color, var(--accent));
-  color: var(--prompt-identity-foreground, white);
+  background: linear-gradient(
+    135deg,
+    var(--prompt-identity-soft, var(--accent-soft)),
+    var(--prompt-identity-softer, #f7f4fb)
+  );
+  color: var(--prompt-identity-color, var(--accent-dark));
   display: flex;
-  gap: 12px;
-  min-height: 82px;
-  padding: 14px 18px;
+  gap: 13px;
+  min-height: 88px;
+  padding: 15px 17px;
 }
 
 .prompt-identity-icon-tile {
   align-items: center;
   background: rgb(255 255 255 / 88%);
-  border: 1px solid rgb(255 255 255 / 70%);
-  border-radius: 12px;
+  border: 1px solid rgb(255 255 255 / 82%);
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgb(43 32 67 / 9%);
+  color: var(--prompt-identity-color, var(--accent));
   display: inline-flex;
   flex: none;
   justify-content: center;
-  min-height: 52px;
-  min-width: 52px;
+  min-height: 50px;
+  min-width: 50px;
   padding: 7px;
 }
 
@@ -146,49 +203,87 @@
 }
 
 .prompt-deck-card__meta {
-  color: inherit;
+  color: var(--prompt-identity-color, var(--accent-dark));
   display: flex;
   flex-wrap: wrap;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  gap: 8px 14px;
+  gap: 7px;
 }
 
 .prompt-deck-card__meta span {
-  background: rgb(255 255 255 / 18%);
-  border: 1px solid rgb(255 255 255 / 38%);
+  background: rgb(255 255 255 / 58%);
+  border: 1px solid rgb(255 255 255 / 78%);
   border-radius: 999px;
-  padding: 4px 8px;
+  padding: 5px 9px;
 }
 
 .prompt-deck-card__body {
+  background: var(--prompt-identity-softer, #fbfafc);
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 18px 20px 20px;
+  padding: 20px 20px 18px;
 }
 
 .prompt-deck-card h2 {
-  font-size: 1.25rem;
-  margin: 14px 0 8px;
+  color: var(--text);
+  font-size: 1.28rem;
+  letter-spacing: -0.02em;
+  margin: 0 0 9px;
 }
 
 .prompt-deck-card p {
   color: var(--muted);
   line-height: 1.5;
-  margin: 0 0 20px;
+  margin: 0 0 22px;
 }
 
-.prompt-deck-card__link,
-.prompt-back-link {
+.prompt-deck-card__link {
   align-items: center;
-  color: var(--accent-dark);
+  align-self: flex-start;
+  background: var(--prompt-identity-soft, var(--accent-soft));
+  border: 1px solid var(--prompt-identity-color, var(--accent));
+  border-radius: 999px;
+  color: var(--prompt-identity-color, var(--accent-dark));
   display: inline-flex;
   font-weight: 700;
   gap: 7px;
   margin-top: auto;
+  padding: 9px 14px;
+  text-decoration: none;
   width: fit-content;
 }
+
+.prompt-deck-card__link:hover {
+  box-shadow: 0 3px 10px rgb(43 32 67 / 10%);
+  filter: brightness(0.98);
+}
+
+/* Existing Resource Memory component sits directly inside the card */
+
+.prompt-deck-card > .resource-memory-controls {
+  background: var(--prompt-identity-softer, #f7f5f9);
+  border-top: 1px solid rgb(49 40 68 / 8%);
+  margin: 0;
+  padding: 10px 14px;
+}
+
+.prompt-deck-card > .resource-compatibility-indicators {
+  background: var(--prompt-identity-softer, #f7f5f9);
+  border-top: 1px solid rgb(49 40 68 / 6%);
+  margin: 0;
+  padding: 8px 14px 11px;
+}
+
+.prompt-deck-card__actions {
+  border-top: 1px solid var(--border);
+  padding: 12px 14px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Empty states                                                                */
+/* -------------------------------------------------------------------------- */
 
 .prompt-empty-state,
 .prompt-route-message {
@@ -203,8 +298,25 @@
   margin-top: 0;
 }
 
+.prompt-route-message .prompt-back-link {
+  margin: 18px auto 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Deck page                                                                   */
+/* -------------------------------------------------------------------------- */
+
 .prompt-deck-page > .prompt-back-link {
   margin-bottom: 18px;
+}
+
+.prompt-back-link {
+  align-items: center;
+  color: var(--accent-dark);
+  display: inline-flex;
+  font-weight: 700;
+  gap: 7px;
+  width: fit-content;
 }
 
 .prompt-deck-page__header {
@@ -247,20 +359,26 @@
   margin: 4px 0 0;
 }
 
-.prompt-route-message .prompt-back-link {
-  margin: 18px auto 0;
-}
+/* -------------------------------------------------------------------------- */
+/* Session mode                                                                */
+/* -------------------------------------------------------------------------- */
 
 .prompt-session {
-  background: var(--surface);
+  background:
+    radial-gradient(
+      circle at center,
+      var(--prompt-identity-soft, var(--accent-soft)),
+      transparent 68%
+    ),
+    #f4f2f8;
   border: 1px solid var(--border);
-  border-radius: 22px;
+  border-radius: 24px;
   min-height: calc(100vh - 120px);
   padding: clamp(24px, 4vw, 48px);
 }
 
 .prompt-session__header {
-  align-items: start;
+  align-items: flex-start;
   display: flex;
   gap: 20px;
   justify-content: space-between;
@@ -283,9 +401,10 @@
 }
 
 .prompt-session__position {
-  background: var(--accent-soft);
+  background: var(--prompt-identity-soft, var(--accent-soft));
+  border: 1px solid var(--prompt-identity-color, var(--accent));
   border-radius: 999px;
-  color: var(--accent-dark);
+  color: var(--prompt-identity-color, var(--accent-dark));
   flex: none;
   font-weight: 700;
   margin: 0;
@@ -296,18 +415,31 @@
   align-items: center;
   display: flex;
   justify-content: center;
-  min-height: clamp(300px, 50vh, 560px);
-  padding: 32px 5%;
+  min-height: clamp(340px, 54vh, 620px);
+  padding: 38px 5%;
   text-align: center;
 }
 
-.prompt-session__stage p {
+/* Existing PromptSession JSX renders the prompt as a direct child paragraph */
+
+.prompt-session__stage > p {
+  background: var(--prompt-identity-softer, #fffefa);
+  border: 2px solid var(--prompt-identity-soft, var(--border));
+  border-radius: 28px;
+  box-shadow:
+    0 30px 70px rgb(39 27 64 / 18%),
+    0 10px 26px rgb(39 27 64 / 10%);
+  color: var(--text);
   font-size: clamp(2rem, 5vw, 4.5rem);
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.12;
   margin: 0;
-  max-width: 1000px;
+  max-width: 900px;
+  min-height: 320px;
+  padding: clamp(48px, 8vw, 90px);
+  transform: translateY(-6px);
+  width: 100%;
 }
 
 .prompt-session__controls {
@@ -318,9 +450,9 @@
 }
 
 .prompt-session__controls button:nth-child(2) {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
+  background: var(--prompt-identity-color, var(--accent));
+  border-color: var(--prompt-identity-color, var(--accent));
+  color: var(--prompt-identity-foreground, white);
 }
 
 .prompt-session--empty {
@@ -328,17 +460,69 @@
   text-align: center;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Motion                                                                      */
+/* -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .prompt-session__stage > p {
+    animation: prompt-card-enter 180ms ease-out;
+  }
+
+  @keyframes prompt-card-enter {
+    from {
+      opacity: 0.75;
+      transform: translateY(8px) scale(0.99);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(-6px) scale(1);
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive                                                                  */
+/* -------------------------------------------------------------------------- */
+
 @media (max-width: 760px) {
   .prompt-filters {
     grid-template-columns: 1fr;
   }
 
-  .prompt-deck-page__header {
+  .prompt-search-control {
     flex-direction: column;
+  }
+
+  .prompt-deck-page__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .prompt-deck-page__header .manage-mode-toggle {
+    align-self: flex-end;
+  }
+
+  .prompt-session {
+    min-height: auto;
+    padding: 20px;
   }
 
   .prompt-session__header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .prompt-session__stage {
+    min-height: 340px;
+    padding: 24px 0;
+  }
+
+  .prompt-session__stage > p {
+    border-radius: 20px;
+    min-height: 280px;
+    padding: 42px 24px;
+    transform: none;
   }
 }

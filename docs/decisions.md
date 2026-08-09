@@ -59,3 +59,14 @@ future feature work.
 - Curated SVG assets load on demand. Lucide remains reserved for interface controls and
   fallback presentation.
 - The temporary limited Prompt-only icon registry is retired.
+
+## Original Worksheet Authoring
+
+- An editable Worksheet is a shared Resource plus a separately versioned Worksheet
+  Document keyed by the same stable ID.
+- Worksheet creation and document saves are validated and transactional through one
+  repository boundary.
+- The first Builder uses explicit Save with draft-preserving retry behavior.
+- Builder, preview, print, and session presentation share one document renderer.
+- Image blocks, imported-file conversion, OCR, AI, cloud storage, collaboration,
+  psychoeducation, and workbooks remain deferred.

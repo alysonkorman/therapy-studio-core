@@ -8,6 +8,7 @@ export {
   THERAPY_STUDIO_VERSION_2_SCHEMA,
   THERAPY_STUDIO_VERSION_3_SCHEMA,
   THERAPY_STUDIO_VERSION_4_SCHEMA,
+  THERAPY_STUDIO_VERSION_5_SCHEMA,
 } from "./database";
 export { categoryRepository, createCategoryRepository } from "./categoryRepository";
 export { playlistRepository, createPlaylistRepository } from "./playlistRepository";
@@ -37,3 +38,9 @@ export {
   SessionProfileRepositoryError,
   sessionProfileRepository,
 } from "./sessionProfileRepository";
+export {
+  createWorksheetRepository,
+  worksheetRepository,
+  worksheetRepositoryErrorCodes,
+  WorksheetRepositoryError,
+} from "./worksheetRepository";

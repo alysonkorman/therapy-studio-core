@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 
 import "./index.css";
+import "./styles/design-system.css";
 import { router } from "./app/router";
 import ErrorBoundary from "./shared/components/ErrorBoundary";
 

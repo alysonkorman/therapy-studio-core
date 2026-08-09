@@ -1,134 +1,105 @@
-import {
-  BookOpen,
-  Boxes,
-  Brain,
-  Dice5,
-  FileText,
-  Gamepad2,
-  Library,
-  MessageCircle,
-  Shapes,
-  Users,
-  WandSparkles,
-} from "lucide-react";
+import { Brain, FileText, Gamepad2, Heart, MessageCircle, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 
+import { Page, Section } from "../../components/layout";
+import { resourceMemoryRepository } from "../../lib/data";
+import DashboardRecentResources from "./DashboardRecentResources";
 import ResourceSearch from "../search/ResourceSearch";
 import CurrentSessionCard from "../sessions/CurrentSessionCard";
 
-const toolCards = [
+const toolShortcuts = [
   {
     title: "Prompts",
-    description: "Questions, directives, activities, and conversation starters.",
+    path: "/prompts",
+    description: "Open a question or conversation deck.",
     icon: MessageCircle,
   },
   {
     title: "Interventions",
-    description: "Clinical activities connected to sources, research, and materials.",
+    path: "/interventions",
+    description: "Browse clinical activities and materials.",
     icon: Brain,
   },
   {
-    title: "Games",
-    description: "Interactive and two-player activities designed for telehealth.",
-    icon: Gamepad2,
-  },
-  {
     title: "Worksheets",
-    description: "Create, customize, complete, and export therapeutic worksheets.",
+    path: "/worksheets",
+    description: "Create, reopen, or share a worksheet.",
     icon: FileText,
   },
   {
-    title: "Whiteboard",
-    description: "Draw, write, brainstorm, and build ideas together in real time.",
-    icon: Shapes,
+    title: "Games",
+    path: "/games",
+    description: "Interactive telehealth games are coming later.",
+    icon: Gamepad2,
+    status: "Coming Later",
   },
   {
-    title: "Scene Builder",
-    description: "Build expressive scenes with movable people, objects, and settings.",
-    icon: Boxes,
+    title: "Session Profiles",
+    path: "/clients",
+    description: "Load useful, non-identifying session context.",
+    icon: Users,
   },
   {
-    title: "Workbooks",
-    description: "Combine worksheets and psychoeducation into reusable packets.",
-    icon: BookOpen,
-  },
-  {
-    title: "Session Randomizer",
-    description: "Generate a flexible session plan from the current session details.",
-    icon: Dice5,
+    title: "Saved",
+    path: "/saved",
+    description: "Return to favorites and remembered Resources.",
+    icon: Heart,
   },
 ];
 
-function ToolCard({ title, description, icon: Icon }) {
+function ToolShortcut({ title, description, icon: Icon, path, status }) {
   return (
-    <button className="tool-card" type="button">
-      <div className="tool-card-icon">
-        <Icon size={26} />
-      </div>
-      <div>
-        <h3>{title}</h3>
-        <p>{description}</p>
-      </div>
-      <WandSparkles className="tool-card-arrow" size={18} />
-    </button>
+    <Link aria-label={`Open ${title}`} className="dashboard-shortcut" to={path}>
+      <span className="dashboard-shortcut__icon">
+        <Icon aria-hidden="true" size={21} />
+      </span>
+      <span>
+        <strong>{title}</strong>
+        <small>{description}</small>
+        {status ? <em>{status}</em> : null}
+      </span>
+    </Link>
   );
 }
 
-export default function DashboardPage() {
+export default function DashboardPage({ memoryRepository = resourceMemoryRepository }) {
   return (
-    <>
-      <header className="page-header">
-        <div>
-          <span className="eyebrow">Your telehealth therapy workspace</span>
-          <h1>What would help this kid engage today?</h1>
-        </div>
-        <button className="session-mode-button" type="button">
-          <Users size={19} />
-          Start session mode
-        </button>
-      </header>
-
+    <Page
+      className="dashboard-page"
+      description="Find something clinically meaningful for this child and this moment."
+      title="What would help this child engage today?"
+    >
       <ResourceSearch />
 
-      <div className="home-layout">
-        <CurrentSessionCard />
-        <section className="quick-action-card">
-          <div className="section-heading">
-            <div>
-              <span className="eyebrow">Quick help</span>
-              <h2>I need an idea</h2>
-            </div>
-            <div className="randomizer-icon">
-              <Dice5 size={22} />
-            </div>
-          </div>
-          <p>
-            Use the current-session details to generate several flexible, clinically
-            meaningful options.
-          </p>
-          <button className="primary-button" type="button">
-            <Dice5 size={19} />
-            Randomize a session
-          </button>
-        </section>
-      </div>
+      <Section
+        actions={
+          <Link className="studio-button studio-button--secondary" to="/saved">
+            View Saved
+          </Link>
+        }
+        description="Quickly reopen something that was intentionally used."
+        title="Continue Where You Left Off"
+      >
+        <DashboardRecentResources repository={memoryRepository} />
+      </Section>
 
-      <section className="tools-section">
-        <div className="tools-heading">
-          <div>
-            <span className="eyebrow">Everything stays connected</span>
-            <h2>Browse Therapy Studio</h2>
-          </div>
-          <button className="browse-button" type="button">
-            <Library size={18} />
-            Browse all resources
-          </button>
-        </div>
-        <div className="tool-grid">
-          {toolCards.map((tool) => (
-            <ToolCard key={tool.title} {...tool} />
+      <Section
+        description="Go straight to the part of Therapy Studio you need."
+        title="Session Tools"
+      >
+        <div className="dashboard-shortcut-grid">
+          {toolShortcuts.map((tool) => (
+            <ToolShortcut key={tool.title} {...tool} />
           ))}
         </div>
-      </section>
-    </>
+      </Section>
+
+      <Section
+        description="Optional, temporary context can make search results more useful."
+        title="Current Session Context"
+      >
+        <CurrentSessionCard />
+      </Section>
+    </Page>
   );
 }

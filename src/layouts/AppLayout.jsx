@@ -1,35 +1,59 @@
-import {
-  Brain,
-  FileText,
-  Gamepad2,
-  Heart,
-  Home,
-  MessageCircle,
-  Settings,
-  Sparkles,
-  Users,
-} from "lucide-react";
-import { NavLink, Outlet } from "react-router-dom";
+import { Menu, Search, Sparkles, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 
 import "../App.css";
-
-const navigationItems = [
-  { label: "Home", path: "/", icon: Home },
-  { label: "Prompts", path: "/prompts", icon: MessageCircle },
-  { label: "Interventions", path: "/interventions", icon: Brain },
-  { label: "Games", path: "/games", icon: Gamepad2 },
-  { label: "Worksheets", path: "/worksheets", icon: FileText },
-  { label: "Session Profiles", path: "/clients", icon: Users },
-  { label: "Saved", path: "/saved", icon: Heart },
-];
+import { getNavigationItemForPath, navigationItems } from "../app/navigation";
 
 export default function AppLayout() {
+  const { pathname } = useLocation();
+  const [mobileMenuPath, setMobileMenuPath] = useState(null);
+  const navigationRef = useRef(null);
+  const navigationToggleRef = useRef(null);
+  const mobileMenuOpen = mobileMenuPath === pathname;
+  const currentPageLabel = getNavigationItemForPath(pathname)?.label ?? "Therapy Studio";
+
+  function closeMobileMenu() {
+    setMobileMenuPath(null);
+  }
+
+  function handleShellKeyDown(event) {
+    if (event.key === "Escape" && mobileMenuOpen) {
+      closeMobileMenu();
+      navigationToggleRef.current?.focus();
+    }
+  }
+
+  function focusMainContent() {
+    document.getElementById("main-content")?.focus();
+  }
+
+  function toggleMobileMenu() {
+    if (mobileMenuOpen) {
+      closeMobileMenu();
+      return;
+    }
+
+    setMobileMenuPath(pathname);
+    requestAnimationFrame(() =>
+      navigationRef.current?.querySelector(".navigation-button")?.focus()
+    );
+  }
+
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <NavLink className="brand" to="/">
+    <div className="app-shell" onKeyDown={handleShellKeyDown}>
+      <a className="skip-to-content" href="#main-content" onClick={focusMainContent}>
+        Skip to Content
+      </a>
+
+      <aside
+        className={`sidebar ${mobileMenuOpen ? "sidebar--open" : ""}`}
+        id="app-navigation"
+        ref={navigationRef}
+      >
+        <NavLink className="brand" onClick={closeMobileMenu} to="/">
           <div className="brand-icon">
-            <Sparkles size={22} />
+            <Sparkles aria-hidden="true" size={22} />
           </div>
 
           <div>
@@ -39,35 +63,74 @@ export default function AppLayout() {
         </NavLink>
 
         <nav className="sidebar-navigation" aria-label="Main navigation">
-          {navigationItems.map(({ label, path, icon: Icon }) => (
+          {navigationItems.map(({ label, path, icon: Icon, utility }) => (
             <NavLink
               className={({ isActive }) =>
-                `navigation-button ${isActive ? "active" : ""}`
+                [
+                  "navigation-button",
+                  utility ? "navigation-button--utility" : "",
+                  isActive ? "active" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")
               }
               end={path === "/"}
               key={path}
+              onClick={closeMobileMenu}
               to={path}
             >
-              <Icon size={20} />
+              <Icon aria-hidden="true" size={20} />
               <span>{label}</span>
             </NavLink>
           ))}
         </nav>
-
-        <NavLink
-          className={({ isActive }) =>
-            `navigation-button settings-button ${isActive ? "active" : ""}`
-          }
-          to="/settings"
-        >
-          <Settings size={20} />
-          <span>Settings</span>
-        </NavLink>
       </aside>
 
-      <main className="main-content">
-        <Outlet />
-      </main>
+      {mobileMenuOpen ? (
+        <button
+          aria-label="Dismiss Navigation Menu"
+          className="navigation-backdrop"
+          onClick={() => {
+            closeMobileMenu();
+            navigationToggleRef.current?.focus();
+          }}
+          type="button"
+        />
+      ) : null}
+
+      <div className="shell-workspace">
+        <header className="shell-toolbar">
+          <button
+            aria-controls="app-navigation"
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? "Close Navigation" : "Open Navigation"}
+            className="mobile-navigation-toggle"
+            onClick={toggleMobileMenu}
+            ref={navigationToggleRef}
+            type="button"
+          >
+            {mobileMenuOpen ? (
+              <X aria-hidden="true" size={21} />
+            ) : (
+              <Menu aria-hidden="true" size={21} />
+            )}
+          </button>
+
+          <p aria-live="polite" className="shell-current-page">
+            <span>Current Page</span>
+            <strong>{currentPageLabel}</strong>
+          </p>
+
+          <Link className="shell-search-link" to="/#universal-search">
+            <Search aria-hidden="true" size={18} />
+            Search Resources
+          </Link>
+        </header>
+
+        <main className="main-content" id="main-content" tabIndex="-1">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

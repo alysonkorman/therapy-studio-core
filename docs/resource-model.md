@@ -20,11 +20,18 @@ Current resource types are:
 - `worksheet`
 - `workbook`
 - `psychoeducation`
+- `activity`
 - `visual`
 - `scene`
 - `whiteboard`
 
 Changing this enum is Resource architecture work and requires an explicit milestone.
+
+Resource IDs are globally unique across types because all Resources share the same
+`id`-keyed repository table. Repository creation and seeds reject collisions, and the
+static aggregate performs the same check. `getResourceKey(resource)` produces a
+type-aware UI key such as `prompt-deck:123` without changing persisted IDs or Resource
+Memory records.
 
 ## Imported Prompt Decks
 
@@ -34,13 +41,12 @@ through `src/data/resources/promptDecks.js`. That module delegates validation an
 deterministic transformation to `src/engines/prompts/importPromptDecks.js`. Pages must
 not read or transform the raw JSON directly.
 
-`promptDeckSchema` extends `resourceSchema` with:
+`promptDeckSchema` inherits shared tags and extends `resourceSchema` with:
 
 - `category`
 - nullable `categoryId`
 - validated `color` and safe `iconId`
 - non-negative `sortOrder`
-- `tags`
 - `prompts`
 - `legacyMetadata`
 
@@ -83,6 +89,19 @@ ID once at repository creation; updates preserve identity and `createdAt` while 
 legacy metadata are validated before every write. Favorites, ratings, and usage are
 stored separately as Resource Memory. Collaboration remains deferred.
 
+## Worksheet Resources
+
+An original Worksheet is a shared Resource with `type: "worksheet"`, validated by
+`worksheetSchema`. It retains common identity, clinical matching, source, lifecycle,
+and Resource Memory behavior, with Worksheet presentation metadata for category,
+six-digit color, icon ID, attribution, and provenance. Tags remain part of the shared
+Resource contract.
+
+Editable page content is not embedded in the Resource. A separate strict, versioned
+`worksheetDocumentSchema` stores pages and blocks under the same stable Worksheet ID.
+This keeps Resource concerns reusable while allowing the Builder document format to
+evolve through explicit versions. See `docs/worksheet-builder.md`.
+
 ## Therapist Resource Memory
 
 `resourceMemorySchema` is a strict record keyed by `resourceId`. Defaults are
@@ -119,6 +138,7 @@ and does not interpret headings or metadata. Smart Paste remains deferred.
 - `type`
 - `title`
 - `description`
+- `tags`
 
 ### Clinical fit and retrieval metadata
 
@@ -160,8 +180,10 @@ information immediately, omits empty optional sections, and reveals source, supp
 research, Alyson's notes, and usage count through its advanced control.
 
 Persistence does not belong in the model or card. Favorites, ratings, usage history,
-related-resource resolution, and therapist memory remain non-persistent until a
-dedicated milestone establishes the repository layer.
+and therapist notes are owned by the separate Resource Memory repository. The older
+similarly named fields retained in the base Resource shape are compatibility fields;
+new shared behavior must not create a second favorites or memory state. Relationship
+resolution remains deferred.
 
 ## Testing Contract
 

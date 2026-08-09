@@ -38,6 +38,14 @@ const emptyMemory = (resourceId) => ({
   adaptations: [],
 });
 
+const privateMemory = (resourceId) => ({
+  ...emptyMemory(resourceId),
+  favorite: true,
+  rating: 4,
+  therapistNotes: "Do not show during screen sharing",
+  worksWellWhen: ["Needs a gentle start"],
+});
+
 function memoryRepository() {
   return {
     getResourceMemory: vi.fn(async (id) => emptyMemory(id)),
@@ -124,6 +132,36 @@ describe("PromptDeckPage", () => {
     expect(memory.markResourceUsed).toHaveBeenCalledTimes(1);
     await user.click(screen.getByRole("button", { name: /^next/i }));
     expect(memory.markResourceUsed).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps therapist Resource Memory outside the child-facing session by default", async () => {
+    const user = userEvent.setup();
+    const memory = memoryRepository();
+    memory.getResourceMemory.mockImplementation(async (id) => privateMemory(id));
+    render(renderDeckPage("/prompts/check-in", decks, memory));
+
+    expect(screen.getByText("First question")).toBeVisible();
+    expect(screen.queryByText("Do not show during screen sharing")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Favorite" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Rate 4 out of 5" })).toBeNull();
+
+    const disclosure = screen.getByRole("button", {
+      name: "Therapist Resource Memory",
+    });
+    expect(disclosure).toHaveAttribute("aria-expanded", "false");
+    await user.click(disclosure);
+    expect(await screen.findByRole("button", { name: "Favorite" })).toBeVisible();
+    expect(screen.queryByText("Do not show during screen sharing")).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: /private resource memory/i }));
+    expect(screen.getByLabelText("Private Notes")).toHaveValue(
+      "Do not show during screen sharing"
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Hide Therapist Resource Memory" })
+    );
+    expect(screen.queryByText("Do not show during screen sharing")).toBeNull();
+    expect(screen.getByText("First question")).toBeVisible();
   });
 
   it("moves next and previous and updates the position", async () => {

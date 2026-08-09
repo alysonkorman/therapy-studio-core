@@ -1,8 +1,24 @@
+import { Link } from "react-router-dom";
+
 import ResourceCard from "../../components/ResourceCard";
 import PromptDeckCard from "../prompts/PromptDeckCard";
 
+function genericResultDestination(resource) {
+  if (resource.type === "worksheet") {
+    return { label: "Open Worksheet", path: `/worksheets/${resource.id}` };
+  }
+  if (resource.type === "intervention") {
+    return {
+      label: "Open Intervention",
+      path: `/interventions/${encodeURIComponent(resource.id)}`,
+    };
+  }
+  return null;
+}
+
 export default function ResourceSearchResult({ result }) {
   const { resource, matches } = result;
+  const destination = genericResultDestination(resource);
 
   return (
     <section
@@ -21,7 +37,17 @@ export default function ResourceSearchResult({ result }) {
       {resource.type === "prompt-deck" ? (
         <PromptDeckCard deck={resource} />
       ) : (
-        <ResourceCard resource={resource} />
+        <div className="resource-search-result__generic">
+          <ResourceCard resource={resource} />
+          {destination ? (
+            <Link
+              className="studio-button studio-button--secondary"
+              to={destination.path}
+            >
+              {destination.label}
+            </Link>
+          ) : null}
+        </div>
       )}
     </section>
   );
