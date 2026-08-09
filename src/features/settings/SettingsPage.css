@@ -3,12 +3,13 @@
 }
 
 .settings-backup {
-  background: var(--surface-primary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  border-radius: 0;
   display: grid;
   gap: var(--space-5);
-  padding: var(--space-6);
+  padding: var(--space-6) 0 0;
 }
 
 .settings-backup__heading {
@@ -47,7 +48,7 @@
 .settings-backup__notice,
 .settings-backup__confirmation {
   background: var(--surface-secondary);
-  border: 1px solid var(--border-subtle);
+  border: 0;
   border-radius: var(--radius-md);
   display: grid;
   gap: var(--space-2);

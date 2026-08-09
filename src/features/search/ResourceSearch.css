@@ -17,7 +17,7 @@
 
 .resource-search-clear {
   align-items: center;
-  background: var(--surface);
+  background: transparent;
   border: 1px solid var(--border);
   border-radius: 10px;
   color: var(--text);
@@ -96,9 +96,9 @@
 }
 
 .resource-search-empty {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
+  background: var(--surface-soft);
+  border: 0;
+  border-radius: var(--radius-lg);
   padding: 38px 24px;
   text-align: center;
 }

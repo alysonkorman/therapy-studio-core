@@ -10,7 +10,7 @@
   display: flex;
   gap: var(--space-5);
   justify-content: space-between;
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-7);
 }
 
 .studio-page__heading {
@@ -20,7 +20,7 @@
 .studio-page__heading h1 {
   font-size: var(--page-title-size);
   letter-spacing: -0.045em;
-  line-height: 1.05;
+  line-height: 1.08;
   margin: 0;
   overflow-wrap: anywhere;
 }
@@ -48,7 +48,7 @@
 
 .studio-page__content {
   display: grid;
-  gap: var(--space-6);
+  gap: var(--space-7);
   min-width: 0;
 }
 
@@ -61,7 +61,7 @@
   display: flex;
   gap: var(--space-4);
   justify-content: space-between;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 
 .studio-section__header h2,
@@ -78,7 +78,7 @@
 
 .studio-empty-state {
   background: var(--surface-secondary);
-  border: 1px solid var(--border-subtle);
+  border: 0;
   border-radius: var(--radius-lg);
   padding: var(--space-7) var(--space-5);
   text-align: center;

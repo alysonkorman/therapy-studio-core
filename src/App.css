@@ -1,14 +1,15 @@
 :root {
-  --background: #f6f5fb;
-  --surface: #ffffff;
-  --surface-soft: #f0eef8;
-  --text: #25232d;
-  --muted: #6d6978;
-  --border: #dfdce8;
-  --accent: #6654a3;
-  --accent-dark: #4c3d7d;
-  --accent-soft: #ece8fa;
-  --sidebar: #292634;
+  --background: #f7f5f1;
+  --surface: #fffefa;
+  --surface-soft: #f2f0ec;
+  --surface-muted: #f2f0ec;
+  --text: #28252c;
+  --muted: #706b73;
+  --border: #e2ded7;
+  --accent: #67529d;
+  --accent-dark: #4e3b7c;
+  --accent-soft: #eee9f7;
+  --sidebar: #292730;
 }
 
 * {
@@ -55,7 +56,7 @@ button {
   display: flex;
   flex-direction: column;
   left: 0;
-  padding: 24px 16px;
+  padding: 28px 16px 20px;
   position: fixed;
   top: 0;
   width: 240px;
@@ -67,7 +68,7 @@ button {
   color: white;
   display: flex;
   gap: 12px;
-  padding: 0 8px 24px;
+  padding: 0 8px 30px;
 }
 
 .brand-icon {
@@ -113,8 +114,12 @@ button {
 
 .navigation-button:hover,
 .navigation-button.active {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.085);
   color: white;
+}
+
+.navigation-button.active {
+  box-shadow: inset 3px 0 0 #b9a7e8;
 }
 
 .navigation-button--utility {
@@ -128,12 +133,12 @@ button {
 
 .shell-toolbar {
   align-items: center;
-  background: var(--background);
+  background: rgb(247 245 241 / 94%);
   border-bottom: 1px solid var(--border);
   display: flex;
   gap: 18px;
   justify-content: space-between;
-  min-height: 68px;
+  min-height: 64px;
   padding: 10px 40px;
   position: sticky;
   top: 0;
@@ -198,7 +203,7 @@ button {
 }
 
 .main-content {
-  padding: 40px;
+  padding: 42px 40px 64px;
 }
 
 .main-content:focus {
@@ -269,11 +274,12 @@ button {
 
 .search-section {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  margin: 0 auto 24px;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  border-radius: var(--radius-lg);
+  box-shadow: 0 14px 34px rgb(52 44 35 / 7%);
+  margin: 0 auto 30px;
   max-width: 1240px;
-  padding: 22px;
+  padding: clamp(20px, 3vw, 30px);
 }
 
 .search-label {
@@ -285,7 +291,7 @@ button {
 
 .search-field {
   align-items: center;
-  background: var(--background);
+  background: #fff;
   border: 2px solid transparent;
   border-radius: 14px;
   display: flex;
@@ -339,9 +345,9 @@ button {
 .session-card,
 .quick-action-card {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 22px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
 }
 
 .section-heading,
@@ -418,7 +424,7 @@ button {
 }
 
 .quick-action-card {
-  background: var(--accent-soft);
+  background: var(--surface-soft);
 }
 
 .quick-action-card .primary-button {
@@ -437,29 +443,31 @@ button {
 
 .tool-grid {
   display: grid;
-  gap: 14px;
+  gap: 1px 24px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-top: 18px;
 }
 
 .tool-card {
   align-items: flex-start;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
   color: var(--text);
   display: flex;
   gap: 13px;
-  min-height: 160px;
-  padding: 18px;
+  min-height: 118px;
+  padding: 18px 6px;
   position: relative;
   text-align: left;
   text-decoration: none;
 }
 
 .tool-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
+  background: rgb(255 254 250 / 72%);
+  border-color: var(--border);
+  transform: none;
 }
 
 .tool-card:focus-visible,
@@ -521,7 +529,7 @@ button {
 
 .dashboard-recent-list {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-5);
   grid-template-columns: repeat(3, minmax(0, 1fr));
   list-style: none;
   margin: 0;
@@ -530,21 +538,22 @@ button {
 
 .dashboard-recent-link {
   align-items: center;
-  background: var(--surface-primary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
   color: var(--text);
   display: grid;
   gap: var(--space-3);
   grid-template-columns: auto minmax(0, 1fr) auto;
   min-height: 76px;
-  padding: var(--space-3);
+  padding: var(--space-3) 0;
   text-decoration: none;
 }
 
 .dashboard-recent-link:hover,
 .dashboard-shortcut:hover {
-  border-color: var(--accent);
+  border-color: var(--border);
   color: var(--accent-dark);
 }
 
@@ -587,8 +596,9 @@ button {
 }
 
 .dashboard-memory-message {
-  background: var(--surface-secondary);
-  border-radius: var(--radius-md);
+  background: transparent;
+  border-left: 3px solid var(--border);
+  border-radius: 0;
   color: var(--muted);
   margin: 0;
   padding: var(--space-4);
@@ -611,14 +621,15 @@ button {
 .dashboard-shortcut {
   align-items: center;
   background: transparent;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
   color: var(--text);
   display: grid;
   gap: var(--space-3);
   grid-template-columns: auto minmax(0, 1fr);
   min-height: 88px;
-  padding: var(--space-3);
+  padding: var(--space-4) 0;
   text-decoration: none;
 }
 
@@ -683,7 +694,7 @@ button {
   }
 
   .main-content {
-    padding: 24px;
+    padding: 28px 24px 48px;
   }
 
   .home-layout {
@@ -743,6 +754,10 @@ button {
 
   .search-field button {
     width: 100%;
+  }
+
+  .main-content {
+    padding: 24px 16px 40px;
   }
 }
 .brand,

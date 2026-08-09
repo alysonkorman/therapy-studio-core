@@ -13,7 +13,10 @@ import {
 import { interventions } from "../../data/resources/interventions";
 import { promptDecks } from "../../data/resources/promptDecks";
 import { worksheetStarters } from "../../data/resources/worksheetStarters";
-import { createTherapyStudioDatabase } from "./database";
+import {
+  createTherapyStudioDatabase,
+  THERAPY_STUDIO_DATABASE_LATEST_VERSION,
+} from "./database";
 import { createWorksheetRepository } from "./worksheetRepository";
 import {
   backupErrorCodes,
@@ -173,7 +176,7 @@ describe("backup repository", () => {
       format: "therapy-studio-backup",
       version: 1,
       exportedAt: timestamp,
-      databaseVersion: 5,
+      databaseVersion: THERAPY_STUDIO_DATABASE_LATEST_VERSION,
     });
     expect(backup.data.resources.map(({ id }) => id)).toEqual([
       "custom-deck",
