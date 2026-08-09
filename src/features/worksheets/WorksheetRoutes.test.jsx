@@ -89,11 +89,16 @@ describe("routed Worksheet workflow", () => {
     const textEditor = screen.getByLabelText("Text");
     await user.clear(textEditor);
     await user.type(textEditor, "How I Feel Today");
+    await user.selectOptions(screen.getByLabelText("Level"), "1");
+    await user.selectOptions(screen.getByLabelText("Alignment"), "center");
     await user.click(screen.getByRole("button", { name: "Apply Block Changes" }));
     await user.click(screen.getByRole("button", { name: "Save" }));
     await waitFor(async () => {
       const document = await repository.getWorksheetDocument("route-id-1");
       expect(document.pages[0].blocks[0].text).toBe("How I Feel Today");
+      expect(document.pages[0].blocks[0]).toEqual(
+        expect.objectContaining({ level: 1, alignment: "center" })
+      );
     });
 
     await user.click(screen.getByRole("link", { name: "Leave Builder" }));
@@ -104,8 +109,8 @@ describe("routed Worksheet workflow", () => {
     expect(await screen.findByText("How I Feel Today")).toBeInTheDocument();
     await user.click(screen.getByRole("link", { name: "Preview" }));
     expect(
-      await screen.findByRole("heading", { name: "How I Feel Today" })
-    ).toBeInTheDocument();
+      await screen.findByRole("heading", { name: "How I Feel Today", level: 1 })
+    ).toHaveStyle("text-align: center");
     expect(
       screen.getByRole("button", { name: "Print / Save as PDF" })
     ).toBeInTheDocument();

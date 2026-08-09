@@ -179,7 +179,23 @@ export default function WorksheetBuilderPage({ repository = worksheetRepository 
         <main className="worksheet-canvas" aria-label={`${pageLabel} Canvas`}>
           <WorksheetDocumentRenderer
             document={draft}
+            onDeleteBlock={(selectedId) => {
+              change(deleteWorksheetBlock(draft, pageId, selectedId));
+              setBlockId("");
+            }}
+            onDuplicateBlock={(selectedId) => {
+              const sourceIndex = page.blocks.findIndex(({ id }) => id === selectedId);
+              const next = duplicateWorksheetBlock(draft, pageId, selectedId);
+              change(next);
+              setBlockId(
+                next.pages.find(({ id }) => id === pageId).blocks[sourceIndex + 1].id
+              );
+            }}
+            onMoveBlock={(selectedId, offset) =>
+              change(moveWorksheetBlock(draft, pageId, selectedId, offset))
+            }
             onSelectBlock={setBlockId}
+            selectedBlockId={blockId}
             selectedPageId={pageId}
           />
         </main>
@@ -219,6 +235,7 @@ export default function WorksheetBuilderPage({ repository = worksheetRepository 
                   setError("Block content is incomplete or invalid.");
                 }
               }}
+              onClearSelection={() => setBlockId("")}
               onDelete={() => {
                 change(deleteWorksheetBlock(draft, pageId, block.id));
                 setBlockId("");

@@ -23,6 +23,13 @@ responses, checklists, multiple choice, rating scales, feelings scales, drawing 
 dividers, and spacers. All authored text is plain text; HTML is rejected. Image blocks
 are deferred.
 
+The Builder exposes the practical settings already defined by that model: heading
+level and alignment, text alignment, response-line count, drawing height, checklist
+Other choices, single or multiple selection, rating bounds and number visibility,
+divider style, and spacer size. A selected block is clearly marked and provides nearby
+keyboard-accessible move, duplicate, and delete actions. Drag-and-drop ordering remains
+deferred; Move Up and Move Down are the dependable ordering controls.
+
 ## Persistence and Saving
 
 `worksheetRepository.js` is the sole persistence boundary. Worksheet creation writes
@@ -32,6 +39,16 @@ explicit Save action. A failed save keeps the local draft and offers Retry.
 
 The database adds `worksheetDocuments`, keyed by `worksheetId`. Resource deletion and
 archive operations remain explicit repository actions.
+
+## Future Import Boundary
+
+Therapy Studio does not currently provide a therapist-facing Worksheet import flow.
+Starter data is internal seed content, and Backup & Restore restores Therapy Studio
+records rather than converting outside Worksheet files. A future importer should sit
+outside React pages, validate incoming content, and create the linked Worksheet Resource
+and Worksheet Document atomically through the repository. It must not bypass schemas or
+write directly to IndexedDB. PDF/image conversion, OCR, and arbitrary file ingestion are
+separate future work.
 
 ## Preview, Printing, and Session Use
 

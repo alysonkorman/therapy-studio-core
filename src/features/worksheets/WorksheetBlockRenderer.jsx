@@ -32,6 +32,7 @@ export default function WorksheetBlockRenderer({ block }) {
           {block.items.map((item) => (
             <li key={item}>☐ {item}</li>
           ))}
+          {block.allowOther ? <li>☐ Other: ____________________</li> : null}
         </ul>
       </section>
     );
@@ -42,7 +43,9 @@ export default function WorksheetBlockRenderer({ block }) {
         <p>{block.prompt}</p>
         <ul className="worksheet-choice-list">
           {block.options.map((option) => (
-            <li key={option}>○ {option}</li>
+            <li key={option}>
+              {block.selectionMode === "multiple" ? "☐" : "○"} {option}
+            </li>
           ))}
         </ul>
       </section>
