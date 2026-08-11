@@ -6,7 +6,6 @@ import formatPromptDisplayLabel from "./formatPromptDisplayLabel";
 import InlineEdit from "./InlineEdit";
 import MetadataEditor from "./MetadataEditor";
 import PromptColorPicker from "./PromptColorPicker";
-import PromptDeckIdentityPreview from "./PromptDeckIdentityPreview";
 import PromptManageCard from "./PromptManageCard";
 import CategoryCreationForm from "./CategoryCreationForm";
 
@@ -20,9 +19,6 @@ export default function PromptManageView({
 }) {
   const [newPrompt, setNewPrompt] = useState("");
   const [creatingCategory, setCreatingCategory] = useState(false);
-  const [previewColor, setPreviewColor] = useState(deck.color);
-  const [previewIconId, setPreviewIconId] = useState(deck.iconId);
-  const [previewCategory, setPreviewCategory] = useState(deck.category);
 
   async function addPrompt(event) {
     event.preventDefault();
@@ -66,12 +62,6 @@ export default function PromptManageView({
         <section className="appearance-section" aria-labelledby="appearance-title">
           <div className="appearance-section__header">
             <h2 id="appearance-title">Appearance</h2>
-            <PromptDeckIdentityPreview
-              category={formatPromptDisplayLabel(previewCategory)}
-              color={previewColor}
-              iconId={previewIconId}
-              title={deck.title}
-            />
           </div>
           <div className="appearance-editor">
             <div className="appearance-editor__category">
@@ -87,7 +77,6 @@ export default function PromptManageView({
                       ({ id }) => id === event.target.value
                     );
                     const category = selected?.name ?? deck.category;
-                    setPreviewCategory(category);
                     void run(() =>
                       repositories.decks.updatePromptDeck(deck.id, {
                         categoryId: event.target.value || null,
@@ -117,7 +106,6 @@ export default function PromptManageView({
                     const category = await run(() =>
                       repositories.categories.createCategory(input)
                     );
-                    setPreviewCategory(category.name);
                     await run(() =>
                       repositories.decks.updatePromptDeck(deck.id, {
                         categoryId: category.id,
@@ -132,7 +120,6 @@ export default function PromptManageView({
             <PromptColorPicker
               key={deck.color}
               label="Deck Color"
-              onPreview={setPreviewColor}
               onSave={(color) =>
                 run(() => repositories.decks.updatePromptDeck(deck.id, { color }))
               }
@@ -140,7 +127,6 @@ export default function PromptManageView({
             />
             <IconBrowserField
               label="Deck Icon"
-              onPreview={setPreviewIconId}
               onSave={(iconId) =>
                 run(() => repositories.decks.updatePromptDeck(deck.id, { iconId }))
               }

@@ -196,8 +196,8 @@
   border: 1px solid var(--border);
   border-radius: 14px;
   display: grid;
-  gap: 12px;
-  padding: 14px;
+  gap: 8px;
+  padding: 12px 14px;
 }
 
 .appearance-section__header {
@@ -272,10 +272,10 @@
 }
 
 .appearance-editor {
-  align-items: start;
+  align-items: center;
   display: grid;
-  gap: 14px;
-  grid-template-columns: minmax(150px, 0.55fr) minmax(300px, 1fr) minmax(300px, 1.1fr);
+  gap: 10px 16px;
+  grid-template-columns: minmax(150px, 0.5fr) minmax(500px, 2fr) minmax(180px, auto);
 }
 
 .appearance-editor__category,
@@ -285,13 +285,65 @@
 
 .appearance-editor__category {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .appearance-editor .prompt-color-picker,
 .appearance-editor .icon-browser-field {
-  height: 100%;
-  padding: 10px;
+  padding: 0;
+}
+
+.appearance-editor .prompt-color-picker {
+  align-items: center;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+
+.appearance-editor .prompt-color-picker legend {
+  padding: 0;
+}
+
+.appearance-editor .prompt-control-kicker {
+  position: absolute;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.appearance-editor .prompt-color-picker__custom {
+  align-items: center;
+  margin-top: 0;
+}
+
+.appearance-editor .prompt-color-picker__custom,
+.appearance-editor .prompt-color-picker__custom form,
+.appearance-editor .prompt-color-picker__custom label {
+  flex-direction: row;
+}
+
+.appearance-editor .prompt-color-picker__custom label {
+  align-items: center;
+  display: flex;
+  gap: 5px;
+}
+
+.appearance-editor .prompt-color-picker__current {
+  min-width: max-content;
+}
+
+.appearance-editor .icon-browser-field {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.appearance-editor .icon-browser-field__trigger {
+  white-space: nowrap;
 }
 
 .metadata-disclosure {
@@ -576,11 +628,15 @@
   min-width: 0;
 }
 
-.prompt-manage-card__identity > img,
-.prompt-manage-card__identity > svg,
+.prompt-manage-card__visual,
 .prompt-manage-card__accent {
   flex: none;
   margin-top: 4px;
+}
+
+.prompt-manage-card__visual {
+  align-items: center;
+  display: inline-flex;
 }
 
 .prompt-manage-card__accent {
@@ -621,6 +677,37 @@
 
 .prompt-manage-card__options .metadata-editor {
   margin-top: 0;
+}
+
+.prompt-manage-card__visual-editor {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(150px, 1fr) minmax(210px, 2fr) auto;
+}
+
+.prompt-manage-card__visual-editor h3,
+.prompt-manage-card__visual-editor p {
+  margin: 0;
+}
+
+.prompt-manage-card__visual-editor p {
+  color: var(--muted);
+  font-size: 0.84rem;
+  margin-top: 3px;
+}
+
+.playlist-prompt-identity {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+@media (max-width: 700px) {
+  .prompt-manage-card__visual-editor {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
 }
 
 .prompt-manage-card__actions h3 {
@@ -687,6 +774,18 @@
   .appearance-section__header {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .appearance-editor .prompt-color-picker,
+  .appearance-editor .prompt-color-picker__custom,
+  .appearance-editor .prompt-color-picker__custom form,
+  .appearance-editor .prompt-color-picker__custom label,
+  .appearance-editor .icon-browser-field {
+    align-items: stretch;
+  }
+
+  .appearance-editor .prompt-color-picker__custom form {
+    flex-direction: row;
   }
 
   .prompt-manage-card__header {

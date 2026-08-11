@@ -70,6 +70,14 @@ describe("prompt schemas", () => {
     expect(() => promptItemSchema.parse({ ...prompt, text: "  " })).toThrow();
   });
 
+  it("keeps card visual overrides optional and backward compatible", () => {
+    expect(promptItemSchema.parse(prompt)).not.toHaveProperty("iconId");
+    expect(promptItemSchema.parse({ ...prompt, iconId: "reading" }).iconId).toBe(
+      "reading"
+    );
+    expect(promptItemSchema.parse({ ...prompt, iconId: null }).iconId).toBeNull();
+  });
+
   it("preserves repaired identity metadata", () => {
     const repaired = promptItemSchema.parse({
       ...prompt,

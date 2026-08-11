@@ -70,6 +70,7 @@ Individual prompts are lightweight nested records, not independent Resources.
 - `type`, `category`, nullable `subcategory`, and nullable `depth`;
 - `tags`, `ageRanges`, `goals`, `diagnoses`, and `settings`;
 - non-negative `sortOrder`;
+- optional nullable semantic `iconId` for a per-card curated visual override;
 - optional `legacyId` for repaired prompt-ID collisions;
 - normalized `source`; and
 - `legacyMetadata` containing the original typed ID, artwork, attribution, and export
@@ -88,6 +89,11 @@ ID once at repository creation; updates preserve identity and `createdAt` while 
 `updatedAt` on the deck. Prompt text, clinical matching arrays, source, and imported
 legacy metadata are validated before every write. Favorites, ratings, and usage are
 stored separately as Resource Memory. Collaboration remains deferred.
+
+Prompt visuals resolve dynamically from the prompt's optional `iconId`, then the owning
+deck's `iconId`, then the shared icon service fallback. Deck visuals are not copied into
+nested prompt records, so changing a deck visual updates every prompt without an
+override. Existing imported prompts remain valid without the optional field.
 
 ## Worksheet Resources
 

@@ -22,6 +22,7 @@ export const promptItemSchema = z
     settings: z.array(z.string()).default([]),
     depth: z.string().nullable().default(null),
     sortOrder: z.number().int().nonnegative().default(0),
+    iconId: z.string().min(1).nullable().optional(),
     legacyId: importedIdSchema.optional(),
     source: z.string().default(""),
     legacyMetadata: z

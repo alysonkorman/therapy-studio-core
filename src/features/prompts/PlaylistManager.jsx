@@ -5,6 +5,7 @@ import { IconRenderer } from "../icons";
 import InlineEdit from "./InlineEdit";
 import formatPromptDisplayLabel from "./formatPromptDisplayLabel";
 import { promptAccentStyle } from "./promptAppearance";
+import PromptVisual from "./PromptVisual";
 
 export default function PlaylistManager({ playlists, decks, repository, run }) {
   const [openId, setOpenId] = useState("");
@@ -27,12 +28,18 @@ export default function PlaylistManager({ playlists, decks, repository, run }) {
 
   function itemIdentity(item) {
     const itemDeck = decks.find(({ id }) => id === item.deckId);
+    const itemPrompt = itemDeck?.prompts.find(({ id }) => id === item.promptId);
     return item.type === "prompt-deck" && itemDeck ? (
       <span className="playlist-deck-identity" style={promptAccentStyle(itemDeck.color)}>
         <span className="prompt-identity-icon-tile">
           <IconRenderer iconId={itemDeck.iconId} size={28} />
         </span>
         {itemDeck.title}
+      </span>
+    ) : itemDeck && itemPrompt ? (
+      <span className="playlist-prompt-identity">
+        <PromptVisual deck={itemDeck} prompt={itemPrompt} size={24} />
+        {itemPrompt.text}
       </span>
     ) : (
       <span>{itemLabel(item)}</span>

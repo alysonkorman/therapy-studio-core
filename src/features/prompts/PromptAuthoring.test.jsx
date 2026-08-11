@@ -282,10 +282,7 @@ describe("Prompt authoring interactions", () => {
         run={(operation) => operation()}
       />
     );
-    const preview = screen.getByRole("article", {
-      name: /live deck appearance preview/i,
-    });
-    expect(preview).toHaveStyle({ "--prompt-identity-color": "#6C46C3" });
+    expect(screen.queryByLabelText(/live deck appearance preview/i)).toBeNull();
     await user.click(
       within(screen.getByRole("group", { name: /deck color/i })).getByRole("button", {
         name: /use #3267a8/i,
@@ -294,15 +291,13 @@ describe("Prompt authoring interactions", () => {
     expect(decksRepository.updatePromptDeck).toHaveBeenCalledWith("deck-1", {
       color: "#3267A8",
     });
-    expect(preview).toHaveStyle({ "--prompt-identity-color": "#3267A8" });
     const deckIconField = screen.getByRole("group", { name: /deck icon/i });
     await user.click(within(deckIconField).getByRole("button"));
-    await user.type(screen.getByRole("searchbox", { name: /search icons/i }), "reading");
-    await user.dblClick(screen.getByRole("button", { name: /^select reading$/i }));
+    await user.type(screen.getByRole("searchbox", { name: /search icons/i }), "study01");
+    await user.dblClick(screen.getByRole("button", { name: /^select study01$/i }));
     expect(decksRepository.updatePromptDeck).toHaveBeenCalledWith("deck-1", {
-      iconId: "reading",
+      iconId: "curated-school-work-study01",
     });
-    expect(await within(preview).findByRole("img", { name: "Reading" })).toBeVisible();
     await user.type(
       screen.getByRole("textbox", { name: /^new prompt$/i }),
       "A new question"
@@ -319,6 +314,11 @@ describe("Prompt authoring interactions", () => {
     expect(options).toHaveAttribute("aria-expanded", "false");
     await user.click(options);
     expect(options).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("Using a card override")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: /use deck visual/i }));
+    expect(decksRepository.updatePrompt).toHaveBeenCalledWith("deck-1", "prompt-1", {
+      iconId: null,
+    });
     await user.click(screen.getByRole("button", { name: /^duplicate$/i }));
     expect(decksRepository.duplicatePrompt).toHaveBeenCalledWith("deck-1", "prompt-1");
   });
@@ -425,6 +425,7 @@ describe("Prompt authoring interactions", () => {
     expect(screen.getByRole("combobox", { name: /^category$/i })).toBeVisible();
     expect(screen.getByRole("group", { name: /deck color/i })).toBeVisible();
     expect(screen.getByRole("group", { name: /deck icon/i })).toBeVisible();
+    expect(screen.queryByLabelText("Live deck appearance preview")).toBeNull();
 
     await user.click(screen.getByRole("button", { name: /show clinical metadata/i }));
     const goals = screen.getByRole("textbox", { name: "Goals" });

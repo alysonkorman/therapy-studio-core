@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
@@ -116,11 +116,30 @@ describe("PromptDeckPage", () => {
       "--prompt-identity-color": "#3267A8",
       "--prompt-identity-soft": "#3267A81F",
     });
-    expect(await screen.findByRole("img", { name: "Ideas" })).toBeVisible();
+    expect(await screen.findAllByRole("img", { name: "Ideas" })).toHaveLength(2);
     expect(screen.queryByText("Second question")).toBeNull();
     expect(screen.getByText("1 of 3")).toBeVisible();
     expect(screen.getByRole("button", { name: /previous/i })).toBeDisabled();
     expect(memory.markResourceUsed).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows a card visual override in the Prompt session", async () => {
+    const overridden = [
+      {
+        ...decks[0],
+        prompts: [
+          {
+            ...decks[0].prompts[0],
+            iconId: "curated-school-work-study01",
+          },
+        ],
+      },
+    ];
+    render(renderDeckPage("/prompts/check-in", overridden));
+
+    const stage = document.querySelector(".prompt-session__stage");
+    expect(await within(stage).findByRole("img", { name: "Study01" })).toBeVisible();
+    expect(within(stage).queryByRole("img", { name: "Ideas" })).toBeNull();
   });
 
   it("counts one meaningful use per newly entered session", async () => {

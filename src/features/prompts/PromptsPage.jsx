@@ -178,6 +178,13 @@ export default function PromptsPage({
           <div className="prompt-library-tools__content">
             <PromptAuthoringPanel
               authoring={authoring}
+              onDeckCreated={(deck) => {
+                setQuery(deck.title);
+                setCategory("");
+                setMemoryFilter("");
+                setMemorySort("");
+                setToolsOpen(false);
+              }}
               setShowArchived={setShowArchived}
               showArchived={showArchived}
             />

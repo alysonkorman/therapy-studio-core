@@ -30,6 +30,7 @@ export const promptFields = [
   "settings",
   "depth",
   "source",
+  "iconId",
 ];
 export const metadataFields = ["diagnoses", "goals", "ageRanges", "tags", "settings"];
 
@@ -91,6 +92,7 @@ export function preparedPrompt(input, { id, sortOrder }) {
     depth: normalized.depth ?? null,
     source: normalized.source ?? "",
     sortOrder,
+    ...(normalized.iconId === undefined ? {} : { iconId: normalized.iconId }),
   });
 }
 

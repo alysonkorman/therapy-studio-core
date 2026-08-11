@@ -427,9 +427,8 @@
   text-align: center;
 }
 
-/* Existing PromptSession JSX renders the prompt as a direct child paragraph */
-
-.prompt-session__stage > p {
+.prompt-session__card {
+  align-items: center;
   background: var(--surface);
   border: 1px solid color-mix(in srgb, var(--prompt-identity-color) 24%, var(--border));
   border-radius: 20px;
@@ -437,6 +436,9 @@
     0 24px 54px rgb(52 43 35 / 12%),
     0 6px 16px rgb(52 43 35 / 7%);
   color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(22px, 4vw, 38px);
   font-size: clamp(2rem, 5vw, 4.5rem);
   font-weight: 700;
   letter-spacing: -0.035em;
@@ -447,6 +449,16 @@
   padding: clamp(48px, 8vw, 90px);
   transform: translateY(-6px);
   width: 100%;
+}
+
+.prompt-session__card > p {
+  margin: 0;
+}
+
+.prompt-session__visual {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
 }
 
 .prompt-session__controls {
@@ -472,7 +484,7 @@
 /* -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: no-preference) {
-  .prompt-session__stage > p {
+  .prompt-session__card {
     animation: prompt-card-enter 180ms ease-out;
   }
 
@@ -526,7 +538,7 @@
     padding: 24px 0;
   }
 
-  .prompt-session__stage > p {
+  .prompt-session__card {
     border-radius: 20px;
     min-height: 280px;
     padding: 42px 24px;

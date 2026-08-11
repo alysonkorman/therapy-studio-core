@@ -140,6 +140,16 @@ describe("importPromptDecks", () => {
     expect(deck.prompts[0]).not.toHaveProperty("legacyId");
   });
 
+  it("preserves an optional card visual override without adding one to old records", () => {
+    const [withOverride] = importPromptDecks(
+      makeExport([makeDeck({ prompts: [makePrompt({ iconId: "reading" })] })])
+    );
+    const [withoutOverride] = importPromptDecks(makeExport());
+
+    expect(withOverride.prompts[0].iconId).toBe("reading");
+    expect(withoutOverride.prompts[0]).not.toHaveProperty("iconId");
+  });
+
   it("rejects empty prompt text", () => {
     expect(() =>
       importPromptDecks(makeExport([makeDeck({ prompts: [makePrompt({ text: "  " })] })]))

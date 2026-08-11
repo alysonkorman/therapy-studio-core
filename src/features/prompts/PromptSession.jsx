@@ -1,6 +1,8 @@
 import { ArrowLeft, ArrowRight, RotateCcw, Shuffle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import PromptVisual from "./PromptVisual";
+
 function shufflePrompts(prompts) {
   const shuffled = [...prompts];
 
@@ -54,7 +56,15 @@ export default function PromptSession({ deck, onFirstPromptDisplayed }) {
       </header>
 
       <div className="prompt-session__stage">
-        <p key={currentPrompt.id}>{currentPrompt.text}</p>
+        <article className="prompt-session__card" key={currentPrompt.id}>
+          <PromptVisual
+            className="prompt-session__visual"
+            deck={deck}
+            prompt={currentPrompt}
+            size={88}
+          />
+          <p>{currentPrompt.text}</p>
+        </article>
       </div>
 
       <div className="prompt-session__controls" aria-label="Prompt controls">

@@ -82,6 +82,29 @@ describe("promptDeckRepository", () => {
     expect(reordered[0].id).not.toBe(second.id);
   });
 
+  it("creates a minimum valid deck without changing existing decks and reopens it", async () => {
+    const { database, repository } = setup();
+    const existing = promptDecks[0];
+    await repository.seedImportedPromptDecks([existing]);
+
+    const created = await repository.createPromptDeck({ title: "Minimum Deck" });
+    const reopenedRepository = createPromptDeckRepository({ database });
+    const reopened = await reopenedRepository.getPromptDeckById(created.id);
+
+    expect(reopened).toMatchObject({
+      id: created.id,
+      title: "Minimum Deck",
+      prompts: [],
+      archived: false,
+    });
+    expect(await reopenedRepository.getPromptDeckById(existing.id)).toMatchObject(
+      existing
+    );
+    await expect(repository.createPromptDeck({ title: "" })).rejects.toMatchObject({
+      code: "invalid-authoring-input",
+    });
+  });
+
   it("adds, bulk adds, edits, duplicates, deletes, and reorders prompts", async () => {
     const { repository } = setup();
     let deck = await repository.createPromptDeck({ title: "Editable" });
@@ -100,6 +123,33 @@ describe("promptDeckRepository", () => {
     const reversed = deck.prompts.map(({ id }) => id).reverse();
     deck = await repository.reorderPrompts(deck.id, reversed);
     expect(deck.prompts.map(({ id }) => id)).toEqual(reversed);
+  });
+
+  it("persists card visual overrides without copying the deck visual", async () => {
+    const { repository } = setup();
+    let deck = await repository.createPromptDeck({
+      title: "Visuals",
+      iconId: "ideas",
+    });
+    deck = await repository.addPrompt(deck.id, { text: "Default visual" });
+    deck = await repository.addPrompt(deck.id, {
+      text: "Card visual",
+      iconId: "reading",
+    });
+
+    expect(deck.prompts[0]).not.toHaveProperty("iconId");
+    expect(deck.prompts[1].iconId).toBe("reading");
+
+    await repository.updatePromptDeck(deck.id, { iconId: "calm" });
+    const reopened = await repository.getPromptDeckById(deck.id);
+    expect(reopened.iconId).toBe("calm");
+    expect(reopened.prompts[0]).not.toHaveProperty("iconId");
+    expect(reopened.prompts[1].iconId).toBe("reading");
+
+    const restored = await repository.updatePrompt(deck.id, reopened.prompts[1].id, {
+      iconId: null,
+    });
+    expect(restored.prompts[1].iconId).toBeNull();
   });
 
   it("moves and copies prompts transactionally between decks", async () => {

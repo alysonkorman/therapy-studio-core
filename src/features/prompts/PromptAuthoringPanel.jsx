@@ -8,11 +8,13 @@ import PlaylistCreationForm from "./PlaylistCreationForm";
 
 export default function PromptAuthoringPanel({
   authoring,
+  onDeckCreated,
   showArchived,
   setShowArchived,
 }) {
   const [title, setTitle] = useState("");
   const [creating, setCreating] = useState("");
+  const [creatingDeck, setCreatingDeck] = useState(false);
   const manageSummaryRef = useRef(null);
   const manageDetailsRef = useRef(null);
   const {
@@ -29,8 +31,21 @@ export default function PromptAuthoringPanel({
 
   async function createDeck(event) {
     event.preventDefault();
-    await run(() => repositories.decks.createPromptDeck({ title }));
-    setTitle("");
+    const normalizedTitle = title.trim();
+    if (!normalizedTitle || creatingDeck) return;
+    setCreatingDeck(true);
+    try {
+      const deck = await run(() =>
+        repositories.decks.createPromptDeck({ title: normalizedTitle })
+      );
+      setTitle("");
+      setCreating("");
+      onDeckCreated?.(deck);
+    } catch {
+      // usePromptAuthoring exposes the therapist-facing error while the form stays open.
+    } finally {
+      setCreatingDeck(false);
+    }
   }
 
   async function setUpAuthoring() {
@@ -115,25 +130,28 @@ export default function PromptAuthoringPanel({
       {creating === "deck" ? (
         <form
           className="inline-creation-form"
-          onSubmit={(event) => {
-            void createDeck(event);
-            setCreating("");
-          }}
+          onSubmit={(event) => void createDeck(event)}
         >
           <h3>New Deck</h3>
           <label>
             Deck Title
             <input
               autoFocus
+              disabled={creatingDeck}
               onChange={(event) => setTitle(event.target.value)}
+              required
               value={title}
             />
           </label>
           <div className="authoring-actions">
-            <button className="button-primary" disabled={!title.trim()} type="submit">
-              Save Deck
+            <button
+              className="button-primary"
+              disabled={!title.trim() || creatingDeck}
+              type="submit"
+            >
+              {creatingDeck ? "Saving Deck…" : "Save Deck"}
             </button>
-            <button onClick={() => setCreating("")} type="button">
+            <button disabled={creatingDeck} onClick={() => setCreating("")} type="button">
               Cancel
             </button>
           </div>

@@ -1,11 +1,12 @@
 import { ArrowDown, ArrowUp, ChevronDown, ChevronUp, Copy, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import { IconRenderer } from "../icons";
+import { IconBrowserField } from "../icons";
 import InlineEdit from "./InlineEdit";
 import formatPromptDisplayLabel from "./formatPromptDisplayLabel";
 import MetadataEditor from "./MetadataEditor";
 import PlaylistCreationForm from "./PlaylistCreationForm";
+import PromptVisual from "./PromptVisual";
 
 function validPromptColor(color) {
   return typeof color === "string" && /^#[0-9a-fA-F]{6}$/.test(color) ? color : null;
@@ -30,7 +31,12 @@ export default function PromptManageCard({
     <li className="prompt-manage-card">
       <div className="prompt-manage-card__header">
         <div className="prompt-manage-card__identity">
-          {prompt.iconId ? <IconRenderer iconId={prompt.iconId} size={28} /> : null}
+          <PromptVisual
+            className="prompt-manage-card__visual"
+            deck={deck}
+            prompt={prompt}
+            size={28}
+          />
           {accent ? (
             <span
               aria-label={`Prompt color ${accent}`}
@@ -67,6 +73,35 @@ export default function PromptManageCard({
       </div>
 
       <div className="prompt-manage-card__options" hidden={!expanded} id={optionsId}>
+        <section
+          aria-labelledby={`prompt-visual-${prompt.id}`}
+          className="prompt-manage-card__visual-editor"
+        >
+          <div>
+            <h3 id={`prompt-visual-${prompt.id}`}>Card Visual</h3>
+            <p>{prompt.iconId ? "Using a card override" : "Using the deck visual"}</p>
+          </div>
+          <IconBrowserField
+            actionLabel={prompt.iconId ? "Change SVG" : "Choose SVG"}
+            label={`Card Visual for ${prompt.text}`}
+            onSave={(iconId) =>
+              run(() => repositories.decks.updatePrompt(deck.id, prompt.id, { iconId }))
+            }
+            value={prompt.iconId ?? deck.iconId}
+          />
+          {prompt.iconId ? (
+            <button
+              onClick={() =>
+                void run(() =>
+                  repositories.decks.updatePrompt(deck.id, prompt.id, { iconId: null })
+                )
+              }
+              type="button"
+            >
+              Use Deck Visual
+            </button>
+          ) : null}
+        </section>
         <MetadataEditor
           onSave={(changes) =>
             run(() => repositories.decks.updatePrompt(deck.id, prompt.id, changes))

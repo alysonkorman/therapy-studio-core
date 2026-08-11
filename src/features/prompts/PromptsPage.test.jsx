@@ -31,6 +31,7 @@ const testDecks = [
 ];
 
 function authoringRepositories({
+  createFailure,
   seedFailure,
   seedDeferred,
   initiallySeeded = false,
@@ -45,6 +46,21 @@ function authoringRepositories({
         if (seedFailure) throw seedFailure;
         storedDecks = decks;
         return { created: decks.length, unchanged: 0, conflicts: [] };
+      }),
+      createPromptDeck: vi.fn(async ({ title }) => {
+        if (createFailure) throw createFailure;
+        const deck = {
+          ...promptDecks[0],
+          id: "new-deck",
+          title,
+          category: "",
+          categoryId: null,
+          prompts: [],
+          sortOrder: storedDecks.length,
+          legacyMetadata: undefined,
+        };
+        storedDecks = [...storedDecks, deck];
+        return { ...deck, archived: false };
       }),
     },
     categories: {
@@ -162,6 +178,57 @@ describe("PromptsPage", () => {
     expect(await screen.findByText(/manage prompt library/i)).toBeVisible();
     expect(screen.queryByRole("button", { name: /set up prompt authoring/i })).toBeNull();
     expect(repositories.decks.seedImportedPromptDecks).not.toHaveBeenCalled();
+  });
+
+  it("creates a minimum valid deck and makes it immediately visible in the Library", async () => {
+    const user = userEvent.setup();
+    const repositories = authoringRepositories({ initiallySeeded: true });
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
+    await user.click(await screen.findByRole("button", { name: /new deck/i }));
+    const title = screen.getByRole("textbox", { name: /deck title/i });
+    expect(screen.getByRole("button", { name: /save deck/i })).toBeDisabled();
+    await user.type(title, "  My New Deck  ");
+    await user.click(screen.getByRole("button", { name: /save deck/i }));
+
+    expect(repositories.decks.createPromptDeck).toHaveBeenCalledWith({
+      title: "My New Deck",
+    });
+    expect(await screen.findByRole("heading", { name: "My New Deck" })).toBeVisible();
+    expect(screen.getByRole("searchbox", { name: /search prompts/i })).toHaveValue(
+      "My New Deck"
+    );
+    expect(screen.getByText("Showing 1 of 138 decks")).toBeVisible();
+    expect(screen.getByRole("link", { name: /open deck/i })).toHaveAttribute(
+      "href",
+      "/prompts/new-deck"
+    );
+  });
+
+  it("keeps the New Deck form and title available when creation fails", async () => {
+    const user = userEvent.setup();
+    const repositories = authoringRepositories({
+      createFailure: new Error("Storage failed"),
+      initiallySeeded: true,
+    });
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
+    await user.click(await screen.findByRole("button", { name: /new deck/i }));
+    await user.type(
+      screen.getByRole("textbox", { name: /deck title/i }),
+      "Keep This Title"
+    );
+    await user.click(screen.getByRole("button", { name: /save deck/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /prompt authoring is unavailable/i
+    );
+    expect(screen.getByRole("textbox", { name: /deck title/i })).toHaveValue(
+      "Keep This Title"
+    );
+    expect(screen.getByRole("heading", { name: "New Deck" })).toBeVisible();
   });
 
   it("keeps authoring controls closed by default and removes them again on close", async () => {
