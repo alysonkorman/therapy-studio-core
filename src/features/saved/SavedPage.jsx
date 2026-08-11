@@ -38,18 +38,18 @@ function MemoryResource({ item, onChange, repository }) {
       onMemoryChange={onChange}
     />
   ) : (
-    <div>
-      <ResourceCard
-        memoryRepository={repository}
-        onMemoryChange={onChange}
-        resource={item.resource}
-      />
-      {destination ? (
-        <Link className="saved-page__resource-link" to={destination.path}>
-          {destination.label}
-        </Link>
-      ) : null}
-    </div>
+    <ResourceCard
+      actions={
+        destination ? (
+          <Link className="saved-page__resource-link" to={destination.path}>
+            {destination.label}
+          </Link>
+        ) : null
+      }
+      memoryRepository={repository}
+      onMemoryChange={onChange}
+      resource={item.resource}
+    />
   );
 }
 

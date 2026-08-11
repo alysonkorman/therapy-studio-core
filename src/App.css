@@ -1,15 +1,15 @@
 :root {
-  --background: #f7f5f1;
-  --surface: #fffefa;
-  --surface-soft: #f2f0ec;
-  --surface-muted: #f2f0ec;
-  --text: #28252c;
-  --muted: #706b73;
-  --border: #e2ded7;
-  --accent: #67529d;
-  --accent-dark: #4e3b7c;
-  --accent-soft: #eee9f7;
-  --sidebar: #292730;
+  --background: #fafafb;
+  --surface: #ffffff;
+  --surface-soft: #f6f7f9;
+  --surface-muted: #f6f7f9;
+  --text: #202124;
+  --muted: #666b73;
+  --border: #e2e5e9;
+  --accent: #7661c9;
+  --accent-dark: #624bb5;
+  --accent-soft: #f1eefb;
+  --sidebar: #292a31;
 }
 
 * {
@@ -146,7 +146,7 @@ button {
 
 .shell-toolbar {
   align-items: center;
-  background: rgb(247 245 241 / 94%);
+  background: rgb(250 250 251 / 94%);
   border-bottom: 1px solid var(--border);
   display: flex;
   gap: 18px;
@@ -216,7 +216,7 @@ button {
 }
 
 .main-content {
-  padding: 42px 40px 64px;
+  padding: 30px 40px 48px;
 }
 
 .main-content:focus {
@@ -245,12 +245,12 @@ button {
   display: flex;
   gap: 24px;
   justify-content: space-between;
-  margin: 0 auto 28px;
+  margin: 0 auto 20px;
   max-width: 1240px;
 }
 
 .page-header h1 {
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: clamp(1.8rem, 3.2vw, 2.65rem);
   letter-spacing: -0.045em;
   line-height: 1.05;
   margin: 8px 0 0;
@@ -287,12 +287,12 @@ button {
 
 .search-section {
   background: var(--surface);
-  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 14px 34px rgb(52 44 35 / 7%);
-  margin: 0 auto 30px;
+  box-shadow: 0 4px 16px rgb(32 33 36 / 4%);
+  margin: 0 auto 22px;
   max-width: 1240px;
-  padding: clamp(20px, 3vw, 30px);
+  padding: clamp(16px, 2vw, 22px);
 }
 
 .search-label {
@@ -305,7 +305,7 @@ button {
 .search-field {
   align-items: center;
   background: #fff;
-  border: 2px solid transparent;
+  border: 1px solid var(--border);
   border-radius: 14px;
   display: flex;
   gap: 10px;
@@ -314,6 +314,7 @@ button {
 
 .search-field:focus-within {
   border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .search-field input {
@@ -358,7 +359,7 @@ button {
 .session-card,
 .quick-action-card {
   background: var(--surface);
-  border: 0;
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
 }
@@ -437,7 +438,7 @@ button {
 }
 
 .quick-action-card {
-  background: var(--surface-soft);
+  background: var(--surface);
 }
 
 .quick-action-card .primary-button {
@@ -478,7 +479,7 @@ button {
 }
 
 .tool-card:hover {
-  background: rgb(255 254 250 / 72%);
+  background: rgb(255 255 255 / 80%);
   border-color: var(--border);
   transform: none;
 }

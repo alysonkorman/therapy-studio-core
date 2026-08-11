@@ -2,7 +2,10 @@
   background: var(--surface, #ffffff);
   border: 1px solid var(--border, #dfdce8);
   border-radius: var(--radius-lg, 14px);
-  padding: var(--space-5, 24px);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--space-4, 16px);
 }
 
 .resource-card-header {
@@ -13,8 +16,8 @@
 }
 
 .resource-card-header h2 {
-  font-size: 1.55rem;
-  margin: 8px 0 6px;
+  font-size: 1.35rem;
+  margin: 5px 0;
 }
 
 .resource-card-description {
@@ -61,8 +64,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px 18px;
-  margin-top: 22px;
-  padding: 15px 0;
+  margin-top: 16px;
+  padding: 11px 0;
 }
 
 .resource-card-summary > span {
@@ -87,16 +90,15 @@
 
 .resource-card-content-grid {
   display: grid;
-  gap: 22px;
+  gap: 16px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  padding-top: 22px;
+  padding-top: 16px;
 }
 
 .resource-card-section h3 {
   font-size: 0.86rem;
   letter-spacing: 0.04em;
   margin: 0 0 9px;
-  text-transform: uppercase;
 }
 
 .resource-card-section ul {
@@ -118,8 +120,22 @@
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 22px;
-  padding: 20px;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.resource-card-actions {
+  align-items: center;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.resource-card-actions a {
+  margin: 0;
 }
 
 .resource-advanced-button {
@@ -130,7 +146,7 @@
   display: flex;
   font-weight: 700;
   gap: 7px;
-  margin-top: 22px;
+  margin-top: 14px;
   padding: 4px 0;
 }
 

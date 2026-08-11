@@ -104,10 +104,9 @@ describe("SavedPage", () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByRole("link", { name: "Play Trivia" })).toHaveAttribute(
-      "href",
-      "/games/game-1"
-    );
+    const playTrivia = await screen.findByRole("link", { name: "Play Trivia" });
+    expect(playTrivia).toHaveAttribute("href", "/games/game-1");
+    expect(playTrivia.closest("article")).not.toBeNull();
     expect(screen.getByRole("link", { name: "Open Worksheet" })).toHaveAttribute(
       "href",
       "/worksheets/worksheet-1"

@@ -15,10 +15,10 @@
   --surface-secondary: var(--surface-soft);
   --surface-elevated: var(--surface);
   --border-subtle: var(--border);
-  --shadow-subtle: 0 10px 28px rgb(45 39 32 / 7%);
+  --shadow-subtle: 0 4px 16px rgb(32 33 36 / 5%);
 
   --page-content-width: 77.5rem;
-  --page-title-size: clamp(1.9rem, 3.4vw, 2.85rem);
+  --page-title-size: clamp(1.75rem, 3vw, 2.45rem);
   --section-title-size: clamp(1.15rem, 1.7vw, 1.4rem);
   --body-size: 1rem;
   --meta-size: 0.8rem;
@@ -60,7 +60,7 @@
 }
 
 .studio-button--secondary {
-  background: transparent;
+  background: var(--surface-primary);
   border-color: var(--border-subtle);
 }
 
@@ -75,12 +75,14 @@
 }
 
 .studio-button--destructive {
-  background: #a33a46;
-  color: white;
+  background: var(--surface-primary);
+  border-color: #d8a5aa;
+  color: #9a3340;
 }
 
 .studio-button--destructive:hover {
-  background: #812d37;
+  background: #fff5f6;
+  border-color: #bd6973;
 }
 
 .studio-button:active:not(:disabled) {
@@ -118,6 +120,12 @@
   width: 100%;
 }
 
+input.studio-control,
+select.studio-control,
+textarea.studio-control {
+  background: #ffffff;
+}
+
 textarea.studio-control {
   min-height: 7rem;
   resize: vertical;
@@ -142,5 +150,5 @@ textarea.studio-control {
   background: var(--surface-primary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: var(--space-5);
+  padding: var(--space-4);
 }

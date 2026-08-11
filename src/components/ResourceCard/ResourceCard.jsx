@@ -23,6 +23,7 @@ function DetailSection({ title, items }) {
 }
 
 export default function ResourceCard({
+  actions,
   allowMarkUsed = false,
   memoryRepository,
   onMemoryChange,
@@ -61,20 +62,16 @@ export default function ResourceCard({
       </div>
       <ResourceCompatibilityIndicators resource={resource} />
 
-      <div className="resource-card-content-grid">
-        <DetailSection items={resource.worksWellWhen} title="Works Well When" />
-
-        <DetailSection items={resource.kidsWhoLike} title="Kids Who Usually Like This" />
-
-        <DetailSection items={resource.goals} title="Uses" />
-
-        <DetailSection items={resource.materials} title="Requires" />
-
-        <DetailSection items={resource.useWith} title="Use With" />
-      </div>
-
       {showAdvanced && (
         <div className="resource-card-advanced">
+          <DetailSection items={resource.worksWellWhen} title="Works Well When" />
+          <DetailSection
+            items={resource.kidsWhoLike}
+            title="Kids Who Usually Like This"
+          />
+          <DetailSection items={resource.goals} title="Uses" />
+          <DetailSection items={resource.materials} title="Requires" />
+          <DetailSection items={resource.useWith} title="Use With" />
           <DetailSection items={resource.research} title="Supporting Research" />
 
           {resource.source && (
@@ -118,6 +115,7 @@ export default function ResourceCard({
           </>
         )}
       </button>
+      {actions ? <footer className="resource-card-actions">{actions}</footer> : null}
       <ResourceMemoryControls
         allowMarkUsed={allowMarkUsed}
         repository={memoryRepository}

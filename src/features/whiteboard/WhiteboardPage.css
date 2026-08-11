@@ -3,6 +3,7 @@
 }
 
 .whiteboard-toolbar,
+.whiteboard-toolbar__group,
 .whiteboard-options,
 .whiteboard-selection,
 .whiteboard-open-panel,
@@ -14,10 +15,20 @@
 }
 
 .whiteboard-toolbar {
+  justify-content: space-between;
   padding: var(--space-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface);
+}
+
+.whiteboard-toolbar__group {
+  gap: var(--space-1);
+}
+
+.whiteboard-toolbar__group--document {
+  border-left: 1px solid var(--border);
+  padding-left: var(--space-2);
 }
 
 .whiteboard-toolbar button,
@@ -28,10 +39,29 @@
   gap: var(--space-1);
   min-height: 2.5rem;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   background: var(--surface);
   color: var(--text);
+  white-space: nowrap;
+}
+
+.whiteboard-toolbar button:hover {
+  background: var(--surface-soft);
+  border-color: var(--border);
+}
+
+.whiteboard-toolbar .whiteboard-save {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.whiteboard-toolbar__group--document button:nth-child(-n + 2) {
+  color: var(--muted);
+}
+
+.whiteboard-toolbar__group--document button:nth-child(3) {
+  color: #9a3340;
 }
 
 .whiteboard-toolbar button[aria-pressed="true"] {
@@ -44,7 +74,7 @@
 .whiteboard-selection,
 .whiteboard-icon-control,
 .whiteboard-open-panel {
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface-soft);
@@ -65,6 +95,7 @@
   padding: var(--space-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
+  background: #ffffff;
 }
 
 .whiteboard-colors {
@@ -157,6 +188,14 @@
   .whiteboard-options {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .whiteboard-toolbar__group--document {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding-left: 0;
+    padding-top: var(--space-2);
+    width: 100%;
   }
 
   .whiteboard-canvas {

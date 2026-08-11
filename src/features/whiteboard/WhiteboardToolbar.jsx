@@ -35,42 +35,46 @@ export default function WhiteboardToolbar({
   return (
     <>
       <div aria-label="Whiteboard toolbar" className="whiteboard-toolbar" role="toolbar">
-        {[
-          ["draw", "Draw", Brush],
-          ["erase", "Erase", Eraser],
-          ["text", "Text", Type],
-          ["select", "Select", MousePointer2],
-        ].map(([value, label, Icon]) => (
-          <button
-            aria-pressed={tool === value}
-            key={value}
-            onClick={() => onToolChange(value)}
-            type="button"
-          >
-            <Icon aria-hidden="true" size={18} /> {label}
+        <div className="whiteboard-toolbar__group">
+          {[
+            ["draw", "Draw", Brush],
+            ["erase", "Erase", Eraser],
+            ["text", "Text", Type],
+            ["select", "Select", MousePointer2],
+          ].map(([value, label, Icon]) => (
+            <button
+              aria-pressed={tool === value}
+              key={value}
+              onClick={() => onToolChange(value)}
+              type="button"
+            >
+              <Icon aria-hidden="true" size={18} /> {label}
+            </button>
+          ))}
+          <button onClick={onShowIcons} type="button">
+            <Shapes aria-hidden="true" size={18} /> Add SVG
           </button>
-        ))}
-        <button onClick={onShowIcons} type="button">
-          <Shapes aria-hidden="true" size={18} /> Add SVG
-        </button>
-        <button disabled={!canUndo} onClick={onUndo} type="button">
-          <Undo2 aria-hidden="true" size={18} /> Undo
-        </button>
-        <button disabled={!canRedo} onClick={onRedo} type="button">
-          <Redo2 aria-hidden="true" size={18} /> Redo
-        </button>
-        <button onClick={onClear} type="button">
-          <Trash2 aria-hidden="true" size={18} /> Clear
-        </button>
-        <button onClick={onSave} type="button">
-          <Save aria-hidden="true" size={18} /> Save
-        </button>
-        <button onClick={onOpen} type="button">
-          <FolderOpen aria-hidden="true" size={18} /> Open
-        </button>
-        <button onClick={onNew} type="button">
-          <RotateCcw aria-hidden="true" size={18} /> New
-        </button>
+        </div>
+        <div className="whiteboard-toolbar__group whiteboard-toolbar__group--document">
+          <button disabled={!canUndo} onClick={onUndo} type="button">
+            <Undo2 aria-hidden="true" size={18} /> Undo
+          </button>
+          <button disabled={!canRedo} onClick={onRedo} type="button">
+            <Redo2 aria-hidden="true" size={18} /> Redo
+          </button>
+          <button onClick={onClear} type="button">
+            <Trash2 aria-hidden="true" size={18} /> Clear
+          </button>
+          <button className="whiteboard-save" onClick={onSave} type="button">
+            <Save aria-hidden="true" size={18} /> Save
+          </button>
+          <button onClick={onOpen} type="button">
+            <FolderOpen aria-hidden="true" size={18} /> Open
+          </button>
+          <button onClick={onNew} type="button">
+            <RotateCcw aria-hidden="true" size={18} /> New
+          </button>
+        </div>
       </div>
       <div className="whiteboard-options">
         <label>

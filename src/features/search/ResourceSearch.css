@@ -1,5 +1,5 @@
 .resource-search-results {
-  margin: 0 auto 28px;
+  margin: 0 auto 20px;
   max-width: 1240px;
 }
 
@@ -8,7 +8,7 @@
   display: flex;
   gap: 20px;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .resource-search-results__header h2 {
@@ -29,7 +29,7 @@
 
 .resource-search-results__list {
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
 .resource-search-result {
@@ -60,10 +60,6 @@
 
 .resource-search-result > .prompt-deck-card {
   min-height: 0;
-}
-
-.resource-search-result__generic > .studio-button {
-  margin-top: 10px;
 }
 
 .resource-search-source-status {
@@ -97,9 +93,9 @@
 
 .resource-search-empty {
   background: var(--surface-soft);
-  border: 0;
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 38px 24px;
+  padding: 20px;
   text-align: center;
 }
 

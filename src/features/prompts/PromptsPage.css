@@ -12,12 +12,12 @@
 }
 
 .prompts-page__header {
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .prompts-page__header h1,
 .prompt-route-message h1 {
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: clamp(1.8rem, 3.2vw, 2.65rem);
   letter-spacing: -0.04em;
   margin: 8px 0;
 }
@@ -39,10 +39,10 @@
   border-bottom: 1px solid var(--border);
   border-radius: 0;
   display: grid;
-  gap: 14px;
+  gap: 12px;
   grid-template-columns: minmax(240px, 1fr) minmax(180px, 280px) auto;
-  margin-bottom: 24px;
-  padding: 0 0 20px;
+  margin-bottom: 18px;
+  padding: 0 0 14px;
 }
 
 .prompt-filters label {
@@ -54,7 +54,7 @@
 
 .prompt-filters input,
 .prompt-filters select {
-  background: var(--background);
+  background: #ffffff;
   border: 1px solid var(--border);
   border-radius: 10px;
   color: var(--text);
@@ -109,7 +109,7 @@
 }
 
 .prompt-library-tools {
-  margin: -8px 0 20px;
+  margin: -4px 0 14px;
 }
 
 .prompt-library-tools > summary {
@@ -138,8 +138,8 @@
 
 .prompt-deck-grid {
   display: grid;
-  gap: 24px;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 360px));
 }
 
 /* -------------------------------------------------------------------------- */

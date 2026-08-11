@@ -7,7 +7,7 @@
   display: grid;
   gap: var(--space-3);
   grid-template-columns: minmax(220px, 1.5fr) repeat(3, minmax(140px, 0.7fr));
-  padding: 0 0 var(--space-5);
+  padding: 0 0 var(--space-4);
 }
 .intervention-filters label {
   color: var(--text);
@@ -52,12 +52,12 @@
 .intervention-results-count {
   color: var(--muted);
   font-size: 0.9rem;
-  margin: var(--space-4) 0;
+  margin: var(--space-3) 0;
 }
 .intervention-library-grid {
   display: grid;
   gap: var(--space-4);
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 390px));
 }
 .intervention-library-card {
   background: var(--surface);
@@ -65,7 +65,7 @@
   border-radius: var(--radius-md);
   display: grid;
   gap: var(--space-3);
-  padding: var(--space-5);
+  padding: var(--space-4);
 }
 .intervention-library-card h2 {
   font-size: 1.2rem;

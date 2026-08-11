@@ -41,15 +41,19 @@ export default function ResourceSearchResult({ result }) {
         <PromptDeckCard deck={resource} />
       ) : (
         <div className="resource-search-result__generic">
-          <ResourceCard resource={resource} />
-          {destination ? (
-            <Link
-              className="studio-button studio-button--secondary"
-              to={destination.path}
-            >
-              {destination.label}
-            </Link>
-          ) : null}
+          <ResourceCard
+            actions={
+              destination ? (
+                <Link
+                  className="studio-button studio-button--secondary"
+                  to={destination.path}
+                >
+                  {destination.label}
+                </Link>
+              ) : null
+            }
+            resource={resource}
+          />
         </div>
       )}
     </section>

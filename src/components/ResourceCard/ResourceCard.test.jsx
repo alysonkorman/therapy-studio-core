@@ -53,11 +53,8 @@ describe("ResourceCard", () => {
     expect(screen.getByText("15 min")).toBeInTheDocument();
     expect(screen.getByText("Telehealth")).toBeInTheDocument();
     expect(screen.getByText("Ages 8–10")).toBeInTheDocument();
-    expect(screen.getByText("Conversation feels stuck")).toBeInTheDocument();
-    expect(screen.getByText("Minecraft")).toBeInTheDocument();
-    expect(screen.getByText("Emotion identification")).toBeInTheDocument();
-    expect(screen.getByText("Jenga blocks")).toBeInTheDocument();
-    expect(screen.getByText("Emotion prompts")).toBeInTheDocument();
+    expect(screen.queryByText("Conversation feels stuck")).not.toBeInTheDocument();
+    expect(screen.queryByText("Minecraft")).not.toBeInTheDocument();
     await waitFor(() =>
       expect(screen.getByRole("button", { name: "Add Favorite" })).toBeInTheDocument()
     );
@@ -89,6 +86,11 @@ describe("ResourceCard", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Show Advanced" }));
 
+    expect(screen.getByText("Conversation feels stuck")).toBeInTheDocument();
+    expect(screen.getByText("Minecraft")).toBeInTheDocument();
+    expect(screen.getByText("Emotion identification")).toBeInTheDocument();
+    expect(screen.getByText("Jenga blocks")).toBeInTheDocument();
+    expect(screen.getByText("Emotion prompts")).toBeInTheDocument();
     expect(screen.getByText("Clinical library")).toBeInTheDocument();
     expect(screen.getByText("Supporting study")).toBeInTheDocument();
     expect(screen.getByText("Offer choices.")).toBeInTheDocument();
