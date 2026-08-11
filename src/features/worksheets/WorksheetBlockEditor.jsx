@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { IconBrowserField } from "../icons";
+
 const listFields = new Set(["choices", "items", "options"]);
 
 function fieldLabel(field) {
@@ -185,6 +187,40 @@ function TextControls({ block, draft, onChange }) {
           <option value="small">Small</option>
           <option value="medium">Medium</option>
           <option value="large">Large</option>
+        </SelectField>
+      </>
+    );
+  }
+  if (block.type === "visual") {
+    return (
+      <>
+        <IconBrowserField
+          actionLabel={draft.iconId ? "Change SVG" : "Choose SVG"}
+          label="Worksheet Visual"
+          onSave={(iconId) => onChange("iconId", iconId)}
+          value={draft.iconId}
+        />
+        {draft.iconId ? (
+          <button onClick={() => onChange("iconId", null)} type="button">
+            Clear SVG
+          </button>
+        ) : null}
+        <TextField draft={draft} field="label" onChange={onChange} />
+        <CheckboxField
+          draft={draft}
+          field="decorative"
+          label="Decorative visual (hide from screen readers)"
+          onChange={onChange}
+        />
+        <SelectField draft={draft} field="size" onChange={onChange}>
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+        </SelectField>
+        <SelectField draft={draft} field="alignment" onChange={onChange}>
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
         </SelectField>
       </>
     );

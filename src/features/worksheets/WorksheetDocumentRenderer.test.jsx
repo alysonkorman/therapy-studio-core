@@ -127,6 +127,41 @@ describe("WorksheetDocumentRenderer editing", () => {
     expect(document.querySelector(".worksheet-spacer--large")).toBeTruthy();
   });
 
+  it("renders curated visuals proportionally with accessible labels and fallback", async () => {
+    render(
+      <WorksheetDocumentRenderer
+        document={documentWith([
+          {
+            id: "visual",
+            type: "visual",
+            iconId: "curated-culture-holidays-watarun01",
+            label: "Temple",
+            decorative: false,
+            size: "large",
+            alignment: "right",
+          },
+          {
+            id: "missing-visual",
+            type: "visual",
+            iconId: "missing-curated-icon",
+            label: "Missing visual",
+            decorative: false,
+            size: "small",
+            alignment: "left",
+          },
+        ])}
+      />
+    );
+
+    const temple = await screen.findByRole("img", { name: "Temple" });
+    expect(temple).toHaveClass("worksheet-visual__asset");
+    expect(temple.closest("figure")).toHaveClass(
+      "worksheet-visual--large",
+      "worksheet-visual--right"
+    );
+    expect(await screen.findByLabelText("Missing visual")).toBeVisible();
+  });
+
   it("renders every structured clinical block as printable document content", () => {
     render(
       <WorksheetDocumentRenderer

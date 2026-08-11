@@ -98,6 +98,17 @@ export const worksheetBlockSchema = z.discriminatedUnion("type", [
   z
     .object({
       ...blockBase,
+      type: z.literal("visual"),
+      iconId: z.string().trim().min(1).nullable().default(null),
+      label: plainText.default(""),
+      decorative: z.boolean().default(true),
+      size: z.enum(["small", "medium", "large"]).default("medium"),
+      alignment: z.enum(["left", "center", "right"]).default("center"),
+    })
+    .strict(),
+  z
+    .object({
+      ...blockBase,
       type: z.literal("reflection"),
       title: requiredText,
       instruction: plainText.default(""),

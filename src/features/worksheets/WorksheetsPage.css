@@ -374,6 +374,40 @@
 .worksheet-drawing-area--large {
   min-height: 300px;
 }
+.worksheet-visual {
+  display: grid;
+  margin: 0;
+}
+.worksheet-visual--left {
+  justify-items: start;
+  text-align: left;
+}
+.worksheet-visual--center {
+  justify-items: center;
+  text-align: center;
+}
+.worksheet-visual--right {
+  justify-items: end;
+  text-align: right;
+}
+.worksheet-visual__asset {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+.worksheet-visual--small .worksheet-visual__asset {
+  width: 96px;
+}
+.worksheet-visual--medium .worksheet-visual__asset {
+  width: 160px;
+}
+.worksheet-visual--large .worksheet-visual__asset {
+  width: 240px;
+}
+.worksheet-visual figcaption {
+  margin-top: 8px;
+}
 .worksheet-structured-block {
   border: 1px solid var(--border-color, #d8d4cc);
   border-radius: 10px;

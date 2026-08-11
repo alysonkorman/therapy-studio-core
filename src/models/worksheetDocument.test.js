@@ -49,6 +49,45 @@ describe("Worksheet Document", () => {
       })
     ).toThrow();
   });
+
+  it("accepts an additive curated visual block without changing old documents", () => {
+    const document = createBlankWorksheetDocument("worksheet-1", {
+      createId: () => "page-1",
+      now: "2026-08-04T12:00:00.000Z",
+    });
+    expect(() => worksheetDocumentSchema.parse(document)).not.toThrow();
+
+    const parsed = worksheetDocumentSchema.parse({
+      ...document,
+      pages: [
+        {
+          ...document.pages[0],
+          blocks: [
+            {
+              id: "visual-1",
+              type: "visual",
+              sortOrder: 0,
+              iconId: "curated-culture-holidays-watarun01",
+              label: "A calm temple illustration",
+              decorative: false,
+              size: "large",
+              alignment: "right",
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(parsed.pages[0].blocks[0]).toEqual(
+      expect.objectContaining({
+        type: "visual",
+        iconId: "curated-culture-holidays-watarun01",
+        size: "large",
+        alignment: "right",
+      })
+    );
+  });
+
   it.each([
     {
       type: "reflection",

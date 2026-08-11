@@ -272,6 +272,43 @@ describe("routed Worksheet workflow", () => {
     expect(screen.getByRole("button", { name: "Add Heading" })).toBeVisible();
   });
 
+  it("persists one curated visual through Builder, Preview, Session, and print", async () => {
+    const repository = realRepository();
+    const created = await repository.createWorksheet({ title: "Visual Worksheet" });
+    const document = await repository.getWorksheetDocument(created.resource.id);
+    await repository.saveWorksheetDocument(created.resource.id, {
+      ...document,
+      pages: [
+        {
+          ...document.pages[0],
+          blocks: [
+            {
+              id: "visual-block",
+              sortOrder: 0,
+              type: "visual",
+              iconId: "curated-culture-holidays-watarun01",
+              label: "Temple visual",
+              decorative: false,
+              size: "medium",
+              alignment: "center",
+            },
+          ],
+        },
+      ],
+    });
+    const print = vi.spyOn(window, "print").mockImplementation(() => {});
+    const user = userEvent.setup();
+    renderRoutes(repository, `/worksheets/${created.resource.id}/build`);
+
+    expect(await screen.findByRole("img", { name: "Temple visual" })).toBeVisible();
+    await user.click(screen.getByRole("link", { name: "Preview" }));
+    expect(await screen.findByRole("img", { name: "Temple visual" })).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Print / Save as PDF" }));
+    expect(print).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole("link", { name: "Open for Session" }));
+    expect(await screen.findByRole("img", { name: "Temple visual" })).toBeVisible();
+  });
+
   it("persists structured blocks through Preview, Session, and print", async () => {
     const repository = realRepository();
     const created = await repository.createWorksheet({ title: "Structured Worksheet" });

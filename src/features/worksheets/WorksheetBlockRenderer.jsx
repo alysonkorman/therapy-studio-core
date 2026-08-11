@@ -1,3 +1,5 @@
+import { IconRenderer } from "../icons";
+
 function ResponseLines({ count }) {
   return (
     <div
@@ -98,6 +100,22 @@ export default function WorksheetBlockRenderer({ block }) {
           className={`worksheet-drawing-area worksheet-drawing-area--${block.height}`}
         />
       </section>
+    );
+  }
+  if (block.type === "visual") {
+    return (
+      <figure
+        className={`worksheet-visual worksheet-visual--${block.size} worksheet-visual--${block.alignment}`}
+      >
+        <IconRenderer
+          alt={block.label || undefined}
+          className="worksheet-visual__asset"
+          decorative={block.decorative}
+          iconId={block.iconId}
+          size={256}
+        />
+        {!block.decorative && block.label ? <figcaption>{block.label}</figcaption> : null}
+      </figure>
     );
   }
   if (block.type === "reflection") {

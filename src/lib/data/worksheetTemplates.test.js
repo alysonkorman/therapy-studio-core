@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { addWorksheetBlock } from "../../engines/worksheets/worksheetDocumentOperations";
+import {
+  addWorksheetBlock,
+  updateWorksheetBlock,
+} from "../../engines/worksheets/worksheetDocumentOperations";
 import { IDBKeyRange, indexedDB } from "../../test/indexedDb";
 import { createTherapyStudioDatabase } from "./database";
 import { createWorksheetRepository } from "./worksheetRepository";
@@ -35,16 +38,16 @@ afterEach(async () => {
 });
 
 describe("therapist-created Worksheet templates", () => {
-  it("copies a therapist Worksheet into an independent template with structured block data", async () => {
+  it("copies a therapist Worksheet into an independent template with all block data", async () => {
     const { repository } = setup();
     const original = await repository.createWorksheet({ title: "Calm Plan" });
     const pageId = original.document.pages[0].id;
-    const document = addWorksheetBlock(
-      original.document,
-      pageId,
-      "reflection",
-      () => "reflection"
-    );
+    let document = addWorksheetBlock(original.document, pageId, "visual", () => "visual");
+    document = updateWorksheetBlock(document, pageId, "visual", {
+      iconId: "curated-culture-holidays-watarun01",
+      label: "Temple",
+    });
+    document = addWorksheetBlock(document, pageId, "reflection", () => "reflection");
     await repository.saveWorksheetDocument(original.resource.id, document);
 
     const template = await repository.saveAsTemplate(
@@ -60,8 +63,13 @@ describe("therapist-created Worksheet templates", () => {
     expect(template.document.worksheetId).toBe(template.resource.id);
     expect(template.document.pages[0].id).not.toBe(pageId);
     expect(template.document.pages[0].blocks.map(({ type }) => type)).toEqual([
+      "visual",
       "reflection",
     ]);
+    expect(template.document.pages[0].blocks[0]).toMatchObject({
+      iconId: "curated-culture-holidays-watarun01",
+      label: "Temple",
+    });
     expect(await repository.getWorksheetDocument(original.resource.id)).toEqual(document);
   });
 

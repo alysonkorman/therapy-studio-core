@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createWorksheetBlock } from "../../engines/worksheets/worksheetDocumentOperations";
 import WorksheetBlockEditor from "./WorksheetBlockEditor";
 
-function renderEditor(type) {
+function renderEditor(type, overrides = {}) {
   const handlers = {
     onApply: vi.fn(),
     onClearSelection: vi.fn(),
@@ -13,7 +13,7 @@ function renderEditor(type) {
     onDuplicate: vi.fn(),
     onMove: vi.fn(),
   };
-  const block = createWorksheetBlock(type, 0, () => `${type}-1`);
+  const block = { ...createWorksheetBlock(type, 0, () => `${type}-1`), ...overrides };
   render(<WorksheetBlockEditor block={block} {...handlers} position={0} total={2} />);
   return { block, ...handlers };
 }
@@ -93,6 +93,37 @@ describe("WorksheetBlockEditor", () => {
     expect(onApply).toHaveBeenCalledWith(
       expect.objectContaining({ minimum: 0, maximum: 10, showNumbers: false })
     );
+  });
+
+  it("chooses, changes, clears, sizes, and aligns a curated SVG", async () => {
+    const user = userEvent.setup();
+    const { onApply } = renderEditor("visual", { iconId: "ideas" });
+
+    await user.click(screen.getByRole("button", { name: /change svg/i }));
+    await user.type(
+      screen.getByRole("searchbox", { name: /search icons/i }),
+      "watarun01"
+    );
+    await user.dblClick(screen.getByRole("button", { name: /select watarun01/i }));
+    await user.selectOptions(screen.getByLabelText("Size"), "large");
+    await user.selectOptions(screen.getByLabelText("Alignment"), "right");
+    await user.click(screen.getByLabelText(/decorative visual/i));
+    await user.type(screen.getByLabelText("Label"), "Temple");
+    await apply(user);
+
+    expect(onApply).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        iconId: "curated-culture-holidays-watarun01",
+        label: "Temple",
+        decorative: false,
+        size: "large",
+        alignment: "right",
+      })
+    );
+
+    await user.click(screen.getByRole("button", { name: "Clear SVG" }));
+    await apply(user);
+    expect(onApply).toHaveBeenLastCalledWith(expect.objectContaining({ iconId: null }));
   });
 
   it("edits Reflection and Sentence Completion settings", async () => {

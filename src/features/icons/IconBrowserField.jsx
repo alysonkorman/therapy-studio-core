@@ -3,7 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import IconBrowser from "./IconBrowser";
 import IconRenderer from "./IconRenderer";
 
-export default function IconBrowserField({ label, onPreview, onSave, value }) {
+export default function IconBrowserField({
+  actionLabel = "Choose Icon",
+  label,
+  onPreview,
+  onSave,
+  value,
+}) {
   const [open, setOpen] = useState(false);
   const hasOpened = useRef(false);
   const triggerRef = useRef(null);
@@ -20,7 +26,7 @@ export default function IconBrowserField({ label, onPreview, onSave, value }) {
     <div aria-label={label} className="icon-browser-field" role="group">
       <span>{label}</span>
       <button
-        aria-label={`Choose Icon for ${label}`}
+        aria-label={`${actionLabel} for ${label}`}
         className="icon-browser-field__trigger"
         onClick={() => {
           hasOpened.current = true;
@@ -30,7 +36,7 @@ export default function IconBrowserField({ label, onPreview, onSave, value }) {
         type="button"
       >
         <IconRenderer iconId={value} size={32} />
-        Choose Icon
+        {actionLabel}
       </button>
       {open ? (
         <IconBrowser

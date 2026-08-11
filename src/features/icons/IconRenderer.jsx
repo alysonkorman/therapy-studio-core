@@ -3,8 +3,15 @@ import { useEffect, useState } from "react";
 
 import { loadIconAsset, resolveIcon } from "../../services/icons";
 
-export default function IconRenderer({ className, iconId, size = 24 }) {
+export default function IconRenderer({
+  alt,
+  className,
+  decorative = false,
+  iconId,
+  size = 24,
+}) {
   const icon = resolveIcon(iconId);
+  const accessibleLabel = decorative ? "" : (alt ?? icon.label);
   const [loaded, setLoaded] = useState({ iconId: "", src: null, status: "loading" });
 
   useEffect(() => {
@@ -27,7 +34,7 @@ export default function IconRenderer({ className, iconId, size = 24 }) {
   const src = current.src;
   return src ? (
     <img
-      alt={icon.label}
+      alt={accessibleLabel}
       className={className}
       height={size}
       loading="lazy"
@@ -35,10 +42,19 @@ export default function IconRenderer({ className, iconId, size = 24 }) {
       width={size}
     />
   ) : current.status === "loading" ? (
-    <span aria-label={`Loading ${icon.label}`} role="status">
+    <span
+      aria-label={decorative ? undefined : `Loading ${accessibleLabel}`}
+      aria-hidden={decorative || undefined}
+      role={decorative ? undefined : "status"}
+    >
       <Shapes aria-hidden="true" className={className} size={size} />
     </span>
   ) : (
-    <Shapes aria-label={icon.label} className={className} size={size} />
+    <Shapes
+      aria-label={decorative ? undefined : accessibleLabel}
+      aria-hidden={decorative || undefined}
+      className={className}
+      size={size}
+    />
   );
 }

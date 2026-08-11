@@ -37,6 +37,7 @@ describe("Worksheet document operations", () => {
       "rating-scale",
       "feelings-scale",
       "drawing-area",
+      "visual",
       "reflection",
       "basic-table",
       "sentence-completion",
@@ -51,6 +52,36 @@ describe("Worksheet document operations", () => {
     });
 
     expect(document.pages[0].blocks.map(({ type }) => type)).toEqual(types);
+  });
+
+  it("preserves visual settings when duplicating a block or page", () => {
+    const createId = ids();
+    let document = createBlankWorksheetDocument("worksheet", {
+      createId,
+      now: "2026-08-04T12:00:00.000Z",
+    });
+    const pageId = document.pages[0].id;
+    document = addWorksheetBlock(document, pageId, "visual", createId);
+    const visualId = document.pages[0].blocks[0].id;
+    document = updateWorksheetBlock(document, pageId, visualId, {
+      iconId: "curated-culture-holidays-watarun01",
+      label: "Temple",
+      decorative: false,
+      size: "large",
+      alignment: "right",
+    });
+    document = duplicateWorksheetBlock(document, pageId, visualId, createId);
+    document = duplicateWorksheetPage(document, pageId, createId);
+
+    const expected = expect.objectContaining({
+      iconId: "curated-culture-holidays-watarun01",
+      label: "Temple",
+      decorative: false,
+      size: "large",
+      alignment: "right",
+    });
+    expect(document.pages[0].blocks[1]).toEqual(expected);
+    expect(document.pages[1].blocks[0]).toEqual(expected);
   });
 
   it("edits, duplicates, reorders, and deletes structured blocks", () => {

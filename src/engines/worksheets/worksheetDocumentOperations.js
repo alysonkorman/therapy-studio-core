@@ -27,6 +27,13 @@ const defaults = {
     options: ["Calm", "Unsure", "Upset"],
   },
   "drawing-area": { prompt: "Draw here", height: "medium" },
+  visual: {
+    iconId: null,
+    label: "",
+    decorative: true,
+    size: "medium",
+    alignment: "center",
+  },
   reflection: {
     title: "What did you notice?",
     instruction: "Take a moment to reflect.",
