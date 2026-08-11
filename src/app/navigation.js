@@ -28,8 +28,11 @@ export function createNavigationItems({ enableWorkspaceLab = import.meta.env.DEV
 
 export const navigationItems = createNavigationItems();
 
-export function getNavigationItemForPath(pathname) {
-  return navigationItems.find(({ path }) =>
+export function getNavigationItemForPath(
+  pathname,
+  { enableWorkspaceLab = import.meta.env.DEV } = {}
+) {
+  return createNavigationItems({ enableWorkspaceLab }).find(({ path }) =>
     path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(`${path}/`)
   );
 }

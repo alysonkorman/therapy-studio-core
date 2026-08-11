@@ -6,11 +6,11 @@ import { describe, expect, it } from "vitest";
 import { createNavigationItems, navigationItems } from "../app/navigation";
 import AppLayout from "./AppLayout";
 
-function renderLayout(path = "/") {
+function renderLayout(path = "/", { enableWorkspaceLab = true } = {}) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
-        <Route element={<AppLayout />} path="/">
+        <Route element={<AppLayout enableWorkspaceLab={enableWorkspaceLab} />} path="/">
           <Route index element={<h1>Dashboard Content</h1>} />
           <Route element={<h1>Prompt Library</h1>} path="prompts" />
           <Route element={<h1>Prompt Deck</h1>} path="prompts/:deckId" />
@@ -67,10 +67,16 @@ describe("AppLayout", () => {
     renderLayout("/workspace-lab");
     const navigation = mainNavigation();
     const sceneBuilder = within(navigation).getByRole("link", { name: "Scene Builder" });
+    const navigationLinks = within(navigation).getAllByRole("link");
 
     expect(sceneBuilder).toHaveAttribute("href", "/workspace-lab");
     expect(sceneBuilder).toHaveAttribute("aria-current", "page");
     expect(within(sceneBuilder).getByText("Beta")).toBeInTheDocument();
+    expect(navigationLinks.indexOf(sceneBuilder)).toBe(
+      navigationLinks.indexOf(
+        within(navigation).getByRole("link", { name: "Worksheets" })
+      ) + 1
+    );
     expectCurrentPage("Scene Builder");
   });
 
@@ -78,6 +84,14 @@ describe("AppLayout", () => {
     expect(createNavigationItems({ enableWorkspaceLab: false })).not.toEqual(
       expect.arrayContaining([expect.objectContaining({ path: "/workspace-lab" })])
     );
+
+    renderLayout("/workspace-lab", { enableWorkspaceLab: false });
+
+    expect(
+      within(mainNavigation()).queryByRole("link", { name: "Scene Builder" })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Beta")).not.toBeInTheDocument();
+    expectCurrentPage("Therapy Studio");
   });
 
   it("keeps the parent navigation active on nested Prompt and Worksheet routes", () => {

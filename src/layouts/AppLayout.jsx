@@ -3,15 +3,17 @@ import { useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 
 import "../App.css";
-import { getNavigationItemForPath, navigationItems } from "../app/navigation";
+import { createNavigationItems, getNavigationItemForPath } from "../app/navigation";
 
-export default function AppLayout() {
+export default function AppLayout({ enableWorkspaceLab = import.meta.env.DEV }) {
   const { pathname } = useLocation();
   const [mobileMenuPath, setMobileMenuPath] = useState(null);
   const navigationRef = useRef(null);
   const navigationToggleRef = useRef(null);
   const mobileMenuOpen = mobileMenuPath === pathname;
-  const currentPageLabel = getNavigationItemForPath(pathname)?.label ?? "Therapy Studio";
+  const navigationItems = createNavigationItems({ enableWorkspaceLab });
+  const currentPageLabel =
+    getNavigationItemForPath(pathname, { enableWorkspaceLab })?.label ?? "Therapy Studio";
 
   function closeMobileMenu() {
     setMobileMenuPath(null);
