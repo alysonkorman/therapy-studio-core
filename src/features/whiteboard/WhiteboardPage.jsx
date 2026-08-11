@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
+import { Redo2, RotateCcw, Save, Trash2, Undo2, ZoomIn, ZoomOut } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Page } from "../../components/layout";
 import {
   addWhiteboardObject,
   clearWhiteboard,
@@ -12,21 +12,41 @@ import {
   undoHistory,
   updateWhiteboardObject,
 } from "../../engines/whiteboard/whiteboardOperations";
+import { instantiateSessionCanvasTemplate } from "../../engines/whiteboard/sessionCanvasTemplates";
+import { sessionCanvasTemplates } from "../../data/sessionCanvasTemplates";
 import { whiteboardRepository } from "../../lib/data";
 import { createBlankWhiteboardDocument, whiteboardDocumentSchema } from "../../models";
 import { IconBrowserField } from "../icons";
 import WhiteboardCanvas from "./WhiteboardCanvas";
+import SessionCanvasStartPanel from "./SessionCanvasStartPanel";
 import { createWhiteboardCollaborationAdapter } from "./whiteboardCollaborationAdapter";
 import WhiteboardToolbar from "./WhiteboardToolbar";
 import "./WhiteboardPage.css";
 
-const whiteboardColors = ["#28252C", "#67529D", "#2F766D", "#B14C4C", "#D17A22"];
+const colors = [
+  "#28252C",
+  "#B14C4C",
+  "#2F766D",
+  "#3867A6",
+  "#D17A22",
+  "#E4B83F",
+  "#67529D",
+];
+const shapeTools = new Set(["rectangle", "ellipse", "arrow"]);
 
 function blank(createId) {
-  return createBlankWhiteboardDocument({
-    id: createId(),
-    now: new Date().toISOString(),
-  });
+  return createBlankWhiteboardDocument({ id: createId(), now: new Date().toISOString() });
+}
+
+function moveObject(object, dx, dy) {
+  if (object.kind === "arrow")
+    return {
+      x1: object.x1 + dx,
+      y1: object.y1 + dy,
+      x2: object.x2 + dx,
+      y2: object.y2 + dy,
+    };
+  return { x: object.x + dx, y: object.y + dy };
 }
 
 export default function WhiteboardPage({
@@ -35,16 +55,21 @@ export default function WhiteboardPage({
   repository = whiteboardRepository,
 }) {
   const [history, setHistory] = useState(() => createHistory(blank(createId)));
-  const [tool, setTool] = useState("draw");
-  const [color, setColor] = useState(whiteboardColors[0]);
-  const [strokeWidth, setStrokeWidth] = useState(5);
-  const [draftStroke, setDraftStroke] = useState(null);
+  const [tool, setTool] = useState("select");
+  const [strokeColor, setStrokeColor] = useState(colors[0]);
+  const [fillColor, setFillColor] = useState("transparent");
+  const [strokeWidth, setStrokeWidth] = useState(4);
+  const [textSize, setTextSize] = useState(32);
+  const [draftObject, setDraftObject] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
-  const [drag, setDrag] = useState(null);
+  const [gesture, setGesture] = useState(null);
   const [savedBoards, setSavedBoards] = useState([]);
   const [showOpen, setShowOpen] = useState(false);
   const [showIcons, setShowIcons] = useState(false);
+  const [showStarters, setShowStarters] = useState(true);
   const [message, setMessage] = useState("");
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
   const adapterRef = useRef(null);
   const participantId = useRef(createId());
   const document = history.present;
@@ -75,84 +100,134 @@ export default function WhiteboardPage({
     const surface = event.currentTarget.ownerSVGElement ?? event.currentTarget;
     const bounds = surface.getBoundingClientRect();
     return {
-      x: ((event.clientX - bounds.left) / (bounds.width || 1000)) * 1000,
-      y: ((event.clientY - bounds.top) / (bounds.height || 700)) * 700,
+      x: pan.x + ((event.clientX - bounds.left) / (bounds.width || 1000)) * (1000 / zoom),
+      y: pan.y + ((event.clientY - bounds.top) / (bounds.height || 700)) * (700 / zoom),
     };
   }
 
   function canvasPointerDown(event) {
     const location = point(event);
     if (tool === "draw") {
-      setDraftStroke({
+      setDraftObject({
         id: createId(),
         kind: "stroke",
         points: [location],
-        color,
+        color: strokeColor,
         width: strokeWidth,
       });
+    } else if (shapeTools.has(tool)) {
+      const base = { id: createId(), kind: tool, strokeColor, strokeWidth };
+      setDraftObject(
+        tool === "arrow"
+          ? { ...base, x1: location.x, y1: location.y, x2: location.x, y2: location.y }
+          : { ...base, x: location.x, y: location.y, width: 8, height: 8, fillColor }
+      );
+      setGesture({ type: "create", start: location });
     } else if (tool === "text") {
       const object = {
         id: createId(),
         kind: "text",
         text: "Text",
         ...location,
-        color,
-        size: 32,
+        color: strokeColor,
+        size: textSize,
       };
       commit(addWhiteboardObject(document, object));
       setSelectedId(object.id);
       setTool("select");
-    } else if (tool === "select") {
-      setSelectedId(null);
-    }
+    } else if (tool === "pan") {
+      setGesture({ type: "pan", start: { x: event.clientX, y: event.clientY }, pan });
+    } else if (tool === "select") setSelectedId(null);
   }
 
   function pointerMove(event) {
     const location = point(event);
-    if (draftStroke) {
-      setDraftStroke((current) => ({
+    if (draftObject?.kind === "stroke") {
+      setDraftObject((current) => ({
         ...current,
         points: [...current.points, location],
       }));
-    } else if (drag) {
+    } else if (draftObject && gesture?.type === "create") {
+      if (draftObject.kind === "arrow")
+        setDraftObject((current) => ({ ...current, x2: location.x, y2: location.y }));
+      else
+        setDraftObject((current) => ({
+          ...current,
+          x: Math.min(gesture.start.x, location.x),
+          y: Math.min(gesture.start.y, location.y),
+          width: Math.max(8, Math.abs(location.x - gesture.start.x)),
+          height: Math.max(8, Math.abs(location.y - gesture.start.y)),
+        }));
+    } else if (gesture?.type === "move") {
       setHistory((current) => ({
         ...current,
-        present: updateWhiteboardObject(drag.document, drag.object.id, {
-          x: drag.object.x + location.x - drag.start.x,
-          y: drag.object.y + location.y - drag.start.y,
-        }),
+        present: updateWhiteboardObject(
+          gesture.document,
+          gesture.object.id,
+          moveObject(
+            gesture.object,
+            location.x - gesture.start.x,
+            location.y - gesture.start.y
+          )
+        ),
       }));
+    } else if (gesture?.type === "resize") {
+      const { object } = gesture;
+      const changes =
+        object.kind === "arrow"
+          ? { x2: location.x, y2: location.y }
+          : object.kind === "text"
+            ? {
+                size: Math.max(
+                  12,
+                  Math.min(96, object.size + location.x - gesture.start.x)
+                ),
+              }
+            : {
+                width: Math.max(32, location.x - object.x),
+                height: Math.max(32, location.y - object.y),
+              };
+      setHistory((current) => ({
+        ...current,
+        present: updateWhiteboardObject(gesture.document, object.id, changes),
+      }));
+    } else if (gesture?.type === "pan") {
+      setPan({
+        x: gesture.pan.x - (event.clientX - gesture.start.x) / zoom,
+        y: gesture.pan.y - (event.clientY - gesture.start.y) / zoom,
+      });
     }
   }
 
   function pointerUp() {
-    if (draftStroke) {
-      if (draftStroke.points.length > 1)
-        commit(addWhiteboardObject(document, draftStroke));
-      setDraftStroke(null);
-    }
-    if (drag) {
+    if (draftObject) {
+      const valid = draftObject.kind !== "stroke" || draftObject.points.length > 1;
+      if (valid) {
+        commit(addWhiteboardObject(document, draftObject));
+        setSelectedId(draftObject.id);
+      }
+      setDraftObject(null);
+    } else if (["move", "resize"].includes(gesture?.type)) {
       setHistory((current) => ({
-        past: [...current.past, drag.document],
+        past: [...current.past, gesture.document],
         present: current.present,
         future: [],
       }));
-      adapterRef.current?.publish(document);
-      setDrag(null);
+      adapterRef.current?.publish(history.present);
     }
+    setGesture(null);
   }
 
   function objectPointerDown(event, object) {
+    if (tool === "erase") {
+      event.stopPropagation();
+      commit(deleteWhiteboardObject(document, object.id));
+      return;
+    }
     if (tool !== "select") return;
     event.stopPropagation();
     setSelectedId(object.id);
-    setDrag({ document, object, start: point(event) });
-  }
-
-  function eraseStroke(event, objectId) {
-    if (tool !== "erase") return;
-    event.stopPropagation();
-    commit(deleteWhiteboardObject(document, objectId));
+    setGesture({ type: "move", document, object, start: point(event) });
   }
 
   async function refreshSaved() {
@@ -165,18 +240,6 @@ export default function WhiteboardPage({
     setMessage("Whiteboard saved locally.");
   }
 
-  function undo() {
-    const next = undoHistory(history);
-    setHistory(next);
-    adapterRef.current?.publish(next.present);
-  }
-
-  function redo() {
-    const next = redoHistory(history);
-    setHistory(next);
-    adapterRef.current?.publish(next.present);
-  }
-
   function startNew() {
     if (
       document.objects.length &&
@@ -185,180 +248,354 @@ export default function WhiteboardPage({
       return;
     setHistory(createHistory(blank(createId)));
     setSelectedId(null);
+    setPan({ x: 0, y: 0 });
+    setZoom(1);
     setMessage("");
+    setShowStarters(true);
   }
 
-  return (
-    <Page
-      className="whiteboard-page"
-      description="Draw, write, and add visuals in a child-safe shared workspace."
-      title="Whiteboard"
-    >
-      <WhiteboardToolbar
-        canRedo={Boolean(history.future.length)}
-        canUndo={Boolean(history.past.length)}
-        color={color}
-        colors={whiteboardColors}
-        onClear={() => {
-          if (window.confirm("Clear the entire Whiteboard?"))
-            commit(clearWhiteboard(document));
-        }}
-        onColorChange={setColor}
-        onNew={startNew}
-        onOpen={() => {
-          void refreshSaved();
-          setShowOpen(true);
-        }}
-        onRedo={redo}
-        onSave={() => void save()}
-        onShowIcons={() => setShowIcons((open) => !open)}
-        onStrokeWidthChange={setStrokeWidth}
-        onTitleChange={(title) => commit({ ...document, title })}
-        onToolChange={setTool}
-        onUndo={undo}
-        strokeWidth={strokeWidth}
-        title={document.title}
-        tool={tool}
-      />
+  function useTemplate(template) {
+    if (
+      document.objects.length &&
+      !window.confirm(
+        `Start ${template.title}? Unsaved changes on this Whiteboard will be lost.`
+      )
+    )
+      return;
+    const sessionDocument = instantiateSessionCanvasTemplate(template, {
+      createId,
+      now: new Date().toISOString(),
+    });
+    setHistory(createHistory(sessionDocument));
+    setSelectedId(null);
+    setDraftObject(null);
+    setGesture(null);
+    setPan({ x: 0, y: 0 });
+    setZoom(1);
+    setTool("select");
+    setShowStarters(false);
+    setMessage(`${template.title} is ready to use.`);
+  }
 
-      {showIcons ? (
-        <div className="whiteboard-icon-control">
-          <IconBrowserField
-            actionLabel="Choose SVG"
-            label="Whiteboard Visual"
-            onSave={(iconId) => {
-              const visual = {
-                id: createId(),
-                kind: "visual",
-                iconId,
-                x: 420,
-                y: 270,
-                width: 160,
-                height: 160,
-              };
-              commit(addWhiteboardObject(document, visual));
-              setSelectedId(visual.id);
-              setTool("select");
-              setShowIcons(false);
-            }}
-            value={selected?.kind === "visual" ? selected.iconId : null}
-          />
+  function updateSelected(changes) {
+    if (!selected) return;
+    commit(updateWhiteboardObject(document, selected.id, changes));
+  }
+
+  const selectedStyleKind = selected?.kind;
+  const styleVisible =
+    ["draw", "rectangle", "ellipse", "arrow", "text"].includes(tool) || selected;
+
+  return (
+    <main className="whiteboard-page">
+      <header className="whiteboard-header">
+        <div>
+          <p className="eyebrow">Creative Workspace</p>
+          <h1>Whiteboard</h1>
         </div>
+        <div className="whiteboard-document-controls">
+          <label>
+            Title{" "}
+            <input
+              aria-label="Whiteboard title"
+              onChange={(event) => commit({ ...document, title: event.target.value })}
+              value={document.title}
+            />
+          </label>
+          <button onClick={() => setShowStarters(true)} type="button">
+            Start With…
+          </button>
+          <button onClick={() => void save()} type="button">
+            <Save aria-hidden="true" size={17} /> Save
+          </button>
+          <button
+            onClick={() => {
+              void refreshSaved();
+              setShowOpen(true);
+            }}
+            type="button"
+          >
+            Open
+          </button>
+          <button onClick={startNew} type="button">
+            <RotateCcw aria-hidden="true" size={17} /> New
+          </button>
+        </div>
+      </header>
+
+      {showStarters ? (
+        <SessionCanvasStartPanel onUse={useTemplate} templates={sessionCanvasTemplates} />
       ) : null}
 
-      {selected ? (
-        <aside aria-label="Selected object controls" className="whiteboard-selection">
-          {selected.kind === "text" ? (
-            <>
-              <label>
-                Text{" "}
-                <input
-                  aria-label="Selected text"
-                  onChange={(event) =>
-                    commit(
-                      updateWhiteboardObject(document, selected.id, {
-                        text: event.target.value,
-                      })
-                    )
+      <section className="whiteboard-workspace">
+        <WhiteboardToolbar
+          onShowIcons={() => setShowIcons(true)}
+          onToolChange={setTool}
+          tool={tool}
+        />
+        {styleVisible ? (
+          <aside aria-label="Style controls" className="whiteboard-style-panel">
+            <span>{selected ? "Selected" : "Style"}</span>
+            <div aria-label="Stroke colors" className="whiteboard-colors" role="group">
+              {colors.map((value) => (
+                <button
+                  aria-label={`Use ${value}`}
+                  className="whiteboard-color"
+                  data-selected={
+                    (selected?.strokeColor ?? selected?.color ?? strokeColor) === value ||
+                    undefined
                   }
-                  value={selected.text}
+                  key={value}
+                  onClick={() => {
+                    setStrokeColor(value);
+                    updateSelected(
+                      selectedStyleKind === "text"
+                        ? { color: value }
+                        : { strokeColor: value }
+                    );
+                  }}
+                  style={{ backgroundColor: value }}
+                  type="button"
+                />
+              ))}
+            </div>
+            {shapeTools.has(tool) ||
+            ["rectangle", "ellipse"].includes(selectedStyleKind) ? (
+              <label>
+                Fill{" "}
+                <select
+                  aria-label="Fill color"
+                  onChange={(event) => {
+                    setFillColor(event.target.value);
+                    updateSelected({ fillColor: event.target.value });
+                  }}
+                  value={selected?.fillColor ?? fillColor}
+                >
+                  <option value="transparent">None</option>
+                  {colors.map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+            {tool !== "text" && !["text", "visual"].includes(selectedStyleKind) ? (
+              <label>
+                Stroke{" "}
+                <input
+                  aria-label="Stroke width"
+                  max="20"
+                  min="1"
+                  onChange={(event) => {
+                    const value = Number(event.target.value);
+                    setStrokeWidth(value);
+                    updateSelected(
+                      selectedStyleKind === "stroke"
+                        ? { width: value }
+                        : { strokeWidth: value }
+                    );
+                  }}
+                  type="range"
+                  value={selected?.strokeWidth ?? selected?.width ?? strokeWidth}
                 />
               </label>
+            ) : null}
+            {tool === "text" || selectedStyleKind === "text" ? (
               <label>
                 Text Size{" "}
                 <input
                   aria-label="Text Size"
                   max="96"
                   min="12"
-                  onChange={(event) =>
-                    commit(
-                      updateWhiteboardObject(document, selected.id, {
-                        size: Number(event.target.value),
-                      })
-                    )
-                  }
+                  onChange={(event) => {
+                    const value = Number(event.target.value);
+                    setTextSize(value);
+                    updateSelected({ size: value });
+                  }}
                   type="range"
-                  value={selected.size}
+                  value={selected?.size ?? textSize}
                 />
               </label>
-            </>
-          ) : null}
-          {selected.kind === "visual" ? (
-            <label>
-              Visual Size{" "}
-              <input
-                aria-label="Visual Size"
-                max="400"
-                min="32"
-                onChange={(event) => {
-                  const size = Number(event.target.value);
-                  commit(
-                    updateWhiteboardObject(document, selected.id, {
-                      width: size,
-                      height: size,
-                    })
-                  );
-                }}
-                type="range"
-                value={selected.width}
-              />
-            </label>
-          ) : null}
-          <button
-            onClick={() => {
-              commit(deleteWhiteboardObject(document, selected.id));
-              setSelectedId(null);
-            }}
-            type="button"
-          >
-            Delete Selected
-          </button>
-        </aside>
-      ) : null}
-
-      {showOpen ? (
-        <section aria-label="Saved Whiteboards" className="whiteboard-open-panel">
-          <div>
-            <h2>Saved Whiteboards</h2>
-            <button onClick={() => setShowOpen(false)} type="button">
-              Close
-            </button>
-          </div>
-          {savedBoards.length ? (
-            savedBoards.map((board) => (
+            ) : null}
+            {selectedStyleKind === "visual" ? (
+              <label>
+                Visual Size
+                <input
+                  aria-label="Visual Size"
+                  max="400"
+                  min="32"
+                  onChange={(event) => {
+                    const size = Number(event.target.value);
+                    updateSelected({ width: size, height: size });
+                  }}
+                  type="range"
+                  value={selected.width}
+                />
+              </label>
+            ) : null}
+            {selectedStyleKind === "text" ? (
+              <label>
+                Text{" "}
+                <input
+                  aria-label="Selected text"
+                  autoFocus
+                  onChange={(event) => updateSelected({ text: event.target.value })}
+                  value={selected.text}
+                />
+              </label>
+            ) : null}
+            {selected ? (
               <button
-                key={board.id}
+                className="whiteboard-delete"
                 onClick={() => {
-                  setHistory(createHistory(board));
+                  commit(deleteWhiteboardObject(document, selected.id));
                   setSelectedId(null);
-                  setShowOpen(false);
                 }}
                 type="button"
               >
-                {board.title}
+                Delete Selected
               </button>
-            ))
-          ) : (
-            <p>No saved Whiteboards yet.</p>
-          )}
-        </section>
-      ) : null}
+            ) : null}
+          </aside>
+        ) : null}
 
-      {message ? <p role="status">{message}</p> : null}
-      <WhiteboardCanvas
-        document={document}
-        draftStroke={draftStroke}
-        onCanvasPointerDown={canvasPointerDown}
-        onObjectPointerDown={objectPointerDown}
-        onPointerMove={pointerMove}
-        onPointerUp={pointerUp}
-        onStrokeErase={eraseStroke}
-        selectedId={selectedId}
-        tool={tool}
-      />
+        {showIcons ? (
+          <div className="whiteboard-icon-control">
+            <IconBrowserField
+              actionLabel="Choose Visual"
+              label="Whiteboard Visual"
+              onSave={(iconId) => {
+                const visual = {
+                  id: createId(),
+                  kind: "visual",
+                  iconId,
+                  x: 420,
+                  y: 270,
+                  width: 160,
+                  height: 160,
+                };
+                commit(addWhiteboardObject(document, visual));
+                setSelectedId(visual.id);
+                setTool("select");
+                setShowIcons(false);
+              }}
+              value={selected?.kind === "visual" ? selected.iconId : null}
+            />
+          </div>
+        ) : null}
+        {showOpen ? (
+          <section aria-label="Saved Whiteboards" className="whiteboard-open-panel">
+            <div>
+              <h2>Saved Whiteboards</h2>
+              <button onClick={() => setShowOpen(false)} type="button">
+                Close
+              </button>
+            </div>
+            {savedBoards.length ? (
+              savedBoards.map((board) => (
+                <button
+                  key={board.id}
+                  onClick={() => {
+                    setHistory(createHistory(board));
+                    setSelectedId(null);
+                    setShowOpen(false);
+                    setShowStarters(false);
+                  }}
+                  type="button"
+                >
+                  {board.title}
+                </button>
+              ))
+            ) : (
+              <p>No saved Whiteboards yet.</p>
+            )}
+          </section>
+        ) : null}
+        {message ? <p role="status">{message}</p> : null}
+
+        <div className="whiteboard-canvas-frame">
+          <WhiteboardCanvas
+            document={document}
+            draftObject={draftObject}
+            onCanvasPointerDown={canvasPointerDown}
+            onObjectPointerDown={objectPointerDown}
+            onPointerMove={pointerMove}
+            onPointerUp={pointerUp}
+            onResizePointerDown={(event, object) => {
+              event.stopPropagation();
+              setGesture({ type: "resize", document, object, start: point(event) });
+            }}
+            onStrokeErase={(event, objectId) => {
+              if (tool !== "erase") return;
+              event.stopPropagation();
+              commit(deleteWhiteboardObject(document, objectId));
+            }}
+            pan={pan}
+            selectedId={selectedId}
+            tool={tool}
+            zoom={zoom}
+          />
+          <div
+            aria-label="History and zoom controls"
+            className="whiteboard-corner-controls"
+          >
+            <button
+              aria-label="Undo"
+              disabled={!history.past.length}
+              onClick={() => {
+                const next = undoHistory(history);
+                setHistory(next);
+                adapterRef.current?.publish(next.present);
+              }}
+              type="button"
+            >
+              <Undo2 aria-hidden="true" size={17} />
+            </button>
+            <button
+              aria-label="Redo"
+              disabled={!history.future.length}
+              onClick={() => {
+                const next = redoHistory(history);
+                setHistory(next);
+                adapterRef.current?.publish(next.present);
+              }}
+              type="button"
+            >
+              <Redo2 aria-hidden="true" size={17} />
+            </button>
+            <button
+              aria-label="Zoom out"
+              onClick={() => setZoom((value) => Math.max(0.5, value - 0.1))}
+              type="button"
+            >
+              <ZoomOut aria-hidden="true" size={17} />
+            </button>
+            <output aria-label="Zoom percentage">{Math.round(zoom * 100)}%</output>
+            <button
+              aria-label="Zoom in"
+              onClick={() => setZoom((value) => Math.min(2, value + 0.1))}
+              type="button"
+            >
+              <ZoomIn aria-hidden="true" size={17} />
+            </button>
+          </div>
+          <button
+            className="whiteboard-clear"
+            onClick={() => {
+              if (window.confirm("Clear the entire Whiteboard?"))
+                commit(clearWhiteboard(document));
+            }}
+            type="button"
+          >
+            <Trash2 aria-hidden="true" size={17} /> Clear Board
+          </button>
+        </div>
+      </section>
       <p className="whiteboard-sharing-note">
-        Same-browser tab sharing is available. Internet collaboration is not enabled.
+        Safe for screen sharing. Same-browser tab sharing is available; internet
+        collaboration is not enabled.
       </p>
-    </Page>
+    </main>
   );
 }

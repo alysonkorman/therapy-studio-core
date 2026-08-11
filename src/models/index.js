@@ -33,8 +33,10 @@ export { triviaDifficultySchema, triviaGameSchema, triviaQuestionSchema } from "
 export { promptColorSchema, promptDeckSchema, promptItemSchema } from "./prompt";
 export {
   createBlankWhiteboardDocument,
+  whiteboardArrowSchema,
   whiteboardDocumentSchema,
   whiteboardObjectSchema,
+  whiteboardShapeSchema,
   whiteboardStrokeSchema,
   whiteboardTextSchema,
   whiteboardVisualSchema,
@@ -51,3 +53,4 @@ export {
   THERAPY_STUDIO_BACKUP_FORMAT,
   THERAPY_STUDIO_BACKUP_VERSION,
 } from "./backup";
+export { sessionCanvasTemplateSchema } from "./sessionCanvasTemplate";

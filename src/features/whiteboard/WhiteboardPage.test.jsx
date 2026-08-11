@@ -26,9 +26,75 @@ function renderPage(options = {}) {
 }
 
 describe("WhiteboardPage", () => {
+  it("starts a fresh editable Feelings Thermometer in one click", async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    expect(screen.getByRole("heading", { name: "Start With…" })).toBeVisible();
+    await user.click(
+      screen.getByRole("button", { name: "Use Now: Feelings Thermometer" })
+    );
+
+    expect(screen.queryByRole("heading", { name: "Start With…" })).toBeNull();
+    expect(screen.getAllByRole("button", { name: "Rectangle object" })).toHaveLength(5);
+    expect(screen.getByRole("textbox", { name: "Whiteboard title" })).toHaveValue(
+      "Feelings Thermometer — Session Copy"
+    );
+    expect(screen.getByText("Feelings Thermometer is ready to use.")).toHaveTextContent(
+      "Feelings Thermometer is ready to use."
+    );
+
+    await user.click(
+      screen.getAllByRole("button", { name: "Text object: Type an example…" })[0]
+    );
+    const text = screen.getByRole("textbox", { name: "Selected text" });
+    fireEvent.change(text, { target: { value: "Cats" } });
+    expect(screen.getByLabelText("Text object: Cats")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Undo" }));
+    expect(screen.getAllByLabelText("Text object: Type an example…")).toHaveLength(5);
+  });
+
+  it("offers the Shield and Blank Canvas through the same starter flow", async () => {
+    const user = userEvent.setup();
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderPage();
+
+    await user.click(screen.getByRole("button", { name: "Use Now: Blank Shield" }));
+    expect(screen.getByLabelText("Drawing stroke")).toBeVisible();
+    expect(screen.getByLabelText(/Text object: Make this shield/)).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Start With…" }));
+    await user.click(screen.getByRole("button", { name: "Use Now: Blank Canvas" }));
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(screen.queryByLabelText("Drawing stroke")).toBeNull();
+    expect(screen.getByRole("textbox", { name: "Whiteboard title" })).toHaveValue(
+      "Blank Canvas — Session Copy"
+    );
+    confirm.mockRestore();
+  });
+
+  it("saves a starter instance through the normal Whiteboard repository", async () => {
+    const user = userEvent.setup();
+    const data = repository();
+    renderPage({ repository: data });
+
+    await user.click(
+      screen.getByRole("button", { name: "Use Now: Feelings Thermometer" })
+    );
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(data.saveWhiteboard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Feelings Thermometer — Session Copy",
+        objects: expect.arrayContaining([expect.objectContaining({ kind: "rectangle" })]),
+      })
+    );
+  });
+
   it("draws, erases, and supports undo and redo", async () => {
     const user = userEvent.setup();
     renderPage();
+    await user.click(screen.getByRole("button", { name: "Draw" }));
     const canvas = screen.getByRole("img", { name: "Whiteboard canvas" });
     fireEvent.pointerDown(canvas, { clientX: 10, clientY: 10 });
     fireEvent.pointerMove(canvas, { clientX: 30, clientY: 30 });
@@ -38,7 +104,7 @@ describe("WhiteboardPage", () => {
     expect(screen.queryByLabelText("Drawing stroke")).toBeNull();
     await user.click(screen.getByRole("button", { name: "Redo" }));
     expect(screen.getByLabelText("Drawing stroke")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Erase" }));
+    await user.click(screen.getByRole("button", { name: "Eraser" }));
     fireEvent.pointerDown(screen.getByLabelText("Drawing stroke"));
     expect(screen.queryByLabelText("Drawing stroke")).toBeNull();
   });
@@ -59,17 +125,85 @@ describe("WhiteboardPage", () => {
     expect(screen.queryByLabelText("Text object: Feelings Map")).toBeNull();
   });
 
+  it("creates, styles, moves, resizes, persists, and undoes shapes and arrows", async () => {
+    const user = userEvent.setup();
+    const data = repository();
+    renderPage({ repository: data });
+    const canvas = screen.getByRole("img", { name: "Whiteboard canvas" });
+
+    await user.click(screen.getByRole("button", { name: "Rectangle" }));
+    fireEvent.pointerDown(canvas, { clientX: 100, clientY: 100 });
+    fireEvent.pointerMove(canvas, { clientX: 300, clientY: 220 });
+    fireEvent.pointerUp(canvas);
+    expect(screen.getByRole("button", { name: "Rectangle object" })).toBeVisible();
+    fireEvent.change(screen.getByRole("combobox", { name: "Fill color" }), {
+      target: { value: "#E4B83F" },
+    });
+
+    await user.click(screen.getByRole("button", { name: "Arrow" }));
+    fireEvent.pointerDown(canvas, { clientX: 300, clientY: 220 });
+    fireEvent.pointerMove(canvas, { clientX: 500, clientY: 350 });
+    fireEvent.pointerUp(canvas);
+    expect(screen.getByRole("button", { name: "Arrow object" })).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Select" }));
+    const arrow = screen.getByRole("button", { name: "Arrow object" });
+    fireEvent.pointerDown(arrow, { clientX: 300, clientY: 220 });
+    fireEvent.pointerMove(canvas, { clientX: 340, clientY: 260 });
+    fireEvent.pointerUp(canvas);
+    fireEvent.pointerDown(
+      screen.getByRole("button", { name: "Resize selected object" }),
+      {
+        clientX: 500,
+        clientY: 350,
+      }
+    );
+    fireEvent.pointerMove(canvas, { clientX: 600, clientY: 420 });
+    fireEvent.pointerUp(canvas);
+
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(data.saveWhiteboard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        objects: expect.arrayContaining([
+          expect.objectContaining({ kind: "rectangle", fillColor: "#E4B83F" }),
+          expect.objectContaining({ kind: "arrow" }),
+        ]),
+      })
+    );
+    await user.click(screen.getByRole("button", { name: "Undo" }));
+    await user.click(screen.getByRole("button", { name: "Redo" }));
+    expect(screen.getByRole("button", { name: "Arrow object" })).toBeVisible();
+  });
+
+  it("provides compact pan and zoom controls", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    expect(screen.getByRole("status", { name: "Zoom percentage" })).toHaveTextContent(
+      "100%"
+    );
+    await user.click(screen.getByRole("button", { name: "Zoom in" }));
+    expect(screen.getByRole("status", { name: "Zoom percentage" })).toHaveTextContent(
+      "110%"
+    );
+    await user.click(screen.getByRole("button", { name: "Pan" }));
+    expect(screen.getByRole("button", { name: "Pan" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+  });
+
   it("requires confirmation before clearing or replacing a used board", async () => {
     const user = userEvent.setup();
     const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
     renderPage();
     await user.click(screen.getByRole("button", { name: "Text" }));
     fireEvent.pointerDown(screen.getByRole("img", { name: "Whiteboard canvas" }));
-    await user.click(screen.getByRole("button", { name: "Clear" }));
+    await user.click(screen.getByRole("button", { name: "Clear Board" }));
     expect(screen.getByLabelText(/Text object/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "New" }));
     expect(screen.getByLabelText(/Text object/)).toBeInTheDocument();
     expect(confirm).toHaveBeenCalledTimes(2);
+    confirm.mockRestore();
   });
 
   it("saves, lists, and reopens local Whiteboards", async () => {
@@ -83,7 +217,7 @@ describe("WhiteboardPage", () => {
     renderPage({ repository: data });
     await user.click(screen.getByRole("button", { name: "Save" }));
     expect(data.saveWhiteboard).toHaveBeenCalled();
-    expect(await screen.findByRole("status")).toHaveTextContent("saved locally");
+    expect(await screen.findByText("Whiteboard saved locally.")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Open" }));
     await user.click(screen.getByRole("button", { name: "Saved Board" }));
     expect(screen.getByRole("textbox", { name: "Whiteboard title" })).toHaveValue(
@@ -91,7 +225,7 @@ describe("WhiteboardPage", () => {
     );
   });
 
-  it("reopens, moves, resizes, and deletes an SVG with fallback rendering", async () => {
+  it("reopens, moves, resizes, and deletes a visual with fallback rendering", async () => {
     const user = userEvent.setup();
     const saved = {
       ...createBlankWhiteboardDocument({ id: "saved", now, title: "Visual Board" }),
@@ -134,9 +268,9 @@ describe("WhiteboardPage", () => {
   it("places a curated SVG through the shared Icon Browser", async () => {
     const user = userEvent.setup();
     renderPage();
-    await user.click(screen.getByRole("button", { name: "Add SVG" }));
+    await user.click(screen.getByRole("button", { name: "Add Visual" }));
     await user.click(
-      screen.getByRole("button", { name: "Choose SVG for Whiteboard Visual" })
+      screen.getByRole("button", { name: "Choose Visual for Whiteboard Visual" })
     );
     await user.type(screen.getByRole("searchbox", { name: "Search Icons" }), "watarun01");
     await user.dblClick(screen.getByRole("button", { name: /select watarun01/i }));

@@ -45,6 +45,27 @@ describe("Whiteboard repository", () => {
           color: "#112233",
           size: 24,
         },
+        {
+          id: "rectangle",
+          kind: "rectangle",
+          x: 40,
+          y: 60,
+          width: 180,
+          height: 90,
+          strokeColor: "#67529D",
+          fillColor: "#E4B83F",
+          strokeWidth: 4,
+        },
+        {
+          id: "arrow",
+          kind: "arrow",
+          x1: 20,
+          y1: 30,
+          x2: 200,
+          y2: 160,
+          strokeColor: "#B14C4C",
+          strokeWidth: 5,
+        },
       ],
     });
     expect((await repository.getWhiteboard(created.id)).objects).toEqual(saved.objects);

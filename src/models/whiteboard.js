@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const pointSchema = z.object({ x: z.number().finite(), y: z.number().finite() }).strict();
 const colorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/);
+const fillSchema = z.union([colorSchema, z.literal("transparent")]);
 
 export const whiteboardStrokeSchema = z
   .object({
@@ -37,10 +38,39 @@ export const whiteboardVisualSchema = z
   })
   .strict();
 
+export const whiteboardShapeSchema = z
+  .object({
+    id: z.string().min(1),
+    kind: z.enum(["rectangle", "ellipse"]),
+    x: z.number().finite(),
+    y: z.number().finite(),
+    width: z.number().min(8).max(2000),
+    height: z.number().min(8).max(1400),
+    strokeColor: colorSchema,
+    fillColor: fillSchema,
+    strokeWidth: z.number().min(1).max(40),
+  })
+  .strict();
+
+export const whiteboardArrowSchema = z
+  .object({
+    id: z.string().min(1),
+    kind: z.literal("arrow"),
+    x1: z.number().finite(),
+    y1: z.number().finite(),
+    x2: z.number().finite(),
+    y2: z.number().finite(),
+    strokeColor: colorSchema,
+    strokeWidth: z.number().min(1).max(40),
+  })
+  .strict();
+
 export const whiteboardObjectSchema = z.discriminatedUnion("kind", [
   whiteboardStrokeSchema,
   whiteboardTextSchema,
   whiteboardVisualSchema,
+  whiteboardShapeSchema,
+  whiteboardArrowSchema,
 ]);
 
 export const whiteboardDocumentSchema = z

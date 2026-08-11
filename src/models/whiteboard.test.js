@@ -56,4 +56,37 @@ describe("Whiteboard document model", () => {
       }).objects
     ).toHaveLength(3);
   });
+
+  it("accepts first-class shapes and arrows in legacy version 1 documents", () => {
+    const document = createBlankWhiteboardDocument({ id: "board", now });
+    expect(() =>
+      whiteboardDocumentSchema.parse({
+        ...document,
+        objects: [
+          {
+            id: "rectangle",
+            kind: "rectangle",
+            x: 20,
+            y: 30,
+            width: 180,
+            height: 90,
+            strokeColor: "#28252C",
+            fillColor: "transparent",
+            strokeWidth: 3,
+          },
+          {
+            id: "arrow",
+            kind: "arrow",
+            x1: 20,
+            y1: 30,
+            x2: 200,
+            y2: 120,
+            strokeColor: "#67529D",
+            strokeWidth: 4,
+          },
+        ],
+      })
+    ).not.toThrow();
+    expect(document.documentVersion).toBe(1);
+  });
 });
