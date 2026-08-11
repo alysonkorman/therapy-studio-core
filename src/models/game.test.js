@@ -49,6 +49,27 @@ describe("Trivia models", () => {
     ).toMatchObject({ answer: "Mars", choices: ["Mars", "Venus", "Jupiter"] });
   });
 
+  it("requires a multiple-choice answer to match one of 2–6 choices", () => {
+    expect(() =>
+      triviaQuestionSchema.parse({
+        id: "q-1",
+        question: "Choose one",
+        answer: "Missing",
+        choices: ["First", "Second"],
+        sortOrder: 0,
+      })
+    ).toThrow(/intended answer/i);
+    expect(() =>
+      triviaQuestionSchema.parse({
+        id: "q-1",
+        question: "Choose one",
+        answer: "Only",
+        choices: ["Only"],
+        sortOrder: 0,
+      })
+    ).toThrow();
+  });
+
   it("rejects empty question and answer text", () => {
     expect(() =>
       triviaQuestionSchema.parse({ id: "q", question: " ", answer: " ", sortOrder: 0 })

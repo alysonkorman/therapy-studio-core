@@ -11,6 +11,7 @@ const paths = [
   "/interventions/example-intervention",
   "/games",
   "/games/example-game",
+  "/games/example-game/edit",
   "/worksheets",
   "/worksheets/example-worksheet",
   "/worksheets/example-worksheet/build",

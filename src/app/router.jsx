@@ -4,6 +4,7 @@ import ClientsPage from "../features/clients/ClientsPage";
 import DashboardPage from "../features/dashboard/DashboardPage";
 import GamesPage from "../features/games/GamesPage";
 import TriviaGamePage from "../features/games/TriviaGamePage";
+import TriviaEditorPage from "../features/games/TriviaEditorPage";
 import InterventionsPage from "../features/interventions/InterventionsPage";
 import InterventionDetailPage from "../features/interventions/InterventionDetailPage";
 import NotFoundPage from "../features/not-found/NotFoundPage";
@@ -67,6 +68,10 @@ export function createAppRoutes({ enableWorkspaceLab = import.meta.env.DEV } = {
         {
           path: "games/:gameId",
           element: <TriviaGamePage />,
+        },
+        {
+          path: "games/:gameId/edit",
+          element: <TriviaEditorPage />,
         },
         {
           path: "worksheets",

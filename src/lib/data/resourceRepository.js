@@ -282,12 +282,13 @@ export function createResourceRepository({
     try {
       const deleted = await database.transaction(
         "rw",
-        database.table("resources"),
+        [database.table("resources"), database.table("resourceMemory")],
         async () => {
           const table = database.table("resources");
           const stored = await table.get(id);
           if (!stored) return false;
           await table.delete(id);
+          await database.table("resourceMemory").delete(id);
           return true;
         }
       );

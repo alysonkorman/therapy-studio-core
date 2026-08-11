@@ -41,6 +41,12 @@ export {
   updateResourceRecord,
 } from "./resourceRepository";
 export {
+  createTriviaRepository,
+  triviaRepository,
+  triviaRepositoryErrorCodes,
+  TriviaRepositoryError,
+} from "./triviaRepository";
+export {
   createSessionProfileRepository,
   sessionProfileErrorCodes,
   SessionProfileRepositoryError,

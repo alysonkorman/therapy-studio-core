@@ -15,7 +15,16 @@ export const triviaQuestionSchema = z
     difficulty: triviaDifficultySchema.optional(),
     sortOrder: z.number().int().nonnegative(),
   })
-  .strict();
+  .strict()
+  .superRefine((question, context) => {
+    if (question.choices && !question.choices.includes(question.answer)) {
+      context.addIssue({
+        code: "custom",
+        message: "The intended answer must match one of the choices.",
+        path: ["answer"],
+      });
+    }
+  });
 
 export const triviaGameSchema = resourceSchema
   .extend({

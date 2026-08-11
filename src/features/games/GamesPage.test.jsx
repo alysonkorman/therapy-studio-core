@@ -9,7 +9,14 @@ describe("Games Library", () => {
   it("renders the starter and persisted Trivia Sets with playable destinations", async () => {
     const saved = { ...generalKnowledgeTrivia, id: "saved-trivia", title: "My Trivia" };
     renderWithRouter(
-      <GamesPage repository={{ getAllResources: vi.fn(async () => [saved]) }} />
+      <GamesPage
+        repository={{
+          getAllTriviaSets: vi.fn(async () => [
+            { ...generalKnowledgeTrivia, starter: true },
+            { ...saved, starter: false },
+          ]),
+        }}
+      />
     );
 
     expect(
@@ -17,8 +24,10 @@ describe("Games Library", () => {
     ).toBeVisible();
     expect(screen.getByRole("heading", { name: "My Trivia" })).toBeVisible();
     expect(
-      screen.getAllByRole("link", { name: "Play Trivia", exact: true })[0]
-    ).toHaveAttribute("href", "/games/game-starter-general-knowledge-trivia");
+      screen
+        .getAllByRole("link", { name: "Play Trivia", exact: true })
+        .map((link) => link.getAttribute("href"))
+    ).toContain("/games/game-starter-general-knowledge-trivia");
     expect(screen.queryByText("Coming soon.")).toBeNull();
   });
 });
