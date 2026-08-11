@@ -63,7 +63,7 @@ export default function AppLayout() {
         </NavLink>
 
         <nav className="sidebar-navigation" aria-label="Main navigation">
-          {navigationItems.map(({ label, path, icon: Icon, utility }) => (
+          {navigationItems.map(({ badge, label, path, icon: Icon, utility }) => (
             <NavLink
               className={({ isActive }) =>
                 [
@@ -81,6 +81,11 @@ export default function AppLayout() {
             >
               <Icon aria-hidden="true" size={20} />
               <span>{label}</span>
+              {badge ? (
+                <span aria-hidden="true" className="navigation-badge">
+                  {badge}
+                </span>
+              ) : null}
             </NavLink>
           ))}
         </nav>

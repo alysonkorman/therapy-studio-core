@@ -126,6 +126,19 @@ button {
   margin-top: auto;
 }
 
+.navigation-badge {
+  background: var(--accent-soft);
+  border: 1px solid #cbbfea;
+  border-radius: 999px;
+  color: var(--accent-dark);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  margin-left: auto;
+  padding: 2px 6px;
+  text-transform: uppercase;
+}
+
 .shell-workspace {
   margin-left: 240px;
   min-width: 0;

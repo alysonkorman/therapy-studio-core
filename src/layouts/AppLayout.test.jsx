@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
-import { navigationItems } from "../app/navigation";
+import { createNavigationItems, navigationItems } from "../app/navigation";
 import AppLayout from "./AppLayout";
 
 function renderLayout(path = "/") {
@@ -61,6 +61,23 @@ describe("AppLayout", () => {
     expect(
       within(mainNavigation()).getByRole("link", { name: "Home" })
     ).not.toHaveAttribute("aria-current");
+  });
+
+  it("exposes the collaborative Scene Builder through the existing navigation", () => {
+    renderLayout("/workspace-lab");
+    const navigation = mainNavigation();
+    const sceneBuilder = within(navigation).getByRole("link", { name: "Scene Builder" });
+
+    expect(sceneBuilder).toHaveAttribute("href", "/workspace-lab");
+    expect(sceneBuilder).toHaveAttribute("aria-current", "page");
+    expect(within(sceneBuilder).getByText("Beta")).toBeInTheDocument();
+    expectCurrentPage("Scene Builder");
+  });
+
+  it("omits Scene Builder when the workspace lab production gate is disabled", () => {
+    expect(createNavigationItems({ enableWorkspaceLab: false })).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ path: "/workspace-lab" })])
+    );
   });
 
   it("keeps the parent navigation active on nested Prompt and Worksheet routes", () => {
