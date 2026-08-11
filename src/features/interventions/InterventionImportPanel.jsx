@@ -1,12 +1,14 @@
 import { useRef, useState } from "react";
 
 import { parseInterventionImportJson } from "../../engines/interventions/importInterventions";
+import InterventionConversionPanel from "./InterventionConversionPanel";
 
 export default function InterventionImportPanel({ onCancel, onImported, repository }) {
   const inputRef = useRef(null);
   const [pending, setPending] = useState(null);
   const [status, setStatus] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [conversionMode, setConversionMode] = useState(null);
 
   async function handleFile(event) {
     const [file] = event.target.files;
@@ -43,14 +45,22 @@ export default function InterventionImportPanel({ onCancel, onImported, reposito
     }
   }
 
+  if (conversionMode) {
+    return (
+      <InterventionConversionPanel
+        mode={conversionMode}
+        onBack={() => setConversionMode(null)}
+        onImported={onImported}
+        repository={repository}
+      />
+    );
+  }
+
   return (
     <section className="intervention-import" aria-labelledby="intervention-import-title">
       <div>
         <h2 id="intervention-import-title">Import Interventions</h2>
-        <p>
-          Choose a Therapy Studio Intervention JSON file. Nothing is saved until you
-          confirm.
-        </p>
+        <p>Import validated JSON, or convert an ordinary document for review.</p>
       </div>
       <div className="intervention-import__actions">
         <button
@@ -61,6 +71,29 @@ export default function InterventionImportPanel({ onCancel, onImported, reposito
         >
           Choose JSON
         </button>
+        <button
+          className="studio-button studio-button--secondary"
+          disabled={busy}
+          onClick={() => setConversionMode("paste")}
+          type="button"
+        >
+          Paste Text
+        </button>
+        {[
+          ["txt", "Choose TXT"],
+          ["docx", "Choose DOCX"],
+          ["pdf", "Choose PDF"],
+        ].map(([mode, label]) => (
+          <button
+            className="studio-button studio-button--secondary"
+            disabled={busy}
+            key={mode}
+            onClick={() => setConversionMode(mode)}
+            type="button"
+          >
+            {label}
+          </button>
+        ))}
         <button
           className="studio-button studio-button--secondary"
           disabled={busy}

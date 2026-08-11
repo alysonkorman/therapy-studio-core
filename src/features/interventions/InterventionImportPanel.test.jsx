@@ -45,6 +45,15 @@ const guidance = interventionGuidanceSchema.parse({
 });
 
 describe("InterventionImportPanel", () => {
+  it("offers JSON and ordinary-document conversion paths", () => {
+    render(<InterventionImportPanel repository={{}} />);
+    expect(screen.getByRole("button", { name: "Choose JSON" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Paste Text" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Choose TXT" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Choose DOCX" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Choose PDF" })).toBeVisible();
+  });
+
   it("validates, previews, and confirms a complete file", async () => {
     const user = userEvent.setup();
     const repository = { importInterventions: vi.fn(async () => []) };
