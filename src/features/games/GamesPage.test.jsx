@@ -7,6 +7,17 @@ import { renderWithRouter } from "../../test/test-utils";
 import GamesPage from "./GamesPage";
 
 describe("Games Library", () => {
+  it("offers the real Whiteboard tool without treating it as Trivia", async () => {
+    renderWithRouter(
+      <GamesPage repository={{ getAllTriviaSets: vi.fn(async () => []) }} />
+    );
+    expect(await screen.findByRole("heading", { name: "Whiteboard" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Open Whiteboard" })).toHaveAttribute(
+      "href",
+      "/whiteboard"
+    );
+  });
+
   it("renders the starter and persisted Trivia Sets with playable destinations", async () => {
     const saved = { ...generalKnowledgeTrivia, id: "saved-trivia", title: "My Trivia" };
     renderWithRouter(

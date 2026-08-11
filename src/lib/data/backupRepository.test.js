@@ -10,6 +10,7 @@ import {
   sessionProfileSchema,
   worksheetDocumentSchema,
   worksheetSchema,
+  whiteboardDocumentSchema,
 } from "../../models";
 import { interventions } from "../../data/resources/interventions";
 import { promptDecks } from "../../data/resources/promptDecks";
@@ -151,6 +152,14 @@ function fixtures() {
     createdAt: timestamp,
     updatedAt: timestamp,
   });
+  const whiteboard = whiteboardDocumentSchema.parse({
+    id: "whiteboard-1",
+    documentVersion: 1,
+    title: "Session Whiteboard",
+    objects: [],
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  });
   return {
     deck,
     worksheet,
@@ -161,6 +170,7 @@ function fixtures() {
     playlist,
     memory,
     profile,
+    whiteboard,
   };
 }
 
@@ -178,6 +188,7 @@ async function seed(database) {
   await database.table("sessionProfiles").add(data.profile);
   await database.table("worksheetDocuments").add(data.document);
   await database.table("interventionGuidance").add(data.guidance);
+  await database.table("whiteboardDocuments").add(data.whiteboard);
   return data;
 }
 
@@ -208,6 +219,7 @@ describe("backup repository", () => {
     expect(backup.data.sessionProfiles[0]).toEqual(data.profile);
     expect(backup.data.worksheetDocuments[0]).toEqual(data.document);
     expect(backup.data.interventionGuidance[0]).toEqual(data.guidance);
+    expect(backup.data.whiteboardDocuments[0]).toEqual(data.whiteboard);
     expect(backup.data.playlists[0].items[0].deckId).toBe(data.deck.id);
   });
 
@@ -246,6 +258,9 @@ describe("backup repository", () => {
     expect(
       await destination.table("interventionGuidance").get("custom-intervention")
     ).toMatchObject({ overview: "Therapist-authored guidance" });
+    expect(await destination.table("whiteboardDocuments").get("whiteboard-1")).toEqual(
+      backup.data.whiteboardDocuments[0]
+    );
   });
 
   it("exports and restores therapist-created Worksheet templates", async () => {

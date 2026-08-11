@@ -5,6 +5,7 @@
 }
 .games-library__sections,
 .games-library__sections > section,
+.games-library__tools,
 .trivia-authoring-panel,
 .trivia-metadata-form,
 .trivia-question-form,
@@ -15,6 +16,10 @@
 
 .games-library__sections {
   gap: var(--space-7);
+}
+
+.games-library__tools .trivia-set-card {
+  max-width: 28rem;
 }
 
 .games-library__page-actions {

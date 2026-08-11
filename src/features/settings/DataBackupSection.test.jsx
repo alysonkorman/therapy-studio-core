@@ -10,7 +10,7 @@ const backup = {
   format: "therapy-studio-backup",
   version: 1,
   exportedAt: timestamp,
-  databaseVersion: 7,
+  databaseVersion: 8,
   data: {
     resources: [],
     categories: [],
@@ -19,6 +19,7 @@ const backup = {
     sessionProfiles: [],
     worksheetDocuments: [],
     interventionGuidance: [],
+    whiteboardDocuments: [],
   },
 };
 

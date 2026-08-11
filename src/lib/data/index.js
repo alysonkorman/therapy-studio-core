@@ -11,7 +11,9 @@ export {
   THERAPY_STUDIO_VERSION_5_SCHEMA,
   THERAPY_STUDIO_VERSION_6_SCHEMA,
   THERAPY_STUDIO_VERSION_7_SCHEMA,
+  THERAPY_STUDIO_VERSION_8_SCHEMA,
 } from "./database";
+export { createWhiteboardRepository, whiteboardRepository } from "./whiteboardRepository";
 export { categoryRepository, createCategoryRepository } from "./categoryRepository";
 export { playlistRepository, createPlaylistRepository } from "./playlistRepository";
 export { promptDeckRepository, createPromptDeckRepository } from "./promptDeckRepository";

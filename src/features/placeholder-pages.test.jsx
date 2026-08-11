@@ -3,12 +3,10 @@ import { screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../test/test-utils";
 import SceneBuilderPage from "./scene-builder/SceneBuilderPage";
-import WhiteboardPage from "./whiteboard/WhiteboardPage";
 import WorkbooksPage from "./workbooks/WorkbooksPage";
 
 const pages = [
   ["Scene Builder", SceneBuilderPage],
-  ["Whiteboard", WhiteboardPage],
   ["Workbooks", WorkbooksPage],
 ];
 

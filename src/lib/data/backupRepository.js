@@ -14,6 +14,7 @@ import {
   THERAPY_STUDIO_BACKUP_VERSION,
   worksheetDocumentSchema,
   worksheetSchema,
+  whiteboardDocumentSchema,
 } from "../../models";
 import {
   getTherapyStudioDatabase,
@@ -28,6 +29,7 @@ const tableNames = [
   "sessionProfiles",
   "worksheetDocuments",
   "interventionGuidance",
+  "whiteboardDocuments",
 ];
 
 export const backupErrorCodes = Object.freeze({
@@ -195,6 +197,9 @@ export function validateBackup(input) {
     interventionGuidance: envelope.data.interventionGuidance.map((record) =>
       parseStrict(interventionGuidanceSchema, record, "Intervention guidance")
     ),
+    whiteboardDocuments: envelope.data.whiteboardDocuments.map((record) =>
+      parseStrict(whiteboardDocumentSchema, record, "Whiteboard document")
+    ),
   };
 
   assertUnique(data.resources, "id", "Resources");
@@ -204,6 +209,7 @@ export function validateBackup(input) {
   assertUnique(data.sessionProfiles, "id", "Session Profiles");
   assertUnique(data.worksheetDocuments, "worksheetId", "Worksheet documents");
   assertUnique(data.interventionGuidance, "resourceId", "Intervention guidance");
+  assertUnique(data.whiteboardDocuments, "id", "Whiteboard documents");
   validateWorksheetPairs(data);
   validateInterventionPairs(data);
 
@@ -217,6 +223,7 @@ export function validateBackup(input) {
       sessionProfiles: sorted(data.sessionProfiles, "id"),
       worksheetDocuments: sorted(data.worksheetDocuments, "worksheetId"),
       interventionGuidance: sorted(data.interventionGuidance, "resourceId"),
+      whiteboardDocuments: sorted(data.whiteboardDocuments, "id"),
     },
   };
 }

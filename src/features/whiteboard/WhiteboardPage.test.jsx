@@ -1,0 +1,155 @@
+import { fireEvent, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
+
+import { createBlankWhiteboardDocument } from "../../models";
+import { renderWithRouter } from "../../test/test-utils";
+import WhiteboardPage from "./WhiteboardPage";
+
+const now = "2026-08-11T12:00:00.000Z";
+
+function repository(saved = []) {
+  return {
+    listWhiteboards: vi.fn(async () => saved),
+    saveWhiteboard: vi.fn(async (document) => ({ ...document, updatedAt: now })),
+  };
+}
+
+function renderPage(options = {}) {
+  return renderWithRouter(
+    <WhiteboardPage
+      collaborationFactory={() => ({ close() {}, publish: vi.fn() })}
+      createId={() => crypto.randomUUID()}
+      repository={options.repository ?? repository()}
+    />
+  );
+}
+
+describe("WhiteboardPage", () => {
+  it("draws, erases, and supports undo and redo", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    const canvas = screen.getByRole("img", { name: "Whiteboard canvas" });
+    fireEvent.pointerDown(canvas, { clientX: 10, clientY: 10 });
+    fireEvent.pointerMove(canvas, { clientX: 30, clientY: 30 });
+    fireEvent.pointerUp(canvas);
+    expect(screen.getByLabelText("Drawing stroke")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Undo" }));
+    expect(screen.queryByLabelText("Drawing stroke")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Redo" }));
+    expect(screen.getByLabelText("Drawing stroke")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Erase" }));
+    fireEvent.pointerDown(screen.getByLabelText("Drawing stroke"));
+    expect(screen.queryByLabelText("Drawing stroke")).toBeNull();
+  });
+
+  it("creates and edits text, then deletes the selected object", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole("button", { name: "Text" }));
+    fireEvent.pointerDown(screen.getByRole("img", { name: "Whiteboard canvas" }), {
+      clientX: 100,
+      clientY: 100,
+    });
+    const editor = screen.getByRole("textbox", { name: "Selected text" });
+    await user.clear(editor);
+    await user.type(editor, "Feelings Map");
+    expect(screen.getByLabelText("Text object: Feelings Map")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Delete Selected" }));
+    expect(screen.queryByLabelText("Text object: Feelings Map")).toBeNull();
+  });
+
+  it("requires confirmation before clearing or replacing a used board", async () => {
+    const user = userEvent.setup();
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    renderPage();
+    await user.click(screen.getByRole("button", { name: "Text" }));
+    fireEvent.pointerDown(screen.getByRole("img", { name: "Whiteboard canvas" }));
+    await user.click(screen.getByRole("button", { name: "Clear" }));
+    expect(screen.getByLabelText(/Text object/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "New" }));
+    expect(screen.getByLabelText(/Text object/)).toBeInTheDocument();
+    expect(confirm).toHaveBeenCalledTimes(2);
+  });
+
+  it("saves, lists, and reopens local Whiteboards", async () => {
+    const user = userEvent.setup();
+    const saved = createBlankWhiteboardDocument({
+      id: "saved",
+      now,
+      title: "Saved Board",
+    });
+    const data = repository([saved]);
+    renderPage({ repository: data });
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(data.saveWhiteboard).toHaveBeenCalled();
+    expect(await screen.findByRole("status")).toHaveTextContent("saved locally");
+    await user.click(screen.getByRole("button", { name: "Open" }));
+    await user.click(screen.getByRole("button", { name: "Saved Board" }));
+    expect(screen.getByRole("textbox", { name: "Whiteboard title" })).toHaveValue(
+      "Saved Board"
+    );
+  });
+
+  it("reopens, moves, resizes, and deletes an SVG with fallback rendering", async () => {
+    const user = userEvent.setup();
+    const saved = {
+      ...createBlankWhiteboardDocument({ id: "saved", now, title: "Visual Board" }),
+      objects: [
+        {
+          id: "visual",
+          kind: "visual",
+          iconId: "missing-whiteboard-icon",
+          x: 100,
+          y: 100,
+          width: 100,
+          height: 100,
+        },
+      ],
+    };
+    renderPage({ repository: repository([saved]) });
+    await user.click(screen.getByRole("button", { name: "Open" }));
+    await user.click(screen.getByRole("button", { name: "Visual Board" }));
+    await user.click(screen.getByRole("button", { name: "Select" }));
+    const visual = screen.getByRole("button", {
+      name: "Visual object: missing-whiteboard-icon",
+    });
+    fireEvent.pointerDown(visual, { clientX: 100, clientY: 100 });
+    fireEvent.pointerMove(screen.getByRole("img", { name: "Whiteboard canvas" }), {
+      clientX: 150,
+      clientY: 150,
+    });
+    fireEvent.pointerUp(screen.getByRole("img", { name: "Whiteboard canvas" }));
+    fireEvent.change(screen.getByRole("slider", { name: "Visual Size" }), {
+      target: { value: "180" },
+    });
+    expect(visual).toHaveAttribute("width", "180");
+    expect(document.querySelector(".whiteboard-visual .lucide-shapes")).not.toBeNull();
+    await user.click(screen.getByRole("button", { name: "Delete Selected" }));
+    expect(
+      screen.queryByRole("button", { name: "Visual object: missing-whiteboard-icon" })
+    ).toBeNull();
+  });
+
+  it("places a curated SVG through the shared Icon Browser", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole("button", { name: "Add SVG" }));
+    await user.click(
+      screen.getByRole("button", { name: "Choose SVG for Whiteboard Visual" })
+    );
+    await user.type(screen.getByRole("searchbox", { name: "Search Icons" }), "watarun01");
+    await user.dblClick(screen.getByRole("button", { name: /select watarun01/i }));
+    expect(
+      screen.getByRole("button", {
+        name: "Visual object: curated-culture-holidays-watarun01",
+      })
+    ).toBeInTheDocument();
+  });
+
+  it("does not render therapist-private Resource Memory in the canvas", () => {
+    renderPage();
+    expect(screen.queryByText(/private notes|resource memory/i)).toBeNull();
+    expect(screen.getByText(/Internet collaboration is not enabled/i)).toBeVisible();
+  });
+});

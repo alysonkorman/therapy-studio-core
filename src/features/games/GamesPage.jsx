@@ -1,4 +1,4 @@
-import { Copy, Download, Pencil, Play, Plus, Trash2, Upload } from "lucide-react";
+import { Brush, Copy, Download, Pencil, Play, Plus, Trash2, Upload } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -207,6 +207,22 @@ export default function GamesPage({
         />
       ) : null}
       {error ? <p role="alert">{error}</p> : null}
+      <section className="games-library__tools">
+        <h2>Creative Tools</h2>
+        <article className="trivia-set-card">
+          <Brush aria-hidden="true" size={36} />
+          <div>
+            <span className="resource-type-badge">Tool</span>
+            <h3>Whiteboard</h3>
+            <p>Draw, write, and add curated visuals during a session.</p>
+          </div>
+          <div className="trivia-set-card__actions">
+            <Link className="studio-button studio-button--primary" to="/whiteboard">
+              Open Whiteboard
+            </Link>
+          </div>
+        </article>
+      </section>
       {games.length ? (
         <div className="games-library__sections">
           {therapistSets.length ? (

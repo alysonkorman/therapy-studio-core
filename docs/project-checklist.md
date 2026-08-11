@@ -131,7 +131,10 @@ This is the concise execution tracker and source of truth for what comes next. S
 - [ ] **Workbook Builder** — Planned connected workbook authoring.
 - [ ] **Psychoeducation Builder** — Planned connected psychoeducation authoring.
 - [ ] **Games** — Planned clinical game resources and activities.
-- [ ] **Whiteboard** — Planned telehealth whiteboard workspace.
+- [~] **Whiteboard** — The local MVP supports drawing, erasing, text, curated SVG
+  visuals, selection and transforms, undo/redo, save/open/new, backup/restore, and
+  same-origin tab sharing. Remote collaboration and advanced canvas tools remain
+  deferred. Commit: pending.
 - [ ] **Scene Builder** — Planned scene-based activity workspace.
 - [ ] **Sand Tray** — Planned future activity workspace.
 - [ ] **Dollhouse** — Planned future activity workspace.

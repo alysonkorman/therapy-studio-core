@@ -295,6 +295,21 @@ Resource keys so an accidental duplicate source entry resolves deterministically
 Worksheet loading and read failures remain isolated, allowing the static search sources
 to stay usable while the page presents a quiet source-status message.
 
+## Whiteboard Architecture
+
+`/whiteboard` is a child-safe local workspace rather than a Resource or Game subtype.
+Its strict version-1 document contains drawing strokes, plain-text objects, and visual
+objects that store semantic icon IDs only. Pure document and history operations live
+under `src/engines/whiteboard`; the focused repository owns the additive version-8
+`whiteboardDocuments` table. The shared Icon Browser and resolver remain the only SVG
+selection and loading boundary.
+
+Whiteboard updates may synchronize between same-origin browser tabs through a focused
+BroadcastChannel adapter derived from the Scene Builder collaboration pattern. This is
+not remote collaboration: internet-connected sessions still require a future backend
+transport. Resource Memory and other therapist-private data are not mounted inside the
+Whiteboard workspace.
+
 ## Intervention Architecture
 
 The Intervention Library is built on the canonical Resource model.
