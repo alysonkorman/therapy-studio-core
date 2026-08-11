@@ -8,46 +8,65 @@ const categoryDefinitions = [
     id: "people",
     label: "People",
     symbol: "🙂",
-    prefixes: ["People & Characters"],
+    prefixes: ["People"],
   },
   {
     id: "animals",
     label: "Animals",
     symbol: "🐾",
-    prefixes: ["Animals & Creatures"],
+    prefixes: ["Animals"],
   },
   {
     id: "places",
     label: "Places",
     symbol: "🏡",
-    prefixes: ["Nature & Outdoors", "Scenes & Places"],
+    prefixes: ["Nature & Weather", "Places & Environments"],
   },
   {
     id: "objects",
     label: "Objects",
     symbol: "🧸",
-    prefixes: ["Objects & Everyday Items", "Food & Kitchen", "Transportation & Travel"],
+    prefixes: [
+      "Clothing & Accessories",
+      "Food & Kitchen",
+      "Objects & Tools",
+      "Transportation & Travel",
+    ],
   },
   {
     id: "feelings-symbols",
     label: "Feelings & Symbols",
     symbol: "💛",
-    prefixes: ["Symbols, Shapes & Communication"],
-    includes: ["People & Characters / Emotions"],
+    prefixes: ["Therapy & Visual Supports"],
   },
   {
     id: "play-imagination",
     label: "Play & Imagination",
     symbol: "🪄",
-    prefixes: ["Activities, Hobbies & Sports", "Fantasy, Magic & Adventure"],
+    prefixes: ["Activities", "Fantasy"],
+  },
+  {
+    id: "other",
+    label: "Other",
+    symbol: "📦",
+    prefixes: [],
+    fallback: true,
   },
 ];
 
-function isInCategory(icon, category) {
-  if (category.id === "all") return true;
+function matchesCategory(icon, category) {
   return (
     category.prefixes.some((prefix) => icon.group.startsWith(prefix)) ||
     category.includes?.some((value) => icon.group.includes(value))
+  );
+}
+
+function isInCategory(icon, category) {
+  if (category.id === "all") return true;
+  if (!category.fallback) return matchesCategory(icon, category);
+  return !categoryDefinitions.some(
+    (candidate) =>
+      candidate.id !== "all" && !candidate.fallback && matchesCategory(icon, candidate)
   );
 }
 

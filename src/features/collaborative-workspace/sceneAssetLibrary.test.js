@@ -11,10 +11,20 @@ describe("Scene Builder asset-library presentation", () => {
     const categories = getSceneAssetCategories();
 
     expect(categories[0]).toMatchObject({ id: "all", label: "All" });
-    expect(categories.map(({ id }) => id)).toEqual(
-      expect.arrayContaining(["people", "animals", "places", "objects"])
-    );
+    expect(categories.map(({ id }) => id)).toEqual([
+      "all",
+      "people",
+      "animals",
+      "places",
+      "objects",
+      "feelings-symbols",
+      "play-imagination",
+      "other",
+    ]);
     expect(categories.every(({ count }) => count > 0)).toBe(true);
+    expect(categories.slice(1).reduce((total, { count }) => total + count, 0)).toBe(
+      categories[0].count
+    );
   });
 
   it("pages real manifest records without copying SVG content or URLs", () => {
@@ -36,8 +46,20 @@ describe("Scene Builder asset-library presentation", () => {
     });
 
     expect(result.total).toBeGreaterThan(0);
-    expect(
-      result.assets.every(({ group }) => group.startsWith("Animals & Creatures"))
-    ).toBe(true);
+    expect(result.assets.every(({ group }) => group.startsWith("Animals"))).toBe(true);
+  });
+
+  it("keeps unmapped canonical groups available through Other", () => {
+    const result = browseSceneAssets({
+      categoryId: "other",
+      limit: SCENE_ASSET_PAGE_SIZE,
+      query: "watarun01",
+    });
+
+    expect(result.total).toBe(1);
+    expect(result.assets[0]).toMatchObject({
+      group: "Culture & Holidays",
+      id: "curated-culture-holidays-watarun01",
+    });
   });
 });

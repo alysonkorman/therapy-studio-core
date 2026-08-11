@@ -103,11 +103,11 @@ describe("Prompt authoring interactions", () => {
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
     expect(screen.getByText("Showing 60 of 7735 icons")).toBeVisible();
     const search = screen.getByRole("searchbox", { name: /search icons/i });
-    await user.type(search, "wat arun");
-    const watArun = screen.getByRole("button", { name: /select wat arun/i });
+    await user.type(search, "watarun01");
+    const watArun = screen.getByRole("button", { name: /select watarun01/i });
     expect(watArun).toBeVisible();
     await user.dblClick(watArun);
-    expect(save).toHaveBeenLastCalledWith("curated-culture-religion-wat-arun");
+    expect(save).toHaveBeenLastCalledWith("curated-culture-holidays-watarun01");
     expect(save.mock.calls.flat().some((value) => String(value).includes("/"))).toBe(
       false
     );
@@ -209,11 +209,6 @@ describe("Prompt authoring interactions", () => {
       name: /one category icon/i,
     });
     await user.click(within(firstCategoryIcon).getByRole("button"));
-    await user.click(
-      screen.getByRole("button", {
-        name: /scenes & places \/ outdoors \/ general nature/i,
-      })
-    );
     await user.type(screen.getByRole("searchbox", { name: /search icons/i }), "rainbow");
     await user.dblClick(screen.getByRole("button", { name: /^select nature$/i }));
     expect(repository.updateCategory).toHaveBeenCalledWith("one", {

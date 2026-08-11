@@ -1,9 +1,9 @@
 import compatibility from "./iconCompatibility.generated.json";
 
-const CURATED_ROOT = "../../assets/icons/flaticon/Curated Redux Reorganized/";
+const CURATED_ROOT = "../../assets/icons/flaticon/Curated_Redux_Resorted_Standardized/";
 
 const assetLoaders = import.meta.glob(
-  "../../assets/icons/flaticon/Curated Redux Reorganized/**/*.svg",
+  "../../assets/icons/flaticon/Curated_Redux_Resorted_Standardized/**/*.svg",
   { import: "default", query: "?url" }
 );
 

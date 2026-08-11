@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const legacyRoot = "src/assets/icons/flaticon/Curated Redux Organized/";
-const currentRoot = "src/assets/icons/flaticon/Curated Redux Reorganized";
+const currentRoot = "src/assets/icons/flaticon/Curated_Redux_Resorted_Standardized";
 const outputPath = path.join(
   repositoryRoot,
   "src/services/icons/iconCompatibility.generated.json"

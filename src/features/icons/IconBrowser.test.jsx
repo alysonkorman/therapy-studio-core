@@ -18,11 +18,14 @@ describe("Icon Browser", () => {
     await user.click(screen.getByRole("button", { name: /load more icons/i }));
     expect(screen.getByText("Showing 120 of 7735 icons")).toBeVisible();
 
-    await user.type(screen.getByRole("searchbox", { name: /search icons/i }), "wat_arun");
-    const watArun = screen.getByRole("button", { name: /select wat arun/i });
+    await user.type(
+      screen.getByRole("searchbox", { name: /search icons/i }),
+      "watarun01"
+    );
+    const watArun = screen.getByRole("button", { name: /select watarun01/i });
     expect(watArun).toBeVisible();
     await user.dblClick(watArun);
-    expect(save).toHaveBeenLastCalledWith("curated-culture-religion-wat-arun");
+    expect(save).toHaveBeenLastCalledWith("curated-culture-holidays-watarun01");
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(save.mock.calls.flat().some((value) => String(value).includes("/"))).toBe(
       false
@@ -34,8 +37,8 @@ describe("Icon Browser", () => {
     const save = vi.fn();
     render(<IconBrowserField label="Category Icon" onSave={save} value="calm" />);
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
-    await user.click(screen.getByRole("button", { name: /culture & religion/i }));
-    expect(screen.getByText("Showing 7 of 7 icons")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: /^culture & holidays72$/i }));
+    expect(screen.getByText("Showing 60 of 72 icons")).toBeVisible();
 
     const icon = screen.getAllByRole("button", { name: /select /i })[0];
     icon.focus();
@@ -56,14 +59,14 @@ describe("Icon Browser", () => {
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
     await user.click(
       screen.getByRole("button", {
-        name: /activities \/ arts and crafts/i,
+        name: /activities \/ arts, crafts & music/i,
       })
     );
     await user.click(screen.getByRole("button", { name: /load more icons/i }));
-    expect(screen.getByText("Showing 78 of 78 icons")).toBeVisible();
+    expect(screen.getByText("Showing 90 of 90 icons")).toBeVisible();
     expect(
       screen.getByRole("button", {
-        name: /activities \/ arts and crafts/i,
+        name: /activities \/ arts, crafts & music/i,
       })
     ).toHaveAttribute("aria-current", "true");
 
@@ -89,12 +92,12 @@ describe("Icon Browser", () => {
   it("renders a selected SVG and the fallback", async () => {
     render(
       <>
-        <IconRenderer iconId="reading" />
+        <IconRenderer iconId="curated-school-work-study01" />
         <IconRenderer iconId="unresolved-icon" />
       </>
     );
-    expect(screen.getByRole("status", { name: "Loading Reading" })).toBeVisible();
-    expect(await screen.findByRole("img", { name: "Reading" })).toBeVisible();
+    expect(screen.getByRole("status", { name: "Loading Study01" })).toBeVisible();
+    expect(await screen.findByRole("img", { name: "Study01" })).toBeVisible();
     expect(await screen.findByLabelText("Default Icon")).toBeVisible();
   });
 
@@ -109,13 +112,16 @@ describe("Icon Browser", () => {
     );
 
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
-    await user.type(screen.getByRole("searchbox", { name: /search icons/i }), "wat arun");
-    await user.dblClick(screen.getByRole("button", { name: /select wat arun/i }));
+    await user.type(
+      screen.getByRole("searchbox", { name: /search icons/i }),
+      "watarun01"
+    );
+    await user.dblClick(screen.getByRole("button", { name: /select watarun01/i }));
     view.unmount();
 
     render(
       <IconBrowserField label="Deck Icon" onSave={vi.fn()} value={persistedIconId} />
     );
-    expect(await screen.findByRole("img", { name: "Wat Arun" })).toBeVisible();
+    expect(await screen.findByRole("img", { name: "Watarun01" })).toBeVisible();
   });
 });

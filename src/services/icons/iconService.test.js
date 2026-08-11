@@ -22,10 +22,12 @@ describe("icon service", () => {
         );
       })
     );
-    expect(manifest.find(({ id }) => id === "reading")).toMatchObject({
-      group: "Other & Unsorted",
-      label: "Reading",
-    });
+    expect(manifest.find(({ id }) => id === "curated-school-work-study01")).toMatchObject(
+      {
+        group: "School & Work",
+        label: "Study01",
+      }
+    );
     expect(manifest.every((icon) => !JSON.stringify(icon).includes("/Users/"))).toBe(
       true
     );
@@ -35,7 +37,7 @@ describe("icon service", () => {
   it("gives colliding normalized paths distinct deterministic IDs without loading assets", () => {
     const firstLoader = vi.fn();
     const secondLoader = vi.fn();
-    const root = "../../assets/icons/flaticon/Curated Redux Reorganized/";
+    const root = "../../assets/icons/flaticon/Curated_Redux_Resorted_Standardized/";
     const forward = buildIconManifestEntries({
       [`${root}Test Group/creativity 2.svg`]: firstLoader,
       [`${root}Test Group/creativity-2.svg`]: secondLoader,
@@ -57,23 +59,23 @@ describe("icon service", () => {
 
   it("preserves folder counts and supplies the All Icons group", () => {
     const groups = getIconGroups();
-    expect(groups).toHaveLength(54);
+    expect(groups).toHaveLength(25);
     expect(groups[0]).toEqual({ count: 7735, id: "all", label: "All Icons" });
     expect(groups).toContainEqual({
-      count: 7,
-      id: "Culture & Religion",
-      label: "Culture & Religion",
+      count: 72,
+      id: "Culture & Holidays",
+      label: "Culture & Holidays",
     });
   });
 
   it("normalizes search and returns deterministic filtered results", () => {
-    const byPunctuation = searchIcons("WAT__ARUN");
+    const byPunctuation = searchIcons("SCHOOL__WORK");
     expect(byPunctuation.length).toBeGreaterThan(0);
-    expect(searchIcons("wat-arun")).toEqual(byPunctuation);
-    const watArun = getIconById("curated-culture-religion-wat-arun");
+    expect(searchIcons("school-work")).toEqual(byPunctuation);
+    const watArun = getIconById("curated-culture-holidays-watarun01");
     expect(watArun).not.toBeNull();
-    expect(byPunctuation).toContainEqual(watArun);
-    expect(searchIcons("", { group: "Culture & Religion" })).toHaveLength(7);
+    expect(searchIcons("watarun01")).toContainEqual(watArun);
+    expect(searchIcons("", { group: "Culture & Holidays" })).toHaveLength(72);
   });
 
   it("resolves current and byte-identical legacy IDs while unmatched IDs fall back", () => {
@@ -83,7 +85,7 @@ describe("icon service", () => {
     expect(resolveIcon("camping-027-map")).toEqual(legacyMap);
     expect(compatibility.aliases).toHaveProperty(
       "curated-camping-svg-027-map",
-      "Transportation & Travel/map 7.svg"
+      "Transportation & Travel/map04.svg"
     );
     expect(Object.keys(compatibility.aliases)).toHaveLength(2427);
     expect(compatibility.unmatched).toHaveLength(39);
