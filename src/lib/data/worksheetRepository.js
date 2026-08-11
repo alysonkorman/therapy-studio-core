@@ -105,6 +105,7 @@ export function createWorksheetRepository({
 } = {}) {
   const resources = () => database.table("resources");
   const documents = () => database.table("worksheetDocuments");
+  const resourceMemory = () => database.table("resourceMemory");
 
   async function getAllWorksheets({
     includeArchived = false,
@@ -252,10 +253,15 @@ export function createWorksheetRepository({
       );
     }
     await getWorksheetById(id);
-    await database.transaction("rw", [resources(), documents()], async () => {
-      await resources().delete(id);
-      await documents().delete(id);
-    });
+    await database.transaction(
+      "rw",
+      [resources(), documents(), resourceMemory()],
+      async () => {
+        await resources().delete(id);
+        await documents().delete(id);
+        await resourceMemory().delete(id);
+      }
+    );
   }
 
   async function duplicateWorksheet(sourceId) {

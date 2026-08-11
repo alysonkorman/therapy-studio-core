@@ -88,14 +88,15 @@ export default function WorksheetsPage({ repository = worksheetRepository }) {
     }
   }
 
-  async function deleteTemplate(template) {
+  async function deleteWorksheet(worksheet) {
     const confirmed = window.confirm(
-      `Delete template “${template.title}”? This cannot be undone.`
+      `${isTherapistWorksheetTemplate(worksheet) ? "Delete template" : "Delete"} “${worksheet.title}”? This cannot be undone.`
     );
     if (!confirmed) return;
+
     setLoading(true);
     try {
-      await repository.deleteWorksheetPermanently(template.id);
+      await repository.deleteWorksheetPermanently(worksheet.id);
       setWorksheets(await readWorksheets());
       setError("");
     } catch (caughtError) {
@@ -260,7 +261,7 @@ export default function WorksheetsPage({ repository = worksheetRepository }) {
                     <WorksheetCard
                       key={worksheet.id}
                       onArchive={toggleArchive}
-                      onDelete={deleteTemplate}
+                      onDelete={deleteWorksheet}
                       onDuplicate={duplicateWorksheet}
                       onRenameTemplate={renameTemplate}
                       onSaveAsTemplate={saveAsTemplate}

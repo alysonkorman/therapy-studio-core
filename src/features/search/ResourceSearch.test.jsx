@@ -211,6 +211,23 @@ describe("ResourceSearch", () => {
     ).toHaveAttribute("href", "/interventions/imported-grounding");
   });
 
+  it("does not return a permanently deleted Worksheet", async () => {
+    const user = userEvent.setup();
+    const repository = persistedWorksheetSource();
+    const created = await repository.createWorksheet({ title: "Temporary Worksheet" });
+    await repository.deleteWorksheetPermanently(created.resource.id);
+    renderWithRouter(
+      <ResourceSearch persistedWorksheetRepository={repository} resources={resources} />
+    );
+
+    await user.type(screen.getByRole("searchbox"), "Temporary Worksheet{Enter}");
+
+    expect(await screen.findByText(/results for “Temporary Worksheet”/i)).toBeVisible();
+    expect(
+      screen.queryByRole("region", { name: "Search result: Temporary Worksheet" })
+    ).toBeNull();
+  });
+
   it("filters mixed results by Resource type", async () => {
     const user = userEvent.setup();
     renderWithRouter(

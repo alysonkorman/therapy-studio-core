@@ -150,7 +150,7 @@
   text-decoration: none;
 }
 
-.worksheet-actions .worksheet-template-delete-action {
+.worksheet-actions .worksheet-delete-action {
   border-color: var(--danger, #a33a3a);
   color: var(--danger, #a33a3a);
 }

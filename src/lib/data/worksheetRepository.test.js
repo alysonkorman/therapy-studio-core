@@ -98,9 +98,26 @@ describe("Worksheet repository", () => {
         (worksheet) => worksheet.id === created.resource.id
       )
     ).toMatchObject({ id: created.resource.id, archived: false });
+    await database.table("resourceMemory").put({
+      resourceId: created.resource.id,
+      favorite: true,
+      rating: null,
+      lastUsedAt: "2026-08-04T12:00:00.000Z",
+      useCount: 1,
+      therapistNotes: "Useful worksheet",
+      worksWellWhen: "",
+      kidsWhoUsuallyLikeThis: "",
+      adaptations: "",
+      createdAt: "2026-08-04T12:00:00.000Z",
+      updatedAt: "2026-08-04T12:00:00.000Z",
+    });
     await repository.deleteWorksheetPermanently(created.resource.id);
     expect(await database.table("resources").count()).toBe(0);
     expect(await database.table("worksheetDocuments").count()).toBe(0);
+    expect(await database.table("resourceMemory").count()).toBe(0);
+    await expect(repository.getWorksheetById(created.resource.id)).rejects.toMatchObject({
+      code: "worksheet-not-found",
+    });
   });
 
   it("duplicates a starter into an independent editable Worksheet", async () => {
@@ -141,6 +158,9 @@ describe("Worksheet repository", () => {
       repository.saveWorksheetDocument(starterId, starterDocument)
     ).rejects.toMatchObject({ code: "protected-starter" });
     await expect(repository.archiveWorksheet(starterId)).rejects.toMatchObject({
+      code: "protected-starter",
+    });
+    await expect(repository.deleteWorksheetPermanently(starterId)).rejects.toMatchObject({
       code: "protected-starter",
     });
 

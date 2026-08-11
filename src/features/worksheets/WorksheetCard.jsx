@@ -47,12 +47,21 @@ export default function WorksheetCard({
           </button>
         ) : null}
         {!starter && !template ? (
-          <button onClick={() => onArchive(worksheet)} type="button">
-            {worksheet.archived ? "Restore" : "Archive"}
-          </button>
+          <>
+            <button onClick={() => onArchive(worksheet)} type="button">
+              {worksheet.archived ? "Restore" : "Archive"}
+            </button>
+            <button
+              className="worksheet-delete-action"
+              onClick={() => onDelete(worksheet)}
+              type="button"
+            >
+              Delete Permanently
+            </button>
+          </>
         ) : template ? (
           <button
-            className="worksheet-template-delete-action"
+            className="worksheet-delete-action"
             onClick={() => onDelete(worksheet)}
             type="button"
           >

@@ -186,6 +186,41 @@ describe("routed Worksheet workflow", () => {
     ).toBe("therapy-studio-starter");
   });
 
+  it("confirms permanent deletion and removes a therapist-created Worksheet", async () => {
+    const repository = realRepository();
+    const created = await repository.createWorksheet({ title: "Delete Me" });
+    const user = userEvent.setup();
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderRoutes(repository);
+
+    expect(await screen.findByRole("heading", { name: "Delete Me" })).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Delete Permanently" }));
+
+    expect(confirm).toHaveBeenCalledWith("Delete “Delete Me”? This cannot be undone.");
+    await waitFor(() => {
+      expect(screen.queryByRole("heading", { name: "Delete Me" })).toBeNull();
+    });
+    await expect(repository.getWorksheetById(created.resource.id)).rejects.toMatchObject({
+      code: "worksheet-not-found",
+    });
+  });
+
+  it("cancels permanent deletion and does not offer it for starter Worksheets", async () => {
+    const repository = realRepository();
+    await repository.createWorksheet({ title: "Keep Me" });
+    const user = userEvent.setup();
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    renderRoutes(repository);
+
+    expect(await screen.findByRole("heading", { name: "Keep Me" })).toBeVisible();
+    expect(screen.getAllByRole("button", { name: "Delete Permanently" })).toHaveLength(1);
+    await user.click(screen.getByRole("button", { name: "Delete Permanently" }));
+    expect(screen.getByRole("heading", { name: "Keep Me" })).toBeVisible();
+    expect(await repository.getAllWorksheets()).toEqual(
+      expect.arrayContaining([expect.objectContaining({ title: "Keep Me" })])
+    );
+  });
+
   it("imports a structured Worksheet into the Library and opens it for editing", async () => {
     const repository = realRepository();
     const user = userEvent.setup();
