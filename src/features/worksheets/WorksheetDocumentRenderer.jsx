@@ -29,7 +29,11 @@ export default function WorksheetDocumentRenderer({
                   key={block.id}
                 >
                   <div
-                    aria-label={`Edit ${block.type.replaceAll("-", " ")} block`}
+                    aria-label={
+                      onSelectBlock
+                        ? `Edit ${block.type.replaceAll("-", " ")} block`
+                        : undefined
+                    }
                     aria-pressed={selected || undefined}
                     className={`worksheet-rendered-block ${onSelectBlock ? "worksheet-rendered-block--editable" : ""}`}
                     onClick={onSelectBlock ? () => onSelectBlock(block.id) : undefined}

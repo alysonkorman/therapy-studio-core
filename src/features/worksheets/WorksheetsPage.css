@@ -223,6 +223,53 @@
   color: #ffffff;
 }
 
+.worksheet-detail {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.worksheet-detail-header {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.worksheet-detail-heading {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.worksheet-detail-heading h1,
+.worksheet-detail-heading p {
+  margin: 0;
+}
+
+.worksheet-detail-actions {
+  justify-content: flex-start;
+}
+
+.worksheet-actions .worksheet-detail-primary-action {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.worksheet-detail-back {
+  margin-left: auto;
+}
+
+.worksheet-detail-preview {
+  background: var(--surface-soft, #f4f2f8);
+  border-top: 1px solid var(--border);
+  min-width: 0;
+  overflow-x: hidden;
+  padding: clamp(var(--space-3), 3vw, var(--space-6));
+}
+
+.worksheet-detail-preview .worksheet-document {
+  width: 100%;
+}
+
 .worksheet-builder-header,
 .worksheet-preview-controls,
 .worksheet-session-header {
@@ -610,5 +657,11 @@
   }
   .worksheet-thought-check__balancedThought {
     grid-column: auto;
+  }
+  .worksheet-detail-back {
+    margin-left: 0;
+  }
+  .worksheet-detail-preview {
+    padding: var(--space-2);
   }
 }
