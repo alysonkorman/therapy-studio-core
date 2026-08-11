@@ -32,6 +32,35 @@ const paragraph = {
 };
 
 describe("WorksheetDocumentRenderer editing", () => {
+  it("keeps Preview non-interactive and renders saved responses read-only for print", () => {
+    const worksheet = documentWith([
+      {
+        id: "response",
+        type: "short-response",
+        prompt: "How do you feel?",
+        placeholder: "",
+        lineCount: 1,
+      },
+    ]);
+    const { rerender } = render(<WorksheetDocumentRenderer document={worksheet} />);
+    expect(screen.queryByRole("textbox")).toBeNull();
+
+    rerender(
+      <WorksheetDocumentRenderer
+        document={{
+          ...worksheet,
+          sessionResponses: { response: { text: "Calmer" } },
+        }}
+      />
+    );
+    expect(
+      screen.getByRole("textbox", { name: "Response for How do you feel?" })
+    ).toHaveValue("Calmer");
+    expect(
+      screen.getByRole("textbox", { name: "Response for How do you feel?" })
+    ).toHaveAttribute("readonly");
+  });
+
   it("selects a block with pointer or keyboard and shows actions only for it", async () => {
     const user = userEvent.setup();
     const onSelectBlock = vi.fn();

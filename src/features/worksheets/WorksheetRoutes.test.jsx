@@ -368,6 +368,116 @@ describe("routed Worksheet workflow", () => {
     ]);
   });
 
+  it("keeps live responses temporary, resets them, and saves an independent completed copy", async () => {
+    const repository = realRepository();
+    const created = await repository.createWorksheet({ title: "Live Check In" });
+    const source = await repository.getWorksheetDocument(created.resource.id);
+    await repository.saveWorksheetDocument(created.resource.id, {
+      ...source,
+      pages: [
+        {
+          ...source.pages[0],
+          blocks: [
+            {
+              id: "short",
+              sortOrder: 0,
+              type: "short-response",
+              prompt: "How are you feeling?",
+              placeholder: "",
+              lineCount: 1,
+            },
+            {
+              id: "checklist",
+              sortOrder: 1,
+              type: "checklist",
+              prompt: "What helped?",
+              items: ["Breathing", "Movement"],
+              allowOther: false,
+            },
+          ],
+        },
+      ],
+    });
+    const user = userEvent.setup();
+    const confirm = vi.spyOn(window, "confirm");
+    renderRoutes(repository, `/worksheets/${created.resource.id}/session`);
+
+    await user.type(
+      await screen.findByLabelText("Response for How are you feeling?"),
+      "Calmer"
+    );
+    await user.click(screen.getByRole("checkbox", { name: "Breathing" }));
+    expect(
+      (await repository.getWorksheetDocument(created.resource.id)).sessionResponses
+    ).toBeUndefined();
+    expect(screen.queryByText(/private resource notes/i)).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /delete|archive|edit metadata/i })
+    ).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Save Completed Copy" }));
+    expect(await screen.findByText("Completed copy saved.")).toBeVisible();
+    const completed = (await repository.getAllWorksheets()).find(({ title }) =>
+      title.endsWith("— Completed Copy")
+    );
+    expect(completed).toBeTruthy();
+    expect(
+      (await repository.getWorksheetDocument(completed.id)).sessionResponses
+    ).toMatchObject({
+      short: { text: "Calmer" },
+      checklist: { selected: [0] },
+    });
+
+    confirm.mockReturnValueOnce(true);
+    await user.click(screen.getByRole("button", { name: "Reset Responses" }));
+    expect(screen.getByLabelText("Response for How are you feeling?")).toHaveValue("");
+    expect(screen.getByRole("checkbox", { name: "Breathing" })).not.toBeChecked();
+
+    await user.type(screen.getByLabelText("Response for How are you feeling?"), "Keep");
+    confirm.mockReturnValueOnce(false);
+    await user.click(screen.getByRole("button", { name: "Exit Session" }));
+    expect(screen.getByRole("heading", { name: "Live Check In" })).toBeVisible();
+    confirm.mockReturnValueOnce(true);
+    await user.click(screen.getByRole("button", { name: "Exit Session" }));
+    expect(await screen.findByRole("link", { name: "Build/Edit" })).toBeVisible();
+  });
+
+  it("reopens and prints a completed copy with responses rendered", async () => {
+    const repository = realRepository();
+    const created = await repository.createWorksheet({ title: "Completed View" });
+    const source = await repository.getWorksheetDocument(created.resource.id);
+    await repository.saveWorksheetDocument(created.resource.id, {
+      ...source,
+      pages: [
+        {
+          ...source.pages[0],
+          blocks: [
+            {
+              id: "reflection",
+              sortOrder: 0,
+              type: "reflection",
+              title: "What did you notice?",
+              instruction: "",
+              lineCount: 3,
+            },
+          ],
+        },
+      ],
+    });
+    const completed = await repository.saveCompletedWorksheetCopy(created.resource.id, {
+      reflection: { text: "My breathing slowed down." },
+    });
+    const print = vi.spyOn(window, "print").mockImplementation(() => {});
+    const user = userEvent.setup();
+    renderRoutes(repository, `/worksheets/${completed.resource.id}/session`);
+
+    expect(await screen.findByLabelText("Response for What did you notice?")).toHaveValue(
+      "My breathing slowed down."
+    );
+    await user.click(screen.getByRole("button", { name: "Print / Save as PDF" }));
+    expect(print).toHaveBeenCalledOnce();
+  });
+
   it("shows an in-shell-safe unknown Worksheet state", async () => {
     const repository = {
       getWorksheetById: vi.fn().mockRejectedValue(new Error("missing")),

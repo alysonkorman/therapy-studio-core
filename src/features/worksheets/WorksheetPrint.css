@@ -5,6 +5,15 @@
     display: none !important;
   }
 
+  .worksheet-session input,
+  .worksheet-session textarea,
+  .worksheet-preview input,
+  .worksheet-preview textarea {
+    background: transparent;
+    border-color: #a8a29e;
+    color: #111827;
+  }
+
   .main-content {
     margin: 0;
     padding: 0;

@@ -19,6 +19,8 @@ export {
   worksheetDocumentSchema,
   worksheetPageSchema,
   worksheetPageSettingsSchema,
+  worksheetSessionResponseSchema,
+  worksheetSessionResponsesSchema,
 } from "./worksheetDocument";
 export {
   createDefaultResourceMemory,

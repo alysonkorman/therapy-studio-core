@@ -230,6 +230,52 @@ export function createWorksheetRepository({
     }
   }
 
+  async function saveCompletedWorksheetCopy(sourceId, sessionResponses) {
+    await ensureOpen(database);
+    const source = await getWorksheetById(sourceId);
+    const sourceDocument = await getWorksheetDocument(sourceId);
+    const timestamp = now();
+    const id = createId();
+    const { archived: ignored, ...sourceResource } = source;
+    void ignored;
+    const resource = worksheetSchema.parse({
+      ...sourceResource,
+      id,
+      title: `${source.title} — Completed Copy`,
+      attribution: "",
+      provenance: `completed-from:${sourceId}`,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+    const document = parseDocument({
+      ...copyStarter(sourceDocument),
+      worksheetId: id,
+      sessionResponses: copyStarter(sessionResponses),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+    try {
+      await database.transaction("rw", [resources(), documents()], async () => {
+        await resources().add({ ...resource, archived: false });
+        await documents().add(document);
+      });
+      return { resource: { ...resource, archived: false }, document };
+    } catch (error) {
+      if (error instanceof Dexie.ConstraintError || error?.name === "ConstraintError") {
+        throw repositoryError(
+          worksheetRepositoryErrorCodes.duplicateWorksheet,
+          `Worksheet already exists: ${id}`,
+          { cause: error }
+        );
+      }
+      throw repositoryError(
+        worksheetRepositoryErrorCodes.writeFailed,
+        "Completed Worksheet could not be saved.",
+        { cause: error }
+      );
+    }
+  }
+
   async function setArchived(id, archived) {
     if (isWorksheetStarter(id)) {
       throw repositoryError(
@@ -289,19 +335,34 @@ export function createWorksheetRepository({
       createdAt: timestamp,
       updatedAt: timestamp,
     });
+    const responseIdMap = new Map();
+    const pages = sourceDocument.pages.map((page, pageIndex) => ({
+      ...copyStarter(page),
+      id: createId(),
+      sortOrder: pageIndex,
+      blocks: page.blocks.map((worksheetBlock, blockIndex) => {
+        const blockId = createId();
+        responseIdMap.set(worksheetBlock.id, blockId);
+        return {
+          ...copyStarter(worksheetBlock),
+          id: blockId,
+          sortOrder: blockIndex,
+        };
+      }),
+    }));
+    const sessionResponses = sourceDocument.sessionResponses
+      ? Object.fromEntries(
+          Object.entries(sourceDocument.sessionResponses).map(([blockId, response]) => [
+            responseIdMap.get(blockId),
+            copyStarter(response),
+          ])
+        )
+      : undefined;
     const document = parseDocument({
       ...copyStarter(sourceDocument),
       worksheetId: id,
-      pages: sourceDocument.pages.map((page, pageIndex) => ({
-        ...copyStarter(page),
-        id: createId(),
-        sortOrder: pageIndex,
-        blocks: page.blocks.map((worksheetBlock, blockIndex) => ({
-          ...copyStarter(worksheetBlock),
-          id: createId(),
-          sortOrder: blockIndex,
-        })),
-      })),
+      pages,
+      sessionResponses,
       createdAt: timestamp,
       updatedAt: timestamp,
     });
@@ -480,6 +541,7 @@ export function createWorksheetRepository({
     createWorksheetFromTemplate,
     renameWorksheetTemplate,
     importWorksheets,
+    saveCompletedWorksheetCopy,
     saveWorksheetDocument,
     archiveWorksheet: (id) => setArchived(id, true),
     restoreWorksheet: (id) => setArchived(id, false),

@@ -57,8 +57,22 @@ separate future work.
 
 Preview and session routes use the same document renderer as the Builder canvas.
 Print-specific styles remove application controls and format each Worksheet page for
-browser printing or Save as PDF. Opening the session route records one meaningful use;
-browsing, editing, and previewing do not.
+browser printing or Save as PDF. Session responses live in temporary page state and
+never update the reusable source Worksheet. A therapist may reset them, print them, or
+save a separate `— Completed Copy` Resource/document pair containing a validated response
+map. Leaving with unsaved changes requires confirmation. Opening the session route records
+one meaningful use; browsing, editing, and previewing do not.
+
+The first interactive session pass supports text responses, checklists, multiple choice,
+rating scales, reflections, sentence completion, CBT thought checks, coping plans, and
+table cells. Static instructional and visual blocks remain display-only. Drawing Area
+interaction is deferred because embedding the full Whiteboard would exceed this focused
+session milestone.
+
+The intended telehealth workflow is browser/window screen sharing through Zoom or another
+platform; Therapy Studio does not connect to Zoom. A future child-on-own-device mode will
+require authenticated temporary links and network/backend synchronization. Same-browser
+`BroadcastChannel` messaging is not a substitute for that remote collaboration boundary.
 
 ## Current Limitations
 

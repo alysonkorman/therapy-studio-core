@@ -1,4 +1,5 @@
 import WorksheetBlockRenderer from "./WorksheetBlockRenderer";
+import WorksheetSessionBlock from "./WorksheetSessionBlock";
 
 export default function WorksheetDocumentRenderer({
   document,
@@ -8,6 +9,9 @@ export default function WorksheetDocumentRenderer({
   onSelectBlock,
   selectedBlockId,
   selectedPageId,
+  interactive = false,
+  onResponseChange,
+  responses = document.sessionResponses ?? {},
 }) {
   const pages = selectedPageId
     ? document.pages.filter(({ id }) => id === selectedPageId)
@@ -50,7 +54,16 @@ export default function WorksheetDocumentRenderer({
                     role={onSelectBlock ? "button" : undefined}
                     tabIndex={onSelectBlock ? 0 : undefined}
                   >
-                    <WorksheetBlockRenderer block={block} />
+                    {interactive || responses[block.id] ? (
+                      <WorksheetSessionBlock
+                        block={block}
+                        onChange={(response) => onResponseChange?.(block.id, response)}
+                        readOnly={!interactive}
+                        response={responses[block.id]}
+                      />
+                    ) : (
+                      <WorksheetBlockRenderer block={block} />
+                    )}
                   </div>
                   {selected && onMoveBlock ? (
                     <div

@@ -158,4 +158,48 @@ describe("Worksheet Document", () => {
       })
     ).toThrow(/number of column headers/i);
   });
+
+  it("validates completed-copy responses without changing old documents", () => {
+    const document = createBlankWorksheetDocument("worksheet-1", {
+      createId: () => "page-1",
+      now: "2026-08-04T12:00:00.000Z",
+    });
+    const withBlock = {
+      ...document,
+      pages: [
+        {
+          ...document.pages[0],
+          blocks: [
+            {
+              id: "response-1",
+              sortOrder: 0,
+              type: "short-response",
+              prompt: "What happened?",
+              placeholder: "",
+              lineCount: 1,
+            },
+          ],
+        },
+      ],
+    };
+    expect(() => worksheetDocumentSchema.parse(withBlock)).not.toThrow();
+    expect(
+      worksheetDocumentSchema.parse({
+        ...withBlock,
+        sessionResponses: { "response-1": { text: "I took a break." } },
+      }).sessionResponses
+    ).toEqual({ "response-1": { text: "I took a break." } });
+    expect(() =>
+      worksheetDocumentSchema.parse({
+        ...withBlock,
+        sessionResponses: { missing: { text: "No matching block" } },
+      })
+    ).toThrow(/unknown block/i);
+    expect(() =>
+      worksheetDocumentSchema.parse({
+        ...withBlock,
+        sessionResponses: { "response-1": { text: "<b>unsafe</b>" } },
+      })
+    ).toThrow(/HTML/i);
+  });
 });

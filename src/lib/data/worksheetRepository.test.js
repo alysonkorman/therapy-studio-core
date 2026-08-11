@@ -78,6 +78,37 @@ describe("Worksheet repository", () => {
     expect(reopened.createdAt).toBe(created.document.createdAt);
   });
 
+  it("saves a completed copy while leaving the reusable source unchanged", async () => {
+    const { repository } = setup();
+    const created = await repository.createWorksheet({ title: "Calm Plan" });
+    const source = await repository.getWorksheetDocument(created.resource.id);
+    const withResponseBlock = addWorksheetBlock(
+      source,
+      source.pages[0].id,
+      "short-response",
+      () => "response-block"
+    );
+    await repository.saveWorksheetDocument(created.resource.id, withResponseBlock);
+
+    const completed = await repository.saveCompletedWorksheetCopy(created.resource.id, {
+      "response-block": { text: "I asked for help." },
+    });
+
+    expect(completed.resource).toMatchObject({
+      title: "Calm Plan — Completed Copy",
+      provenance: `completed-from:${created.resource.id}`,
+    });
+    expect(completed.document.sessionResponses).toEqual({
+      "response-block": { text: "I asked for help." },
+    });
+    expect(
+      (await repository.getWorksheetDocument(created.resource.id)).sessionResponses
+    ).toBeUndefined();
+    expect(
+      (await repository.getWorksheetDocument(completed.resource.id)).sessionResponses
+    ).toEqual({ "response-block": { text: "I asked for help." } });
+  });
+
   it("archives, restores, and permanently deletes a Worksheet and its document", async () => {
     const { database, repository } = setup();
     const created = await repository.createWorksheet({ title: "Lifecycle" });

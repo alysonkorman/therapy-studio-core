@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { resourceMemoryRepository, worksheetRepository } from "../../lib/data";
 import WorksheetDocumentRenderer from "./WorksheetDocumentRenderer";
@@ -10,9 +10,13 @@ export default function WorksheetSessionPage({
   repository = worksheetRepository,
 }) {
   const { worksheetId } = useParams();
+  const navigate = useNavigate();
   const [worksheet, setWorksheet] = useState(null);
   const [document, setDocument] = useState(null);
   const [error, setError] = useState("");
+  const [responses, setResponses] = useState({});
+  const [savedCopy, setSavedCopy] = useState(null);
+  const [saveStatus, setSaveStatus] = useState("");
   const useReported = useRef(false);
 
   useEffect(() => {
@@ -23,6 +27,7 @@ export default function WorksheetSessionPage({
       .then(([resource, worksheetDocument]) => {
         setWorksheet(resource);
         setDocument(worksheetDocument);
+        setResponses(worksheetDocument.sessionResponses ?? {});
       })
       .catch(() => setError("We couldn’t find that Worksheet."));
   }, [repository, worksheetId]);
@@ -32,6 +37,36 @@ export default function WorksheetSessionPage({
     useReported.current = true;
     void memoryRepository.markResourceUsed(worksheet.id).catch(() => {});
   }, [memoryRepository, worksheet]);
+
+  const initialResponses = useMemo(() => document?.sessionResponses ?? {}, [document]);
+  const hasResponses = Object.keys(responses).length > 0;
+  const dirty = JSON.stringify(responses) !== JSON.stringify(initialResponses);
+
+  useEffect(() => {
+    if (!dirty) return undefined;
+    const warn = (event) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+
+  function exitSession() {
+    if (dirty && !window.confirm("Discard unsaved Worksheet responses?")) return;
+    navigate(`/worksheets/${worksheetId}`);
+  }
+
+  async function saveCompletedCopy() {
+    setSaveStatus("Saving completed copy…");
+    try {
+      const created = await repository.saveCompletedWorksheetCopy(worksheetId, responses);
+      setSavedCopy(created.resource);
+      setSaveStatus("Completed copy saved.");
+    } catch {
+      setSaveStatus("Completed copy could not be saved. Try again.");
+    }
+  }
 
   if (error)
     return (
@@ -46,10 +81,47 @@ export default function WorksheetSessionPage({
   return (
     <div className="worksheet-session">
       <header className="worksheet-session-header">
-        <h1>{worksheet.title}</h1>
-        <Link to={`/worksheets/${worksheetId}`}>Return to Therapist View</Link>
+        <div>
+          <p className="eyebrow">Interactive Worksheet Session</p>
+          <h1>{worksheet.title}</h1>
+        </div>
+        <div className="worksheet-session-controls">
+          <button
+            disabled={!hasResponses}
+            onClick={() => {
+              if (window.confirm("Reset all Worksheet responses?")) setResponses({});
+            }}
+            type="button"
+          >
+            Reset Responses
+          </button>
+          <button disabled={!hasResponses} onClick={saveCompletedCopy} type="button">
+            Save Completed Copy
+          </button>
+          <button onClick={() => window.print()} type="button">
+            Print / Save as PDF
+          </button>
+          <button onClick={exitSession} type="button">
+            Exit Session
+          </button>
+        </div>
       </header>
-      <WorksheetDocumentRenderer document={document} />
+      {saveStatus ? <p role="status">{saveStatus}</p> : null}
+      {savedCopy ? (
+        <p className="worksheet-session-saved-link">
+          <Link to={`/worksheets/${savedCopy.id}/session`}>
+            Open Saved Completed Copy
+          </Link>
+        </p>
+      ) : null}
+      <WorksheetDocumentRenderer
+        document={document}
+        interactive
+        onResponseChange={(blockId, response) =>
+          setResponses((current) => ({ ...current, [blockId]: response }))
+        }
+        responses={responses}
+      />
     </div>
   );
 }

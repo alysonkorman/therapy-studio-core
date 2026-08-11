@@ -10,6 +10,22 @@ const blockBase = {
   sortOrder: z.number().int().nonnegative(),
 };
 
+export const worksheetSessionResponseSchema = z
+  .object({
+    text: plainText.optional(),
+    selected: z.array(z.number().int().nonnegative()).optional(),
+    rating: z.number().int().min(0).max(10).nullable().optional(),
+    otherText: plainText.optional(),
+    fields: z.record(z.string(), plainText).optional(),
+    cells: z.array(z.array(plainText)).optional(),
+  })
+  .strict();
+
+export const worksheetSessionResponsesSchema = z.record(
+  z.string().min(1),
+  worksheetSessionResponseSchema
+);
+
 export const worksheetBlockSchema = z.discriminatedUnion("type", [
   z
     .object({
@@ -200,6 +216,7 @@ export const worksheetDocumentSchema = z
     documentVersion: z.literal(1),
     worksheetId: z.string().min(1),
     pages: z.array(worksheetPageSchema).min(1),
+    sessionResponses: worksheetSessionResponsesSchema.optional(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
   })
@@ -234,6 +251,15 @@ export const worksheetDocumentSchema = z
           });
         }
       });
+    });
+    Object.keys(document.sessionResponses ?? {}).forEach((blockId) => {
+      if (!blockIds.has(blockId)) {
+        context.addIssue({
+          code: "custom",
+          message: "Worksheet response references an unknown block",
+          path: ["sessionResponses", blockId],
+        });
+      }
     });
   });
 
