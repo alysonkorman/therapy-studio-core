@@ -9,10 +9,17 @@ export {
   THERAPY_STUDIO_VERSION_3_SCHEMA,
   THERAPY_STUDIO_VERSION_4_SCHEMA,
   THERAPY_STUDIO_VERSION_5_SCHEMA,
+  THERAPY_STUDIO_VERSION_7_SCHEMA,
 } from "./database";
 export { categoryRepository, createCategoryRepository } from "./categoryRepository";
 export { playlistRepository, createPlaylistRepository } from "./playlistRepository";
 export { promptDeckRepository, createPromptDeckRepository } from "./promptDeckRepository";
+export {
+  createInterventionRepository,
+  interventionRepository,
+  interventionRepositoryErrorCodes,
+  InterventionRepositoryError,
+} from "./interventionRepository";
 export {
   createResourceMemoryRepository,
   resourceMemoryErrorCodes,

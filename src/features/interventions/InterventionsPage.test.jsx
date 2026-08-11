@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { createDefaultResourceMemory } from "../../models";
+import { interventions } from "../../data/resources";
 import { renderWithRouter } from "../../test/test-utils";
 import InterventionsPage from "./InterventionsPage";
 
@@ -20,11 +21,26 @@ function memoryRepository() {
   };
 }
 
+function interventionSource() {
+  return {
+    getAllInterventions: vi.fn(async () =>
+      interventions.map((item) => ({ ...item, archived: false, starter: true }))
+    ),
+    importInterventions: vi.fn(),
+    deleteInterventionPermanently: vi.fn(),
+  };
+}
+
 describe("InterventionsPage", () => {
   it("renders the complete internally authored starter library", async () => {
-    renderWithRouter(<InterventionsPage memoryRepository={memoryRepository()} />);
+    renderWithRouter(
+      <InterventionsPage
+        memoryRepository={memoryRepository()}
+        repository={interventionSource()}
+      />
+    );
 
-    expect(screen.getByText("8 Interventions")).toBeVisible();
+    expect(await screen.findByText("8 Interventions")).toBeVisible();
     expect(screen.getAllByRole("link", { name: "Open Intervention" })).toHaveLength(8);
     expect(screen.getByRole("heading", { name: "Feelings Jenga" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "Problem-Solving Steps" })).toBeVisible();
@@ -32,7 +48,14 @@ describe("InterventionsPage", () => {
 
   it("searches and combines lightweight filters", async () => {
     const user = userEvent.setup();
-    renderWithRouter(<InterventionsPage memoryRepository={memoryRepository()} />);
+    renderWithRouter(
+      <InterventionsPage
+        memoryRepository={memoryRepository()}
+        repository={interventionSource()}
+      />
+    );
+
+    await screen.findByText("8 Interventions");
 
     await user.type(
       screen.getByRole("searchbox", { name: "Search Interventions" }),
@@ -54,7 +77,14 @@ describe("InterventionsPage", () => {
   it("uses shared Resource Memory for favorites", async () => {
     const user = userEvent.setup();
     const repository = memoryRepository();
-    renderWithRouter(<InterventionsPage memoryRepository={repository} />);
+    renderWithRouter(
+      <InterventionsPage
+        memoryRepository={repository}
+        repository={interventionSource()}
+      />
+    );
+
+    await screen.findByText("8 Interventions");
 
     const card = screen
       .getByRole("heading", { name: "Feelings Jenga" })

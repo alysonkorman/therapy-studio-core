@@ -1,11 +1,9 @@
 import { ArrowLeft, Clock3, Monitor } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { EmptyState, Page, Section } from "../../components/layout";
-import {
-  getInterventionById,
-  getInterventionGuidance,
-} from "../../data/resources/interventions";
+import { interventionRepository } from "../../lib/data";
 import ResourceMemoryControls from "../resource-memory/ResourceMemoryControls";
 import "./InterventionsPage.css";
 
@@ -25,11 +23,38 @@ function ListSection({ items, title }) {
 export default function InterventionDetailPage({
   interventionId: suppliedId,
   memoryRepository,
+  repository = interventionRepository,
 }) {
   const { interventionId: routeId } = useParams();
   const interventionId = suppliedId ?? routeId;
-  const intervention = getInterventionById(interventionId);
-  const guidance = getInterventionGuidance(interventionId);
+  const [pair, setPair] = useState(null);
+  const [status, setStatus] = useState("loading");
+  useEffect(() => {
+    let active = true;
+    repository
+      .getInterventionPair(interventionId)
+      .then((value) => {
+        if (active) {
+          setPair(value);
+          setStatus("ready");
+        }
+      })
+      .catch(() => {
+        if (active) setStatus("missing");
+      });
+    return () => {
+      active = false;
+    };
+  }, [interventionId, repository]);
+
+  if (status === "loading" || (pair && pair.resource.id !== interventionId))
+    return (
+      <Page title="Intervention">
+        <p role="status">Loading Intervention…</p>
+      </Page>
+    );
+  const intervention = pair?.resource;
+  const guidance = pair?.guidance;
 
   if (!intervention || !guidance) {
     return (

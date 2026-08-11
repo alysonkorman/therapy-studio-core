@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   promptCategorySchema,
+  interventionGuidanceSchema,
   promptDeckSchema,
   promptPlaylistSchema,
   resourceMemorySchema,
@@ -88,6 +89,14 @@ function fixtures() {
       title: "My Worksheet",
     }),
   });
+  const intervention = baseResource();
+  const guidance = interventionGuidanceSchema.parse({
+    resourceId: intervention.id,
+    overview: "Therapist-authored guidance",
+    introduction: "Let’s begin.",
+    steps: ["Take one step."],
+    sourceStatus: "Reviewed source",
+  });
   const document = worksheetDocumentSchema.parse({
     documentVersion: 1,
     worksheetId: worksheet.id,
@@ -142,7 +151,17 @@ function fixtures() {
     createdAt: timestamp,
     updatedAt: timestamp,
   });
-  return { deck, worksheet, document, category, playlist, memory, profile };
+  return {
+    deck,
+    worksheet,
+    intervention,
+    guidance,
+    document,
+    category,
+    playlist,
+    memory,
+    profile,
+  };
 }
 
 async function seed(database) {
@@ -151,12 +170,14 @@ async function seed(database) {
   await database.table("resources").bulkAdd([
     { ...data.deck, archived: false },
     { ...data.worksheet, archived: true },
+    { ...data.intervention, archived: false },
   ]);
   await database.table("categories").add(data.category);
   await database.table("playlists").add(data.playlist);
   await database.table("resourceMemory").add(data.memory);
   await database.table("sessionProfiles").add(data.profile);
   await database.table("worksheetDocuments").add(data.document);
+  await database.table("interventionGuidance").add(data.guidance);
   return data;
 }
 
@@ -180,11 +201,13 @@ describe("backup repository", () => {
     });
     expect(backup.data.resources.map(({ id }) => id)).toEqual([
       "custom-deck",
+      "custom-intervention",
       "custom-worksheet",
     ]);
     expect(backup.data.resourceMemory[0]).toEqual(data.memory);
     expect(backup.data.sessionProfiles[0]).toEqual(data.profile);
     expect(backup.data.worksheetDocuments[0]).toEqual(data.document);
+    expect(backup.data.interventionGuidance[0]).toEqual(data.guidance);
     expect(backup.data.playlists[0].items[0].deckId).toBe(data.deck.id);
   });
 
@@ -220,6 +243,9 @@ describe("backup repository", () => {
     expect(
       await destination.table("worksheetDocuments").get("custom-worksheet")
     ).toMatchObject({ pages: [{ blocks: [{ text: "Edited text" }] }] });
+    expect(
+      await destination.table("interventionGuidance").get("custom-intervention")
+    ).toMatchObject({ overview: "Therapist-authored guidance" });
   });
 
   it("keeps deterministic built-in content available after replacing local tables", async () => {

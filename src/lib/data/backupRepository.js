@@ -2,6 +2,7 @@ import Dexie from "dexie";
 
 import {
   promptCategorySchema,
+  interventionGuidanceSchema,
   promptDeckSchema,
   promptPlaylistSchema,
   resourceMemorySchema,
@@ -25,6 +26,7 @@ const tableNames = [
   "resourceMemory",
   "sessionProfiles",
   "worksheetDocuments",
+  "interventionGuidance",
 ];
 
 export const backupErrorCodes = Object.freeze({
@@ -34,6 +36,7 @@ export const backupErrorCodes = Object.freeze({
   invalidBackup: "invalid-backup",
   duplicateId: "duplicate-id",
   worksheetMismatch: "worksheet-mismatch",
+  interventionMismatch: "intervention-mismatch",
   databaseUnavailable: "database-unavailable",
   transactionFailed: "transaction-failed",
 });
@@ -129,6 +132,26 @@ function validateWorksheetPairs(data) {
   }
 }
 
+function validateInterventionPairs(data) {
+  const interventionIds = new Set(
+    data.resources
+      .filter((resource) => resource.type === "intervention")
+      .map((resource) => resource.id)
+  );
+  const guidanceIds = new Set(
+    data.interventionGuidance.map(({ resourceId }) => resourceId)
+  );
+  const missingGuidance = [...interventionIds].find((id) => !guidanceIds.has(id));
+  const orphanGuidance = [...guidanceIds].find((id) => !interventionIds.has(id));
+  if (missingGuidance || orphanGuidance) {
+    throw backupError(
+      backupErrorCodes.interventionMismatch,
+      "The backup has incomplete imported Intervention data and cannot be restored.",
+      { details: { missingGuidance, orphanGuidance } }
+    );
+  }
+}
+
 export function validateBackup(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     throw backupError(
@@ -167,6 +190,9 @@ export function validateBackup(input) {
     worksheetDocuments: envelope.data.worksheetDocuments.map((record) =>
       parseStrict(worksheetDocumentSchema, record, "Worksheet document")
     ),
+    interventionGuidance: envelope.data.interventionGuidance.map((record) =>
+      parseStrict(interventionGuidanceSchema, record, "Intervention guidance")
+    ),
   };
 
   assertUnique(data.resources, "id", "Resources");
@@ -175,7 +201,9 @@ export function validateBackup(input) {
   assertUnique(data.resourceMemory, "resourceId", "Resource Memory");
   assertUnique(data.sessionProfiles, "id", "Session Profiles");
   assertUnique(data.worksheetDocuments, "worksheetId", "Worksheet documents");
+  assertUnique(data.interventionGuidance, "resourceId", "Intervention guidance");
   validateWorksheetPairs(data);
+  validateInterventionPairs(data);
 
   return {
     ...envelope,
@@ -186,6 +214,7 @@ export function validateBackup(input) {
       resourceMemory: sorted(data.resourceMemory, "resourceId"),
       sessionProfiles: sorted(data.sessionProfiles, "id"),
       worksheetDocuments: sorted(data.worksheetDocuments, "worksheetId"),
+      interventionGuidance: sorted(data.interventionGuidance, "resourceId"),
     },
   };
 }

@@ -6,16 +6,18 @@ The application database is named `therapy-studio`. It uses Dexie over IndexedDB
 database is created lazily through `src/lib/data/database.js`; importing application
 modules does not open or seed it.
 
-Version 1 introduced one table. Additive version 5 has this final schema:
+Version 1 introduced one table. Additive version 7 has this current schema:
 
-| Table                | Primary key   | Secondary indexes                              |
-| -------------------- | ------------- | ---------------------------------------------- |
-| `resources`          | `id`          | None                                           |
-| `categories`         | `id`          | None                                           |
-| `playlists`          | `id`          | None                                           |
-| `resourceMemory`     | `resourceId`  | `favorite`, `rating`, `lastUsedAt`, `useCount` |
-| `sessionProfiles`    | `id`          | `archived`, `updatedAt`, `lastOpenedAt`        |
-| `worksheetDocuments` | `worksheetId` | None                                           |
+| Table                  | Primary key   | Secondary indexes                              |
+| ---------------------- | ------------- | ---------------------------------------------- |
+| `resources`            | `id`          | None                                           |
+| `categories`           | `id`          | None                                           |
+| `playlists`            | `id`          | None                                           |
+| `resourceMemory`       | `resourceId`  | `favorite`, `rating`, `lastUsedAt`, `useCount` |
+| `sessionProfiles`      | `id`          | `archived`, `updatedAt`, `lastOpenedAt`        |
+| `worksheetDocuments`   | `worksheetId` | None                                           |
+| `sceneDocuments`       | `id`          | `updatedAt`                                    |
+| `interventionGuidance` | `resourceId`  | None                                           |
 
 Stable Resource IDs are the IndexedDB primary keys. No secondary index is justified by
 the current repository operations or collection size. Repository archive state is
@@ -30,6 +32,10 @@ Version 5 adds versioned Worksheet Documents. A document is keyed by its Workshe
 Resource ID and contains ordered pages, page settings, and ordered validated blocks.
 Creation and save operations update Resource and document records transactionally.
 Authored text is plain text and rejects HTML.
+
+Version 7 adds Intervention guidance keyed by the matching Intervention Resource ID.
+Bundled starters remain immutable outside the database. Therapist imports store each
+Resource and guidance record together in one transaction.
 
 ## Session Profiles
 
@@ -80,6 +86,12 @@ import Dexie. The general public operations are:
 Reads return archive state with the validated Resource. `getAllResources()` excludes
 archived records by default; `{ includeArchived: true }` includes them. Results are
 ordered deterministically by stable ID.
+
+`interventionRepository.js` is the paired persistence boundary for imported
+Interventions. It combines persisted records with the eight static starters and owns
+transactional import, create, read, update, and permanent deletion. A future source
+converter may emit the versioned import envelope, but it must remain outside this
+repository and may not bypass validation.
 
 ## Validation and Errors
 

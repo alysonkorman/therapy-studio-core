@@ -131,8 +131,9 @@ export default function DataBackupSection({ repository = backupRepository }) {
           <h3>Replace local Therapy Studio data?</h3>
           <p>
             This will replace Resources, Prompt categories and playlists, Resource Memory,
-            Session Profiles, and editable Worksheets stored in this browser. Built-in
-            Interventions and Worksheet starters will remain available.
+            Session Profiles, editable Worksheets, and imported Interventions stored in
+            this browser. Built-in Interventions and Worksheet starters will remain
+            available.
           </p>
           <div className="settings-backup__confirmation-actions">
             <Button disabled={busy} onClick={handleRestore}>

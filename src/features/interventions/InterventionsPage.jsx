@@ -1,28 +1,61 @@
 import { Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { EmptyState, Page } from "../../components/layout";
-import { interventions } from "../../data/resources";
+import { interventions as starterInterventions } from "../../data/resources";
 import { filterInterventions } from "../../engines/interventions/filterInterventions";
-import { resourceMemoryRepository } from "../../lib/data";
+import { interventionRepository, resourceMemoryRepository } from "../../lib/data";
+import InterventionImportPanel from "./InterventionImportPanel";
 import InterventionLibraryCard from "./InterventionLibraryCard";
 import "./InterventionsPage.css";
 
 export default function InterventionsPage({
   memoryRepository = resourceMemoryRepository,
+  repository = interventionRepository,
 }) {
+  const [interventions, setInterventions] = useState(() =>
+    starterInterventions.map((item) => ({ ...item, archived: false, starter: true }))
+  );
+  const [sourceStatus, setSourceStatus] = useState("loading");
+  const [showImport, setShowImport] = useState(false);
   const [query, setQuery] = useState("");
   const [goal, setGoal] = useState("");
   const [ageRange, setAgeRange] = useState("");
   const [maxDuration, setMaxDuration] = useState("");
   const [telehealthOnly, setTelehealthOnly] = useState(false);
+  const loadInterventions = useCallback(async () => {
+    try {
+      setInterventions(await repository.getAllInterventions());
+      setSourceStatus("ready");
+    } catch {
+      setSourceStatus("error");
+    }
+  }, [repository]);
+
+  useEffect(() => {
+    let active = true;
+    repository
+      .getAllInterventions()
+      .then((items) => {
+        if (!active) return;
+        setInterventions(items);
+        setSourceStatus("ready");
+      })
+      .catch(() => {
+        if (active) setSourceStatus("error");
+      });
+    return () => {
+      active = false;
+    };
+  }, [repository]);
+
   const goals = useMemo(
     () => [...new Set(interventions.flatMap((item) => item.goals))].sort(),
-    []
+    [interventions]
   );
   const ageRanges = useMemo(
     () => [...new Set(interventions.flatMap((item) => item.ageRanges))],
-    []
+    [interventions]
   );
   const visibleInterventions = useMemo(
     () =>
@@ -33,7 +66,7 @@ export default function InterventionsPage({
         maxDuration,
         telehealthOnly,
       }),
-    [ageRange, goal, maxDuration, query, telehealthOnly]
+    [ageRange, goal, interventions, maxDuration, query, telehealthOnly]
   );
   const hasFilters = Boolean(query || goal || ageRange || maxDuration || telehealthOnly);
 
@@ -45,12 +78,38 @@ export default function InterventionsPage({
     setTelehealthOnly(false);
   }
 
+  async function deleteIntervention(intervention) {
+    if (!window.confirm(`Delete “${intervention.title}”? This cannot be undone.`)) return;
+    await repository.deleteInterventionPermanently(intervention.id);
+    await loadInterventions();
+  }
+
   return (
     <Page
       className="interventions-page"
       description="Browse concise, therapist-ready activities for live telehealth sessions."
       title="Interventions"
     >
+      <div className="intervention-library-tools">
+        <button
+          className="studio-button studio-button--secondary"
+          onClick={() => setShowImport((value) => !value)}
+          type="button"
+        >
+          Import Interventions
+        </button>
+      </div>
+      {showImport ? (
+        <InterventionImportPanel
+          onCancel={() => setShowImport(false)}
+          onImported={loadInterventions}
+          repository={repository}
+        />
+      ) : null}
+      {sourceStatus === "loading" ? <p role="status">Loading Interventions…</p> : null}
+      {sourceStatus === "error" ? (
+        <p role="alert">Interventions are unavailable right now.</p>
+      ) : null}
       <section className="intervention-filters" aria-label="Filter Interventions">
         <label className="intervention-search">
           <span>Search Interventions</span>
@@ -129,6 +188,7 @@ export default function InterventionsPage({
               intervention={item}
               key={item.id}
               memoryRepository={memoryRepository}
+              onDelete={item.starter ? undefined : () => deleteIntervention(item)}
             />
           ))}
         </div>

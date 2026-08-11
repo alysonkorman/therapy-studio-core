@@ -148,3 +148,33 @@
     padding: var(--space-4);
   }
 }
+.intervention-library-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-3);
+}
+.intervention-import {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding: var(--space-4);
+}
+.intervention-import h2,
+.intervention-import h3,
+.intervention-import p {
+  margin: 0;
+}
+.intervention-import__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.intervention-import__file {
+  display: none;
+}
+.intervention-import__preview ul {
+  margin: var(--space-2) 0;
+}

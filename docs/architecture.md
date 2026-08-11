@@ -244,15 +244,15 @@ Memory reuse their existing type-aware behavior without a Worksheet-specific sub
 
 Manual data protection uses the same local persistence boundary. Settings exposes a
 versioned JSON export with format `therapy-studio-backup` and version `1`. The backup
-contains the six persisted tables: Resources, Prompt categories, Prompt playlists,
-Resource Memory, Session Profiles, and Worksheet documents. Stored Prompt Deck copies
+contains Resources, Prompt categories, Prompt playlists, Resource Memory, Session
+Profiles, Worksheet documents, and imported Intervention guidance. Stored Prompt Deck copies
 and categories are included because therapist edits cannot be reconstructed reliably;
 private Resource Memory fields are included intentionally. Temporary Current Session
 context and bundled static content are excluded.
 
 Restore validates the complete envelope, every stored record, globally unique Resource
-IDs, and Worksheet Resource/document pairing before opening a write transaction. A
-confirmed restore atomically replaces all six browser-local tables. Bundled
+IDs, Worksheet Resource/document pairing, and imported Intervention Resource/guidance
+pairing before opening a write transaction. A confirmed restore atomically replaces the browser-local tables. Bundled
 Interventions and immutable Worksheet starters remain available because they live
 outside IndexedDB; restored stored Prompt Decks preserve exact authoring changes. The
 backup never leaves the browser through Therapy Studio, but the downloaded file may
@@ -282,7 +282,7 @@ Recommendation logic remains deferred and belongs in `src/engines/recommendation
 
 The default search source starts with the validated static Resource aggregate of
 imported Prompt Decks, the initial Interventions, and immutable Worksheet starters, then asynchronously adds active,
-validated Worksheet Resources from `worksheetRepository`. Worksheet documents remain
+validated Worksheet Resources and persisted Intervention Resources from their focused repositories. Worksheet documents and Intervention guidance remain
 separate and are never indexed as Resources. A pure assembly helper applies type-aware
 Resource keys so an accidental duplicate source entry resolves deterministically.
 Worksheet loading and read failures remain isolated, allowing the static search sources
@@ -290,23 +290,28 @@ to stay usable while the page presents a quiet source-status message.
 
 ## Intervention Architecture
 
-The Intervention Library is a seed-driven MVP built on the canonical Resource model.
+The Intervention Library is built on the canonical Resource model.
 `src/data/resources/interventions.js` owns eight deterministic Intervention Resources
 and separately validated session guidance keyed by the same stable Resource IDs.
 `src/models/intervention.js` validates guidance without expanding the shared Resource
-contract or creating a parallel persistence system.
+contract or creating a parallel Resource system. Additive database version 7 provides
+`interventionGuidance`, keyed by Resource ID. `interventionRepository.js` presents the
+eight bundled starters alongside therapist-imported Resource/guidance pairs and owns
+transactional validation, persistence, reads, updates, and deletion. Starters remain
+static and protected.
 
 `/interventions` owns local deterministic search and restrained goal, age, duration,
 and telehealth filters. `/interventions/:interventionId` presents concise session
 guidance and handles unknown IDs inside the shared shell. Resource Memory remains the
 only owner of favorites, ratings, therapist notes, and intentional-use history. Merely
 opening a detail page does not mark use; the therapist must choose Mark Used. Universal
-Search, Saved, and Dashboard recents link to the stable detail route.
+Search, Saved, and Dashboard recents link to the stable detail route. The Library offers
+a version-1 `therapy-studio-interventions` JSON import flow that validates the complete
+file before an atomic write and never overwrites starter or persisted Resource IDs.
 
-The older Therapy Toolkit source-based Intervention collection is not part of this
-starter library. Its provenance, copyright constraints, clinical warnings,
-duplication, and truncation require a separate Intervention Source Review & Migration
-milestone.
+The older Therapy Toolkit source collection is not imported directly by the browser.
+Any future converter belongs at the external import boundary and must emit the same
+validated Resource/guidance pairs while preserving provenance and attribution.
 
 ## Icon Strategy
 

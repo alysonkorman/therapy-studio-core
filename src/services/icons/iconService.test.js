@@ -10,8 +10,8 @@ import { searchIcons } from "./iconSearch";
 describe("icon service", () => {
   it("discovers the deterministic curated manifest with stable unique semantic IDs", () => {
     const manifest = getIconManifest();
-    expect(manifest).toHaveLength(7768);
-    expect(new Set(manifest.map(({ id }) => id)).size).toBe(7768);
+    expect(manifest).toHaveLength(7735);
+    expect(new Set(manifest.map(({ id }) => id)).size).toBe(7735);
     expect(manifest).toEqual(
       [...manifest].sort((left, right) => {
         return (
@@ -57,8 +57,8 @@ describe("icon service", () => {
 
   it("preserves folder counts and supplies the All Icons group", () => {
     const groups = getIconGroups();
-    expect(groups).toHaveLength(56);
-    expect(groups[0]).toEqual({ count: 7768, id: "all", label: "All Icons" });
+    expect(groups).toHaveLength(54);
+    expect(groups[0]).toEqual({ count: 7735, id: "all", label: "All Icons" });
     expect(groups).toContainEqual({
       count: 7,
       id: "Culture & Religion",
@@ -67,12 +67,12 @@ describe("icon service", () => {
   });
 
   it("normalizes search and returns deterministic filtered results", () => {
-    const byPunctuation = searchIcons("POLAR__BEAR");
+    const byPunctuation = searchIcons("WAT__ARUN");
     expect(byPunctuation.length).toBeGreaterThan(0);
-    expect(searchIcons("polar-bear")).toEqual(byPunctuation);
-    const compatiblePolarBear = getIconById("curated-animals-2-svg-036-polar-bear");
-    expect(compatiblePolarBear).not.toBeNull();
-    expect(byPunctuation).toContainEqual(compatiblePolarBear);
+    expect(searchIcons("wat-arun")).toEqual(byPunctuation);
+    const watArun = getIconById("curated-culture-religion-wat-arun");
+    expect(watArun).not.toBeNull();
+    expect(byPunctuation).toContainEqual(watArun);
     expect(searchIcons("", { group: "Culture & Religion" })).toHaveLength(7);
   });
 

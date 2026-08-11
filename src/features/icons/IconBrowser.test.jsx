@@ -13,10 +13,10 @@ describe("Icon Browser", () => {
 
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
     expect(screen.getByRole("dialog", { name: /choose deck icon/i })).toBeVisible();
-    expect(screen.getByText("Showing 60 of 7768 icons")).toBeVisible();
+    expect(screen.getByText("Showing 60 of 7735 icons")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: /load more icons/i }));
-    expect(screen.getByText("Showing 120 of 7768 icons")).toBeVisible();
+    expect(screen.getByText("Showing 120 of 7735 icons")).toBeVisible();
 
     await user.type(screen.getByRole("searchbox", { name: /search icons/i }), "wat_arun");
     const watArun = screen.getByRole("button", { name: /select wat arun/i });
@@ -56,14 +56,14 @@ describe("Icon Browser", () => {
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
     await user.click(
       screen.getByRole("button", {
-        name: /activities, hobbies & sports \/ arts and crafts/i,
+        name: /activities \/ arts and crafts/i,
       })
     );
     await user.click(screen.getByRole("button", { name: /load more icons/i }));
-    expect(screen.getByText("Showing 82 of 82 icons")).toBeVisible();
+    expect(screen.getByText("Showing 78 of 78 icons")).toBeVisible();
     expect(
       screen.getByRole("button", {
-        name: /activities, hobbies & sports \/ arts and crafts/i,
+        name: /activities \/ arts and crafts/i,
       })
     ).toHaveAttribute("aria-current", "true");
 

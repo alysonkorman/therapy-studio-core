@@ -12,6 +12,8 @@ import {
   THERAPY_STUDIO_VERSION_3_SCHEMA,
   THERAPY_STUDIO_VERSION_4_SCHEMA,
   THERAPY_STUDIO_VERSION_5_SCHEMA,
+  THERAPY_STUDIO_VERSION_6_SCHEMA,
+  THERAPY_STUDIO_VERSION_7_SCHEMA,
 } from "./database";
 
 const databases = [];
@@ -40,7 +42,7 @@ describe("Therapy Studio database", () => {
     expect(THERAPY_STUDIO_DATABASE_NAME).toBe("therapy-studio");
     expect(THERAPY_STUDIO_DATABASE_VERSION).toBe(1);
     expect(THERAPY_STUDIO_VERSION_1_SCHEMA).toEqual({ resources: "id" });
-    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(5);
+    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(7);
     expect(THERAPY_STUDIO_VERSION_2_SCHEMA).toEqual({
       resources: "id",
       categories: "id",
@@ -56,23 +58,44 @@ describe("Therapy Studio database", () => {
       "id, archived, updatedAt, lastOpenedAt"
     );
     expect(THERAPY_STUDIO_VERSION_5_SCHEMA.worksheetDocuments).toBe("worksheetId");
+    expect(THERAPY_STUDIO_VERSION_6_SCHEMA.sceneDocuments).toBe("id, updatedAt");
+    expect(THERAPY_STUDIO_VERSION_7_SCHEMA.interventionGuidance).toBe("resourceId");
   });
 
-  it("initializes version 5 with additive Worksheet Documents", async () => {
+  it("initializes version 7 with additive Intervention guidance", async () => {
     const database = createTestDatabase();
     await database.open();
 
-    expect(database.verno).toBe(5);
+    expect(database.verno).toBe(7);
     expect(database.tables.map((table) => table.name).sort()).toEqual([
       "categories",
+      "interventionGuidance",
       "playlists",
       "resourceMemory",
       "resources",
+      "sceneDocuments",
       "sessionProfiles",
       "worksheetDocuments",
     ]);
     expect(database.table("resources").schema.primKey.name).toBe("id");
     expect(database.table("resources").schema.indexes).toEqual([]);
+  });
+
+  it("preserves version-6 data during the Intervention guidance migration", async () => {
+    const name = `therapy-studio-test-${crypto.randomUUID()}`;
+    const versionSix = new Dexie(name, { indexedDB, IDBKeyRange });
+    versionSix.version(6).stores(THERAPY_STUDIO_VERSION_6_SCHEMA);
+    await versionSix.table("resources").put({ id: "resource", title: "Kept" });
+    await versionSix
+      .table("sceneDocuments")
+      .put({ id: "scene", updatedAt: "2026-01-01T00:00:00.000Z" });
+    versionSix.close();
+    const migrated = createTherapyStudioDatabase({ name, indexedDB, IDBKeyRange });
+    databases.push(migrated);
+    await migrated.open();
+    expect(await migrated.table("resources").get("resource")).toBeTruthy();
+    expect(await migrated.table("sceneDocuments").get("scene")).toBeTruthy();
+    expect(await migrated.table("interventionGuidance").count()).toBe(0);
   });
 
   it("preserves version-4 data during the Worksheet migration", async () => {

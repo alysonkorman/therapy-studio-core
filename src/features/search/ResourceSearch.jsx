@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { resources as defaultResources } from "../../data/resources";
 import { assembleSearchResources } from "../../engines/search/assembleSearchResources";
 import { searchResources } from "../../engines/search/searchResources";
-import { worksheetRepository } from "../../lib/data";
+import { interventionRepository, worksheetRepository } from "../../lib/data";
 import { getResourceKey } from "../../models";
 import { useCurrentSessionStore } from "../../stores/currentSessionStore";
 import "../prompts/PromptsPage.css";
@@ -22,17 +22,25 @@ const suggestedSearches = [
 export default function ResourceSearch({
   resources = defaultResources,
   persistedWorksheetRepository: suppliedWorksheetRepository,
+  persistedInterventionRepository: suppliedInterventionRepository,
   sessionContext: suppliedSessionContext,
 }) {
   const activeWorksheetRepository =
     suppliedWorksheetRepository ??
     (resources === defaultResources ? worksheetRepository : null);
+  const activeInterventionRepository =
+    suppliedInterventionRepository ??
+    (resources === defaultResources ? interventionRepository : null);
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [persistedWorksheets, setPersistedWorksheets] = useState([]);
+  const [persistedInterventions, setPersistedInterventions] = useState([]);
   const [worksheetSourceStatus, setWorksheetSourceStatus] = useState(
     activeWorksheetRepository ? "loading" : "ready"
+  );
+  const [interventionSourceStatus, setInterventionSourceStatus] = useState(
+    activeInterventionRepository ? "loading" : "ready"
   );
   const storedSessionContext = useCurrentSessionStore((state) => state.context);
   const sessionContext = suppliedSessionContext ?? storedSessionContext;
@@ -64,9 +72,32 @@ export default function ResourceSearch({
     };
   }, [activeWorksheetRepository]);
 
+  useEffect(() => {
+    let active = true;
+    if (!activeInterventionRepository)
+      return () => {
+        active = false;
+      };
+    activeInterventionRepository
+      .getAllInterventions()
+      .then((items) => {
+        if (!active) return;
+        setPersistedInterventions(items.filter((item) => !item.starter));
+        setInterventionSourceStatus("ready");
+      })
+      .catch(() => {
+        if (!active) return;
+        setPersistedInterventions([]);
+        setInterventionSourceStatus("error");
+      });
+    return () => {
+      active = false;
+    };
+  }, [activeInterventionRepository]);
+
   const searchableResources = useMemo(
-    () => assembleSearchResources(resources, persistedWorksheets),
-    [persistedWorksheets, resources]
+    () => assembleSearchResources(resources, persistedWorksheets, persistedInterventions),
+    [persistedInterventions, persistedWorksheets, resources]
   );
   const unfilteredResults = useMemo(
     () => searchResources(searchableResources, submittedQuery, { sessionContext }),
@@ -150,6 +181,16 @@ export default function ResourceSearch({
           <p className="resource-search-source-status" role="status">
             Saved Worksheets are unavailable in Search right now. Prompt Decks and
             Interventions are still available.
+          </p>
+        ) : null}
+        {interventionSourceStatus === "loading" ? (
+          <p className="resource-search-source-status" role="status">
+            Adding imported Interventions to Search…
+          </p>
+        ) : null}
+        {interventionSourceStatus === "error" ? (
+          <p className="resource-search-source-status" role="status">
+            Imported Interventions are unavailable in Search right now.
           </p>
         ) : null}
       </section>

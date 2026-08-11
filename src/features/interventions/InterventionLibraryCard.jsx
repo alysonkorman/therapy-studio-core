@@ -3,7 +3,11 @@ import { Link } from "react-router-dom";
 
 import ResourceMemoryControls from "../resource-memory/ResourceMemoryControls";
 
-export default function InterventionLibraryCard({ intervention, memoryRepository }) {
+export default function InterventionLibraryCard({
+  intervention,
+  memoryRepository,
+  onDelete,
+}) {
   return (
     <article className="intervention-library-card">
       <div>
@@ -44,6 +48,15 @@ export default function InterventionLibraryCard({ intervention, memoryRepository
           repository={memoryRepository}
           resourceId={intervention.id}
         />
+        {onDelete ? (
+          <button
+            className="studio-button studio-button--danger"
+            onClick={onDelete}
+            type="button"
+          >
+            Delete Permanently
+          </button>
+        ) : null}
       </div>
     </article>
   );

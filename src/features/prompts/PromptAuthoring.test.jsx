@@ -101,7 +101,7 @@ describe("Prompt authoring interactions", () => {
 
     expect(await screen.findByRole("img", { name: "Ideas" })).toBeVisible();
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
-    expect(screen.getByText("Showing 60 of 7768 icons")).toBeVisible();
+    expect(screen.getByText("Showing 60 of 7735 icons")).toBeVisible();
     const search = screen.getByRole("searchbox", { name: /search icons/i });
     await user.type(search, "wat arun");
     const watArun = screen.getByRole("button", { name: /select wat arun/i });

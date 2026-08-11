@@ -183,6 +183,34 @@ describe("ResourceSearch", () => {
     );
   });
 
+  it("adds a persisted Intervention and links to its detail route", async () => {
+    const user = userEvent.setup();
+    const imported = {
+      ...intervention,
+      id: "imported-grounding",
+      title: "Five Senses Grounding",
+      archived: false,
+      starter: false,
+      createdAt: "2026-08-11T12:00:00.000Z",
+      updatedAt: "2026-08-11T12:00:00.000Z",
+    };
+    renderWithRouter(
+      <ResourceSearch
+        persistedInterventionRepository={{
+          getAllInterventions: vi.fn(async () => [imported]),
+        }}
+        resources={resources}
+      />
+    );
+    await user.type(screen.getByRole("searchbox"), "Five Senses Grounding{Enter}");
+    const result = await screen.findByRole("region", {
+      name: "Search result: Five Senses Grounding",
+    });
+    expect(
+      within(result).getByRole("link", { name: "Open Intervention" })
+    ).toHaveAttribute("href", "/interventions/imported-grounding");
+  });
+
   it("filters mixed results by Resource type", async () => {
     const user = userEvent.setup();
     renderWithRouter(

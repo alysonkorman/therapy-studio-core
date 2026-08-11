@@ -11,6 +11,7 @@ export const therapyStudioBackupDataSchema = z
     resourceMemory: z.array(z.unknown()),
     sessionProfiles: z.array(z.unknown()),
     worksheetDocuments: z.array(z.unknown()),
+    interventionGuidance: z.array(z.unknown()).default([]),
   })
   .strict();
 

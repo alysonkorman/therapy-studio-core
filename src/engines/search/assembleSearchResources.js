@@ -1,4 +1,5 @@
 import { getResourceKey } from "../../models/resource";
+import { resourceSchema } from "../../models/resource";
 import { worksheetSchema } from "../../models/worksheet";
 
 function validPersistedWorksheets(records) {
@@ -11,12 +12,28 @@ function validPersistedWorksheets(records) {
   });
 }
 
-export function assembleSearchResources(staticResources, persistedWorksheets = []) {
+function validPersistedInterventions(records) {
+  return records.flatMap((record) => {
+    if (!record || record.archived || record.type !== "intervention") return [];
+    const { archived, starter, ...resource } = record;
+    void archived;
+    void starter;
+    const result = resourceSchema.safeParse(resource);
+    return result.success ? [result.data] : [];
+  });
+}
+
+export function assembleSearchResources(
+  staticResources,
+  persistedWorksheets = [],
+  persistedInterventions = []
+) {
   const resourcesByKey = new Map();
 
   for (const resource of [
     ...staticResources,
     ...validPersistedWorksheets(persistedWorksheets),
+    ...validPersistedInterventions(persistedInterventions),
   ]) {
     resourcesByKey.set(getResourceKey(resource), resource);
   }
@@ -24,4 +41,4 @@ export function assembleSearchResources(staticResources, persistedWorksheets = [
   return [...resourcesByKey.values()];
 }
 
-export { validPersistedWorksheets };
+export { validPersistedInterventions, validPersistedWorksheets };

@@ -3,6 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { createDefaultResourceMemory } from "../../models";
+import {
+  getInterventionById,
+  getInterventionGuidance,
+} from "../../data/resources/interventions";
 import { renderWithRouter } from "../../test/test-utils";
 import InterventionDetailPage from "./InterventionDetailPage";
 
@@ -38,6 +42,17 @@ function privateMemoryRepository() {
   return repository;
 }
 
+function interventionRepository() {
+  return {
+    getInterventionPair: vi.fn(async (id) => {
+      const resource = getInterventionById(id);
+      const guidance = getInterventionGuidance(id);
+      if (!resource || !guidance) throw new Error("missing");
+      return { resource, guidance };
+    }),
+  };
+}
+
 describe("InterventionDetailPage", () => {
   it("shows session-ready guidance and back navigation", async () => {
     const repository = memoryRepository();
@@ -45,6 +60,7 @@ describe("InterventionDetailPage", () => {
       <InterventionDetailPage
         interventionId="intervention-worry-thermometer"
         memoryRepository={repository}
+        repository={interventionRepository()}
       />,
       {
         initialEntries: ["/interventions/intervention-worry-thermometer"],
@@ -52,7 +68,7 @@ describe("InterventionDetailPage", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "Worry Thermometer", level: 1 })
+      await screen.findByRole("heading", { name: "Worry Thermometer", level: 1 })
     ).toBeVisible();
     expect(screen.getByRole("heading", { name: "How to Introduce It" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "What to Do" })).toBeVisible();
@@ -74,13 +90,16 @@ describe("InterventionDetailPage", () => {
       <InterventionDetailPage
         interventionId="intervention-worry-thermometer"
         memoryRepository={repository}
+        repository={interventionRepository()}
       />,
       {
         initialEntries: ["/interventions/intervention-worry-thermometer"],
       }
     );
 
-    await user.click(screen.getByRole("button", { name: "Therapist Resource Memory" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Therapist Resource Memory" })
+    );
     await user.click(await screen.findByRole("button", { name: "Mark Used" }));
     expect(repository.markResourceUsed).toHaveBeenCalledWith(
       "intervention-worry-thermometer"
@@ -94,13 +113,14 @@ describe("InterventionDetailPage", () => {
       <InterventionDetailPage
         interventionId="intervention-worry-thermometer"
         memoryRepository={repository}
+        repository={interventionRepository()}
       />,
       {
         initialEntries: ["/interventions/intervention-worry-thermometer"],
       }
     );
 
-    expect(screen.getByRole("heading", { name: "What to Do" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "What to Do" })).toBeVisible();
     expect(screen.getByText(/draw a simple scale from 0 to 5/i)).toBeVisible();
     expect(screen.queryByText("Private intervention note")).toBeNull();
     expect(screen.queryByRole("button", { name: "Favorite" })).toBeNull();
@@ -122,11 +142,12 @@ describe("InterventionDetailPage", () => {
     expect(screen.getByRole("heading", { name: "What to Do" })).toBeVisible();
   });
 
-  it("handles an unknown Intervention without crashing", () => {
+  it("handles an unknown Intervention without crashing", async () => {
     renderWithRouter(
       <InterventionDetailPage
         interventionId="missing"
         memoryRepository={memoryRepository()}
+        repository={interventionRepository()}
       />,
       {
         initialEntries: ["/interventions/missing"],
@@ -134,7 +155,7 @@ describe("InterventionDetailPage", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "Intervention Not Found", level: 1 })
+      await screen.findByRole("heading", { name: "Intervention Not Found", level: 1 })
     ).toBeVisible();
     expect(screen.getByRole("link", { name: "Back to Interventions" })).toHaveAttribute(
       "href",
