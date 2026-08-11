@@ -34,6 +34,17 @@ function choose(input, name, text) {
 }
 
 describe("WorksheetImportPanel", () => {
+  it("offers JSON and ordinary-document conversion paths", () => {
+    render(
+      <WorksheetImportPanel onCancel={vi.fn()} onImported={vi.fn()} repository={{}} />
+    );
+    expect(screen.getByLabelText("Worksheet JSON")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Paste Text" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Choose TXT" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Choose DOCX" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Choose PDF" })).toBeVisible();
+  });
+
   it("previews and confirms a validated Worksheet import", async () => {
     const user = userEvent.setup();
     const repository = {

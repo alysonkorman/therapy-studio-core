@@ -1,12 +1,14 @@
 import { useState } from "react";
 
 import { parseWorksheetImportJson } from "../../engines/worksheets/importWorksheets";
+import WorksheetConversionPanel from "./WorksheetConversionPanel";
 
 export default function WorksheetImportPanel({ onCancel, onImported, repository }) {
   const [validated, setValidated] = useState(null);
   const [status, setStatus] = useState("Choose a Therapy Studio Worksheet JSON file.");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [conversionMode, setConversionMode] = useState(null);
 
   async function chooseFile(event) {
     const file = event.target.files?.[0];
@@ -46,16 +48,44 @@ export default function WorksheetImportPanel({ onCancel, onImported, repository 
     }
   }
 
+  if (conversionMode) {
+    return (
+      <WorksheetConversionPanel
+        mode={conversionMode}
+        onBack={() => setConversionMode(null)}
+        onImported={onImported}
+        repository={repository}
+      />
+    );
+  }
+
   return (
     <section className="worksheet-import-panel" aria-labelledby="worksheet-import-title">
       <div>
         <h2 id="worksheet-import-title">Import Worksheets</h2>
-        <p>{status}</p>
+        <p>Import validated JSON, or convert an ordinary document for review.</p>
       </div>
-      <label>
-        Worksheet JSON
-        <input accept=".json,application/json" onChange={chooseFile} type="file" />
-      </label>
+      <div className="worksheet-actions">
+        <label>
+          Worksheet JSON
+          <input accept=".json,application/json" onChange={chooseFile} type="file" />
+        </label>
+        <button onClick={() => setConversionMode("paste")} type="button">
+          Paste Text
+        </button>
+        {[
+          ["txt", "Choose TXT"],
+          ["docx", "Choose DOCX"],
+          ["pdf", "Choose PDF"],
+        ].map(([mode, label]) => (
+          <button key={mode} onClick={() => setConversionMode(mode)} type="button">
+            {label}
+          </button>
+        ))}
+      </div>
+      {status !== "Choose a Therapy Studio Worksheet JSON file." ? (
+        <p role="status">{status}</p>
+      ) : null}
       {validated ? (
         <div className="worksheet-import-preview">
           <h3>Ready to Import</h3>
