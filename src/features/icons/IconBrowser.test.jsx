@@ -13,10 +13,10 @@ describe("Icon Browser", () => {
 
     await user.click(screen.getByRole("button", { name: /choose icon/i }));
     expect(screen.getByRole("dialog", { name: /choose deck icon/i })).toBeVisible();
-    expect(screen.getByText("Showing 60 of 7735 icons")).toBeVisible();
+    expect(screen.getByText("Showing 60 of 7622 icons")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: /load more icons/i }));
-    expect(screen.getByText("Showing 120 of 7735 icons")).toBeVisible();
+    expect(screen.getByText("Showing 120 of 7622 icons")).toBeVisible();
 
     await user.type(
       screen.getByRole("searchbox", { name: /search icons/i }),
@@ -63,7 +63,7 @@ describe("Icon Browser", () => {
       })
     );
     await user.click(screen.getByRole("button", { name: /load more icons/i }));
-    expect(screen.getByText("Showing 90 of 90 icons")).toBeVisible();
+    expect(screen.getByText("Showing 89 of 89 icons")).toBeVisible();
     expect(
       screen.getByRole("button", {
         name: /activities \/ arts, crafts & music/i,

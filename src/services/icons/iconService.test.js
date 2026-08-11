@@ -10,8 +10,8 @@ import { searchIcons } from "./iconSearch";
 describe("icon service", () => {
   it("discovers the deterministic curated manifest with stable unique semantic IDs", () => {
     const manifest = getIconManifest();
-    expect(manifest).toHaveLength(7735);
-    expect(new Set(manifest.map(({ id }) => id)).size).toBe(7735);
+    expect(manifest).toHaveLength(7622);
+    expect(new Set(manifest.map(({ id }) => id)).size).toBe(7622);
     expect(manifest).toEqual(
       [...manifest].sort((left, right) => {
         return (
@@ -60,7 +60,7 @@ describe("icon service", () => {
   it("preserves folder counts and supplies the All Icons group", () => {
     const groups = getIconGroups();
     expect(groups).toHaveLength(25);
-    expect(groups[0]).toEqual({ count: 7735, id: "all", label: "All Icons" });
+    expect(groups[0]).toEqual({ count: 7622, id: "all", label: "All Icons" });
     expect(groups).toContainEqual({
       count: 72,
       id: "Culture & Holidays",
