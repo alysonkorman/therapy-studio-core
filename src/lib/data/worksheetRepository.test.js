@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { addWorksheetBlock } from "../../engines/worksheets/worksheetDocumentOperations";
+import { createBlankWorksheetDocument, createWorksheetResource } from "../../models";
 import { IDBKeyRange, indexedDB } from "../../test/indexedDb";
 import { createTherapyStudioDatabase } from "./database";
 import {
@@ -24,6 +25,17 @@ function setup() {
     now: () => "2026-08-04T12:00:00.000Z",
   });
   return { database, repository };
+}
+
+function importedPair(id, title = `Imported ${id}`) {
+  const now = "2026-08-08T12:00:00.000Z";
+  return {
+    resource: createWorksheetResource({ title }, { id, now }),
+    document: createBlankWorksheetDocument(id, {
+      createId: () => `${id}-page`,
+      now,
+    }),
+  };
 }
 
 afterEach(async () => {
@@ -153,5 +165,45 @@ describe("Worksheet repository", () => {
     expect(await repository.getWorksheetDocument(created.resource.id)).toEqual(
       created.document
     );
+  });
+
+  it("atomically imports single and bulk Worksheets as editable library records", async () => {
+    const { database, repository } = setup();
+    const pairs = [importedPair("import-one"), importedPair("import-two")];
+
+    const imported = await repository.importWorksheets(pairs);
+
+    expect(imported).toHaveLength(2);
+    expect(await database.table("resources").count()).toBe(2);
+    expect(await database.table("worksheetDocuments").count()).toBe(2);
+    expect((await repository.getAllWorksheets()).map(({ id }) => id)).toEqual(
+      expect.arrayContaining(["import-one", "import-two"])
+    );
+
+    const changed = addWorksheetBlock(
+      await repository.getWorksheetDocument("import-one"),
+      "import-one-page",
+      "heading",
+      () => "new-block"
+    );
+    await repository.saveWorksheetDocument("import-one", changed);
+    expect(
+      (await repository.getWorksheetDocument("import-one")).pages[0].blocks[0].id
+    ).toBe("new-block");
+  });
+
+  it("rejects existing and protected IDs without partial writes", async () => {
+    const { database, repository } = setup();
+    await repository.importWorksheets([importedPair("existing")]);
+
+    await expect(
+      repository.importWorksheets([importedPair("new-record"), importedPair("existing")])
+    ).rejects.toMatchObject({ code: "import-conflict" });
+    expect(await database.table("resources").get("new-record")).toBeUndefined();
+    expect(await database.table("worksheetDocuments").get("new-record")).toBeUndefined();
+
+    await expect(
+      repository.importWorksheets([importedPair("worksheet-starter-worry-thermometer")])
+    ).rejects.toMatchObject({ code: "import-conflict" });
   });
 });

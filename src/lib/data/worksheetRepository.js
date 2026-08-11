@@ -29,6 +29,8 @@ export const worksheetRepositoryErrorCodes = Object.freeze({
   writeFailed: "write-failed",
   protectedStarter: "protected-starter",
   invalidTemplate: "invalid-template",
+  invalidImport: "invalid-import",
+  importConflict: "import-conflict",
 });
 
 export class WorksheetRepositoryError extends Error {
@@ -379,6 +381,89 @@ export function createWorksheetRepository({
     return { ...updated, archived };
   }
 
+  async function importWorksheets(pairs) {
+    if (!Array.isArray(pairs) || !pairs.length) {
+      throw repositoryError(
+        worksheetRepositoryErrorCodes.invalidImport,
+        "Worksheet import must include at least one Worksheet."
+      );
+    }
+    const validated = pairs.map((pair) => {
+      const resourceResult = worksheetSchema.safeParse(pair?.resource);
+      const documentResult = worksheetDocumentSchema.safeParse(pair?.document);
+      if (!resourceResult.success || !documentResult.success) {
+        throw repositoryError(
+          worksheetRepositoryErrorCodes.invalidImport,
+          "Worksheet import failed validation.",
+          {
+            details: [
+              ...(resourceResult.error?.issues ?? []),
+              ...(documentResult.error?.issues ?? []),
+            ],
+          }
+        );
+      }
+      if (resourceResult.data.id !== documentResult.data.worksheetId) {
+        throw repositoryError(
+          worksheetRepositoryErrorCodes.invalidImport,
+          `Worksheet Resource and document IDs must match: ${resourceResult.data.id}`
+        );
+      }
+      return { resource: resourceResult.data, document: documentResult.data };
+    });
+    const ids = validated.map(({ resource }) => resource.id);
+    if (new Set(ids).size !== ids.length) {
+      throw repositoryError(
+        worksheetRepositoryErrorCodes.invalidImport,
+        "Worksheet import contains duplicate IDs."
+      );
+    }
+    const starterConflict = ids.find(isWorksheetStarter);
+    if (starterConflict) {
+      throw repositoryError(
+        worksheetRepositoryErrorCodes.importConflict,
+        `Worksheet ID conflicts with a protected starter: ${starterConflict}`
+      );
+    }
+
+    await ensureOpen(database);
+    try {
+      await database.transaction("rw", [resources(), documents()], async () => {
+        for (const id of ids) {
+          if (await resources().get(id)) {
+            throw repositoryError(
+              worksheetRepositoryErrorCodes.importConflict,
+              `Resource ID already exists: ${id}`,
+              { details: { id } }
+            );
+          }
+        }
+        await resources().bulkAdd(
+          validated.map(({ resource }) => ({ ...resource, archived: false }))
+        );
+        await documents().bulkAdd(validated.map(({ document }) => document));
+      });
+      return validated.map(({ document, resource }) => ({
+        document,
+        resource: { ...resource, archived: false },
+      }));
+    } catch (error) {
+      if (error instanceof WorksheetRepositoryError) throw error;
+      if (error instanceof Dexie.ConstraintError || error?.name === "ConstraintError") {
+        throw repositoryError(
+          worksheetRepositoryErrorCodes.importConflict,
+          "A Worksheet or Resource ID already exists.",
+          { cause: error }
+        );
+      }
+      throw repositoryError(
+        worksheetRepositoryErrorCodes.writeFailed,
+        "Worksheets could not be imported.",
+        { cause: error }
+      );
+    }
+  }
+
   return {
     getAllWorksheets,
     getWorksheetById,
@@ -388,6 +473,7 @@ export function createWorksheetRepository({
     saveAsTemplate,
     createWorksheetFromTemplate,
     renameWorksheetTemplate,
+    importWorksheets,
     saveWorksheetDocument,
     archiveWorksheet: (id) => setArchived(id, true),
     restoreWorksheet: (id) => setArchived(id, false),

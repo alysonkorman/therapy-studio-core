@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { createBlankWorksheetDocument, createWorksheetResource } from "../../models";
@@ -184,6 +184,57 @@ describe("routed Worksheet workflow", () => {
       (await repository.getWorksheetById("worksheet-starter-thought-detective"))
         .provenance
     ).toBe("therapy-studio-starter");
+  });
+
+  it("imports a structured Worksheet into the Library and opens it for editing", async () => {
+    const repository = realRepository();
+    const user = userEvent.setup();
+    renderRoutes(repository);
+    const now = "2026-08-04T12:00:00.000Z";
+    const resource = createWorksheetResource(
+      { title: "Imported Reflection Map", description: "Imported for editing" },
+      { id: "imported-reflection-map", now }
+    );
+    const document = createBlankWorksheetDocument(resource.id, {
+      createId: () => "imported-page",
+      now,
+    });
+
+    await user.click(await screen.findByRole("button", { name: "Import Worksheets" }));
+    fireEvent.change(screen.getByLabelText("Worksheet JSON"), {
+      target: {
+        files: [
+          {
+            name: "reflection-map.json",
+            text: vi.fn().mockResolvedValue(
+              JSON.stringify({
+                format: "therapy-studio-worksheets",
+                version: 1,
+                worksheets: [{ resource, document }],
+              })
+            ),
+          },
+        ],
+      },
+    });
+    expect(await screen.findByText("Imported Reflection Map")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Confirm Import" }));
+    expect(
+      await screen.findByText("1 Worksheet was imported successfully.")
+    ).toBeVisible();
+
+    await user.type(
+      screen.getByRole("searchbox", { name: "Search Worksheets" }),
+      "Imported Reflection"
+    );
+    expect(
+      screen.getByRole("heading", { name: "Imported Reflection Map" })
+    ).toBeVisible();
+    await user.click(screen.getByRole("link", { name: "Build/Edit" }));
+    expect(
+      await screen.findByRole("heading", { name: "Imported Reflection Map" })
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "Add Heading" })).toBeVisible();
   });
 
   it("persists structured blocks through Preview, Session, and print", async () => {

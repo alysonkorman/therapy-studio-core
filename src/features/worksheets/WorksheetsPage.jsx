@@ -1,4 +1,4 @@
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +8,7 @@ import { Button } from "../../components/ui";
 import { isTherapistWorksheetTemplate } from "../../models";
 import NewWorksheetDialog from "./NewWorksheetDialog";
 import WorksheetCard from "./WorksheetCard";
+import WorksheetImportPanel from "./WorksheetImportPanel";
 import "./WorksheetsPage.css";
 
 export default function WorksheetsPage({ repository = worksheetRepository }) {
@@ -16,6 +17,7 @@ export default function WorksheetsPage({ repository = worksheetRepository }) {
   const [query, setQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -179,11 +181,23 @@ export default function WorksheetsPage({ repository = worksheetRepository }) {
   return (
     <Page
       actions={
-        !creating ? (
-          <Button onClick={() => setCreating(true)}>
-            <Plus aria-hidden="true" size={18} />
-            New Worksheet
-          </Button>
+        !creating && !importing ? (
+          <>
+            <Button
+              onClick={() => {
+                setCreating(false);
+                setImporting(true);
+              }}
+              variant="secondary"
+            >
+              <Upload aria-hidden="true" size={18} />
+              Import Worksheets
+            </Button>
+            <Button onClick={() => setCreating(true)}>
+              <Plus aria-hidden="true" size={18} />
+              New Worksheet
+            </Button>
+          </>
         ) : null
       }
       className="worksheets-page"
@@ -197,6 +211,13 @@ export default function WorksheetsPage({ repository = worksheetRepository }) {
             const created = await repository.createWorksheet(input);
             navigate(`/worksheets/${created.resource.id}/build`);
           }}
+        />
+      ) : null}
+      {importing ? (
+        <WorksheetImportPanel
+          onCancel={() => setImporting(false)}
+          onImported={async () => setWorksheets(await readWorksheets())}
+          repository={repository}
         />
       ) : null}
 

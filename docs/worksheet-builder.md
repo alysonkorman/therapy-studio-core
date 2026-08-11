@@ -40,14 +40,17 @@ explicit Save action. A failed save keeps the local draft and offers Retry.
 The database adds `worksheetDocuments`, keyed by `worksheetId`. Resource deletion and
 archive operations remain explicit repository actions.
 
-## Future Import Boundary
+## Structured JSON Import
 
-Therapy Studio does not currently provide a therapist-facing Worksheet import flow.
-Starter data is internal seed content, and Backup & Restore restores Therapy Studio
-records rather than converting outside Worksheet files. A future importer should sit
-outside React pages, validate incoming content, and create the linked Worksheet Resource
-and Worksheet Document atomically through the repository. It must not bypass schemas or
-write directly to IndexedDB. PDF/image conversion, OCR, and arbitrary file ingestion are
+The Worksheet Library accepts version 1 `therapy-studio-worksheets` JSON files containing
+one or more existing Worksheet Resource/document pairs. The complete file is validated
+before one atomic repository transaction. Duplicate IDs, protected starter IDs, existing
+Resource conflicts, malformed pairs, and mismatched Resource/document IDs are rejected
+without partial writes. Imported Worksheets behave like therapist-created Worksheets.
+
+Backup & Restore is not Worksheet import. Future converters for older Toolkit records,
+PDFs, or documents should produce this validated JSON envelope after therapist review.
+PDF/image parsing, OCR, arbitrary file interpretation, and automatic conversion remain
 separate future work.
 
 ## Preview, Printing, and Session Use
