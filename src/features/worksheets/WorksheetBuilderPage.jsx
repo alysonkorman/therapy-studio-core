@@ -29,6 +29,11 @@ const worksheetBlockTypes = [
   ["rating-scale", "Rating Scale"],
   ["feelings-scale", "Feelings Scale"],
   ["drawing-area", "Drawing Area"],
+  ["reflection", "Reflection"],
+  ["basic-table", "Basic Table"],
+  ["sentence-completion", "Sentence Completion"],
+  ["cbt-thought-check", "CBT Thought Check"],
+  ["coping-plan", "Coping Plan"],
   ["divider", "Divider"],
   ["spacer", "Spacer"],
 ];

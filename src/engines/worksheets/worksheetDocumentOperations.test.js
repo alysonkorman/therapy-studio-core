@@ -37,6 +37,11 @@ describe("Worksheet document operations", () => {
       "rating-scale",
       "feelings-scale",
       "drawing-area",
+      "reflection",
+      "basic-table",
+      "sentence-completion",
+      "cbt-thought-check",
+      "coping-plan",
       "divider",
       "spacer",
     ];
@@ -46,6 +51,33 @@ describe("Worksheet document operations", () => {
     });
 
     expect(document.pages[0].blocks.map(({ type }) => type)).toEqual(types);
+  });
+
+  it("edits, duplicates, reorders, and deletes structured blocks", () => {
+    const createId = ids();
+    let document = createBlankWorksheetDocument("worksheet", {
+      createId,
+      now: "2026-08-04T12:00:00.000Z",
+    });
+    const pageId = document.pages[0].id;
+    document = addWorksheetBlock(document, pageId, "reflection", createId);
+    document = addWorksheetBlock(document, pageId, "coping-plan", createId);
+    const reflectionId = document.pages[0].blocks[0].id;
+    document = updateWorksheetBlock(document, pageId, reflectionId, {
+      title: "What would you try next time?",
+    });
+    document = duplicateWorksheetBlock(document, pageId, reflectionId, createId);
+    document = moveWorksheetBlock(document, pageId, reflectionId, 1);
+    document = deleteWorksheetBlock(document, pageId, reflectionId);
+
+    expect(document.pages[0].blocks).toHaveLength(2);
+    expect(document.pages[0].blocks[0]).toEqual(
+      expect.objectContaining({
+        type: "reflection",
+        title: "What would you try next time?",
+      })
+    );
+    expect(document.pages[0].blocks.map(({ sortOrder }) => sortOrder)).toEqual([0, 1]);
   });
 
   it("adds, edits, duplicates, reorders, and deletes blocks", () => {

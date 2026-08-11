@@ -186,6 +186,65 @@ describe("routed Worksheet workflow", () => {
     ).toBe("therapy-studio-starter");
   });
 
+  it("persists structured blocks through Preview, Session, and print", async () => {
+    const repository = realRepository();
+    const created = await repository.createWorksheet({ title: "Structured Worksheet" });
+    const document = await repository.getWorksheetDocument(created.resource.id);
+    await repository.saveWorksheetDocument(created.resource.id, {
+      ...document,
+      pages: [
+        {
+          ...document.pages[0],
+          blocks: [
+            {
+              id: "reflection-block",
+              sortOrder: 0,
+              type: "reflection",
+              title: "What happened?",
+              instruction: "Write what you remember.",
+              lineCount: 4,
+            },
+            {
+              id: "table-block",
+              sortOrder: 1,
+              type: "basic-table",
+              headers: ["Before", "After"],
+              rows: [["", ""]],
+            },
+          ],
+        },
+      ],
+    });
+    const print = vi.spyOn(window, "print").mockImplementation(() => {});
+    const user = userEvent.setup();
+    renderRoutes(repository, `/worksheets/${created.resource.id}/build`);
+
+    expect(await screen.findByRole("heading", { name: "What happened?" })).toBeVisible();
+    expect(screen.getByRole("table")).toBeVisible();
+    [
+      "Add Reflection",
+      "Add Basic Table",
+      "Add Sentence Completion",
+      "Add CBT Thought Check",
+      "Add Coping Plan",
+    ].forEach((name) => {
+      expect(screen.getByRole("button", { name })).toBeVisible();
+    });
+    await user.click(screen.getByRole("link", { name: "Preview" }));
+    expect(await screen.findByRole("heading", { name: "What happened?" })).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Print / Save as PDF" }));
+    expect(print).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole("link", { name: "Open for Session" }));
+    expect(await screen.findByRole("heading", { name: "What happened?" })).toBeVisible();
+    expect(screen.getByRole("table")).toBeVisible();
+
+    const reopened = await repository.getWorksheetDocument(created.resource.id);
+    expect(reopened.pages[0].blocks.map(({ type }) => type)).toEqual([
+      "reflection",
+      "basic-table",
+    ]);
+  });
+
   it("shows an in-shell-safe unknown Worksheet state", async () => {
     const repository = {
       getWorksheetById: vi.fn().mockRejectedValue(new Error("missing")),

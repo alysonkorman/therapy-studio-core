@@ -98,6 +98,61 @@ export const worksheetBlockSchema = z.discriminatedUnion("type", [
   z
     .object({
       ...blockBase,
+      type: z.literal("reflection"),
+      title: requiredText,
+      instruction: plainText.default(""),
+      lineCount: z.number().int().min(2).max(12).default(5),
+    })
+    .strict(),
+  z
+    .object({
+      ...blockBase,
+      type: z.literal("basic-table"),
+      headers: z.array(requiredText).min(2).max(4),
+      rows: z.array(z.array(plainText).min(2).max(4)).min(1).max(12),
+    })
+    .strict(),
+  z
+    .object({
+      ...blockBase,
+      type: z.literal("sentence-completion"),
+      textBefore: requiredText,
+      textAfter: plainText.default(""),
+      blankSize: z.enum(["short", "medium", "long"]).default("medium"),
+    })
+    .strict(),
+  z
+    .object({
+      ...blockBase,
+      type: z.literal("cbt-thought-check"),
+      labels: z
+        .object({
+          situation: requiredText.default("Situation"),
+          thought: requiredText.default("Thought"),
+          feeling: requiredText.default("Feeling"),
+          evidenceFor: requiredText.default("Evidence For"),
+          evidenceAgainst: requiredText.default("Evidence Against"),
+          balancedThought: requiredText.default("More Balanced Thought"),
+        })
+        .strict(),
+      lineCount: z.number().int().min(1).max(6).default(2),
+    })
+    .strict(),
+  z
+    .object({
+      ...blockBase,
+      type: z.literal("coping-plan"),
+      triggerPrompt: requiredText,
+      choicesPrompt: requiredText,
+      choices: z.array(requiredText).min(1).max(12),
+      tryPrompt: requiredText,
+      helpedPrompt: requiredText,
+      lineCount: z.number().int().min(1).max(6).default(2),
+    })
+    .strict(),
+  z
+    .object({
+      ...blockBase,
       type: z.literal("divider"),
       style: z.enum(["solid", "dashed", "dotted"]).default("solid"),
     })
@@ -157,6 +212,16 @@ export const worksheetDocumentSchema = z
             path: ["pages", pageIndex, "blocks", blockIndex, "id"],
           });
         blockIds.add(block.id);
+        if (
+          block.type === "basic-table" &&
+          block.rows.some((row) => row.length !== block.headers.length)
+        ) {
+          context.addIssue({
+            code: "custom",
+            message: "Every table row must match the number of column headers",
+            path: ["pages", pageIndex, "blocks", blockIndex, "rows"],
+          });
+        }
       });
     });
   });

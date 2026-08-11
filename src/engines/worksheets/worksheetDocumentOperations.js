@@ -27,6 +27,42 @@ const defaults = {
     options: ["Calm", "Unsure", "Upset"],
   },
   "drawing-area": { prompt: "Draw here", height: "medium" },
+  reflection: {
+    title: "What did you notice?",
+    instruction: "Take a moment to reflect.",
+    lineCount: 5,
+  },
+  "basic-table": {
+    headers: ["What happened?", "What I noticed"],
+    rows: [
+      ["", ""],
+      ["", ""],
+    ],
+  },
+  "sentence-completion": {
+    textBefore: "One thing I can try is",
+    textAfter: ".",
+    blankSize: "medium",
+  },
+  "cbt-thought-check": {
+    labels: {
+      situation: "Situation",
+      thought: "Thought",
+      feeling: "Feeling",
+      evidenceFor: "Evidence For",
+      evidenceAgainst: "Evidence Against",
+      balancedThought: "More Balanced Thought",
+    },
+    lineCount: 2,
+  },
+  "coping-plan": {
+    triggerPrompt: "When this happens",
+    choicesPrompt: "Coping choices",
+    choices: ["Take a slow breath", "Ask for help", "Take a break"],
+    tryPrompt: "What I will try",
+    helpedPrompt: "What helped",
+    lineCount: 2,
+  },
   divider: { style: "solid" },
   spacer: { size: "medium" },
 };

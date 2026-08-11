@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const listFields = new Set(["items", "options"]);
+const listFields = new Set(["choices", "items", "options"]);
 
 function fieldLabel(field) {
   return field
@@ -56,6 +56,89 @@ function CheckboxField({ draft, field, label, onChange }) {
   );
 }
 
+function ResponseLineField({ draft, onChange }) {
+  return (
+    <label>
+      Response Lines
+      <input
+        max="12"
+        min="1"
+        onChange={(event) => onChange("lineCount", Number(event.target.value))}
+        type="number"
+        value={draft.lineCount}
+      />
+    </label>
+  );
+}
+
+function TableControls({ draft, onChange }) {
+  return (
+    <>
+      <label>
+        Column Headers (2–4, one per line)
+        <textarea
+          onChange={(event) =>
+            onChange("headers", event.target.value.split("\n").slice(0, 4))
+          }
+          rows="4"
+          value={draft.headers.join("\n")}
+        />
+      </label>
+      <label>
+        Rows (one row per line, separate cells with |)
+        <textarea
+          onChange={(event) =>
+            onChange(
+              "rows",
+              event.target.value
+                .split("\n")
+                .slice(0, 12)
+                .map((row) =>
+                  row
+                    .split("|")
+                    .slice(0, 4)
+                    .map((cell) => cell.trim())
+                )
+            )
+          }
+          rows="6"
+          value={draft.rows.map((row) => row.join(" | ")).join("\n")}
+        />
+      </label>
+      <p className="worksheet-field-help">
+        Each row must contain the same number of cells as the column headers.
+      </p>
+    </>
+  );
+}
+
+function ThoughtCheckControls({ draft, onChange }) {
+  const labels = [
+    ["situation", "Situation Label"],
+    ["thought", "Thought Label"],
+    ["feeling", "Feeling Label"],
+    ["evidenceFor", "Evidence For Label"],
+    ["evidenceAgainst", "Evidence Against Label"],
+    ["balancedThought", "Balanced Thought Label"],
+  ];
+  return (
+    <>
+      {labels.map(([field, label]) => (
+        <label key={field}>
+          {label}
+          <input
+            onChange={(event) =>
+              onChange("labels", { ...draft.labels, [field]: event.target.value })
+            }
+            value={draft.labels[field]}
+          />
+        </label>
+      ))}
+      <ResponseLineField draft={draft} onChange={onChange} />
+    </>
+  );
+}
+
 function TextControls({ block, draft, onChange }) {
   if (["heading", "instruction", "paragraph"].includes(block.type)) {
     return (
@@ -103,6 +186,46 @@ function TextControls({ block, draft, onChange }) {
           <option value="medium">Medium</option>
           <option value="large">Large</option>
         </SelectField>
+      </>
+    );
+  }
+  if (block.type === "reflection") {
+    return (
+      <>
+        <TextField draft={draft} field="title" onChange={onChange} />
+        <TextField draft={draft} field="instruction" onChange={onChange} />
+        <ResponseLineField draft={draft} onChange={onChange} />
+      </>
+    );
+  }
+  if (block.type === "basic-table") {
+    return <TableControls draft={draft} onChange={onChange} />;
+  }
+  if (block.type === "sentence-completion") {
+    return (
+      <>
+        <TextField draft={draft} field="textBefore" onChange={onChange} />
+        <TextField draft={draft} field="textAfter" onChange={onChange} />
+        <SelectField draft={draft} field="blankSize" onChange={onChange}>
+          <option value="short">Short</option>
+          <option value="medium">Medium</option>
+          <option value="long">Long</option>
+        </SelectField>
+      </>
+    );
+  }
+  if (block.type === "cbt-thought-check") {
+    return <ThoughtCheckControls draft={draft} onChange={onChange} />;
+  }
+  if (block.type === "coping-plan") {
+    return (
+      <>
+        <TextField draft={draft} field="triggerPrompt" onChange={onChange} />
+        <TextField draft={draft} field="choicesPrompt" onChange={onChange} />
+        <TextField draft={draft} field="choices" onChange={onChange} />
+        <TextField draft={draft} field="tryPrompt" onChange={onChange} />
+        <TextField draft={draft} field="helpedPrompt" onChange={onChange} />
+        <ResponseLineField draft={draft} onChange={onChange} />
       </>
     );
   }

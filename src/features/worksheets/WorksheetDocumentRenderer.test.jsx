@@ -126,4 +126,65 @@ describe("WorksheetDocumentRenderer editing", () => {
     expect(document.querySelector(".worksheet-divider--dotted")).toBeTruthy();
     expect(document.querySelector(".worksheet-spacer--large")).toBeTruthy();
   });
+
+  it("renders every structured clinical block as printable document content", () => {
+    render(
+      <WorksheetDocumentRenderer
+        document={documentWith([
+          {
+            id: "reflection",
+            type: "reflection",
+            title: "What did you notice?",
+            instruction: "Take your time.",
+            lineCount: 4,
+          },
+          {
+            id: "table",
+            type: "basic-table",
+            headers: ["Before", "After"],
+            rows: [["Tense", "Calmer"]],
+          },
+          {
+            id: "sentence",
+            type: "sentence-completion",
+            textBefore: "I feel",
+            textAfter: "when this happens.",
+            blankSize: "long",
+          },
+          {
+            id: "thought-check",
+            type: "cbt-thought-check",
+            labels: {
+              situation: "Situation",
+              thought: "Thought",
+              feeling: "Feeling",
+              evidenceFor: "Evidence For",
+              evidenceAgainst: "Evidence Against",
+              balancedThought: "More Balanced Thought",
+            },
+            lineCount: 2,
+          },
+          {
+            id: "coping-plan",
+            type: "coping-plan",
+            triggerPrompt: "When this happens",
+            choicesPrompt: "Coping choices",
+            choices: ["Breathe", "Ask for help"],
+            tryPrompt: "What I will try",
+            helpedPrompt: "What helped",
+            lineCount: 2,
+          },
+        ])}
+      />
+    );
+
+    expect(screen.getByRole("heading", { name: "What did you notice?" })).toBeVisible();
+    expect(screen.getByRole("table")).toBeVisible();
+    expect(screen.getByRole("columnheader", { name: "Before" })).toBeVisible();
+    expect(screen.getByText("I feel")).toBeVisible();
+    expect(document.querySelector(".worksheet-inline-blank--long")).toBeTruthy();
+    expect(screen.getByRole("region", { name: "CBT Thought Check" })).toBeVisible();
+    expect(screen.getByRole("region", { name: "Coping Plan" })).toBeVisible();
+    expect(screen.getByText("☐ Breathe")).toBeVisible();
+  });
 });

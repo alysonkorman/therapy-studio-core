@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -92,6 +92,71 @@ describe("WorksheetBlockEditor", () => {
     await apply(user);
     expect(onApply).toHaveBeenCalledWith(
       expect.objectContaining({ minimum: 0, maximum: 10, showNumbers: false })
+    );
+  });
+
+  it("edits Reflection and Sentence Completion settings", async () => {
+    const user = userEvent.setup();
+    const reflection = renderEditor("reflection");
+    await user.clear(screen.getByLabelText("Title"));
+    await user.type(screen.getByLabelText("Title"), "What happened?");
+    await user.clear(screen.getByLabelText("Response Lines"));
+    await user.type(screen.getByLabelText("Response Lines"), "7");
+    await apply(user);
+    expect(reflection.onApply).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "What happened?", lineCount: 7 })
+    );
+
+    cleanup();
+    const sentence = renderEditor("sentence-completion");
+    await user.clear(screen.getByLabelText("Text Before"));
+    await user.type(screen.getByLabelText("Text Before"), "I feel");
+    await user.selectOptions(screen.getByLabelText("Blank Size"), "long");
+    await apply(user);
+    expect(sentence.onApply).toHaveBeenCalledWith(
+      expect.objectContaining({ textBefore: "I feel", blankSize: "long" })
+    );
+  });
+
+  it("edits Basic Table rows and columns", async () => {
+    const user = userEvent.setup();
+    const table = renderEditor("basic-table");
+    await user.clear(screen.getByLabelText(/column headers/i));
+    await user.type(screen.getByLabelText(/column headers/i), "Before\nDuring\nAfter");
+    await user.clear(screen.getByLabelText(/rows \(one row/i));
+    await user.type(screen.getByLabelText(/rows \(one row/i), "A | B | C\nD | E | F");
+    await apply(user);
+    expect(table.onApply).toHaveBeenCalledWith(
+      expect.objectContaining({
+        headers: ["Before", "During", "After"],
+        rows: [
+          ["A", "B", "C"],
+          ["D", "E", "F"],
+        ],
+      })
+    );
+  });
+
+  it("edits CBT Thought Check and Coping Plan wording", async () => {
+    const user = userEvent.setup();
+    const thoughtCheck = renderEditor("cbt-thought-check");
+    await user.clear(screen.getByLabelText("Thought Label"));
+    await user.type(screen.getByLabelText("Thought Label"), "What my mind said");
+    await apply(user);
+    expect(thoughtCheck.onApply).toHaveBeenCalledWith(
+      expect.objectContaining({
+        labels: expect.objectContaining({ thought: "What my mind said" }),
+      })
+    );
+
+    cleanup();
+    const copingPlan = renderEditor("coping-plan");
+    fireEvent.change(screen.getByLabelText("Choices"), {
+      target: { value: "Breathe\nAsk for help" },
+    });
+    await apply(user);
+    expect(copingPlan.onApply).toHaveBeenCalledWith(
+      expect.objectContaining({ choices: ["Breathe", "Ask for help"] })
     );
   });
 

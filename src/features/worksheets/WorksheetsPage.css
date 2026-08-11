@@ -324,6 +324,80 @@
 .worksheet-drawing-area--large {
   min-height: 300px;
 }
+.worksheet-structured-block {
+  border: 1px solid var(--border-color, #d8d4cc);
+  border-radius: 10px;
+  break-inside: avoid;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+.worksheet-structured-block h3,
+.worksheet-structured-block p {
+  margin: 0;
+}
+.worksheet-field-help {
+  color: var(--text-muted, #666);
+  font-size: 0.85rem;
+  margin: 0;
+}
+.worksheet-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.worksheet-basic-table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+.worksheet-basic-table th,
+.worksheet-basic-table td {
+  border: 1px solid #777;
+  overflow-wrap: anywhere;
+  padding: 9px;
+  text-align: left;
+  vertical-align: top;
+}
+.worksheet-basic-table th {
+  background: #f3f1ec;
+  font-weight: 700;
+}
+.worksheet-sentence-completion {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  line-height: 2;
+}
+.worksheet-inline-blank {
+  border-bottom: 1px solid currentColor;
+  display: inline-block;
+  min-height: 1.25em;
+}
+.worksheet-inline-blank--short {
+  width: 100px;
+}
+.worksheet-inline-blank--medium {
+  width: 190px;
+}
+.worksheet-inline-blank--long {
+  flex: 1 1 280px;
+  max-width: 100%;
+}
+.worksheet-thought-check {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.worksheet-thought-check > section,
+.worksheet-coping-plan > section {
+  break-inside: avoid;
+  min-width: 0;
+}
+.worksheet-thought-check__balancedThought {
+  grid-column: 1 / -1;
+}
+.worksheet-coping-plan {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 .worksheet-divider--dashed {
   border-style: dashed;
 }
@@ -377,5 +451,12 @@
 
   .worksheet-setting-row {
     grid-template-columns: 1fr;
+  }
+  .worksheet-coping-plan,
+  .worksheet-thought-check {
+    grid-template-columns: 1fr;
+  }
+  .worksheet-thought-check__balancedThought {
+    grid-column: auto;
   }
 }

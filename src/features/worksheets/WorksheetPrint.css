@@ -21,4 +21,8 @@
   .worksheet-paper:last-child {
     break-after: auto;
   }
+
+  .worksheet-table-wrap {
+    overflow: visible;
+  }
 }
