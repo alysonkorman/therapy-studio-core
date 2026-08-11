@@ -116,6 +116,8 @@ export function updateWorkspaceBackground(document, background) {
 
 export function workspaceDocumentReducer(document, action) {
   switch (action.type) {
+    case "document/replace":
+      return action.document;
     case "background/update":
       return updateWorkspaceBackground(document, action.background);
     case "object/add":

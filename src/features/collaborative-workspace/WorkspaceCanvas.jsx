@@ -1,9 +1,12 @@
 import WorkspaceObject from "./WorkspaceObject";
 
 export default function WorkspaceCanvas({
+  canMoveBackward,
+  canMoveForward,
   document,
   onChangeObject,
   onSelect,
+  onSelectedAction,
   selectedId,
 }) {
   const background = document.background === "meadow" ? "outdoors" : document.background;
@@ -36,6 +39,15 @@ export default function WorkspaceCanvas({
         <WorkspaceObject
           key={object.id}
           object={object}
+          objectControls={
+            selectedId === object.id
+              ? {
+                  canMoveBackward,
+                  canMoveForward,
+                  onAction: onSelectedAction,
+                }
+              : null
+          }
           onChange={(changes) => onChangeObject(object.id, changes)}
           onSelect={onSelect}
           selected={selectedId === object.id}

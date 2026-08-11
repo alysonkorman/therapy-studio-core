@@ -17,9 +17,8 @@ export default function AssetTray({
   return (
     <aside className="workspace-asset-tray" aria-label="Asset tray">
       <div className="workspace-asset-tray__heading">
-        <p className="eyebrow">Scene pieces</p>
-        <h2>What belongs here?</h2>
-        <p>Choose a picture and it will appear in your scene.</p>
+        <h2>Scene Pieces</h2>
+        <p>Choose anything to add to your scene.</p>
       </div>
       <label className="workspace-asset-search">
         <Search aria-hidden="true" size={18} />

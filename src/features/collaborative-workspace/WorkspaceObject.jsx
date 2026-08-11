@@ -2,13 +2,20 @@ import { RotateCw } from "lucide-react";
 import { useRef, useState } from "react";
 
 import WorkspaceAssetImage from "./WorkspaceAssetImage";
+import ObjectControls from "./ObjectControls";
 import {
   clampWorkspaceObjectPosition,
   constrainWorkspaceObjectSize,
   normalizeWorkspaceRotation,
 } from "./workspaceDocument";
 
-export default function WorkspaceObject({ object, selected, onChange, onSelect }) {
+export default function WorkspaceObject({
+  object,
+  objectControls,
+  selected,
+  onChange,
+  onSelect,
+}) {
   const gestureRef = useRef(null);
   const objectRef = useRef(null);
   const [gestureMode, setGestureMode] = useState(null);
@@ -157,6 +164,13 @@ export default function WorkspaceObject({ object, selected, onChange, onSelect }
             onPointerCancel={endGesture}
             onPointerUp={endGesture}
             type="button"
+          />
+          <ObjectControls
+            canMoveBackward={objectControls.canMoveBackward}
+            canMoveForward={objectControls.canMoveForward}
+            key={object.id}
+            object={object}
+            onAction={objectControls.onAction}
           />
         </>
       ) : null}

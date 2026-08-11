@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 
 import AssetTray from "./AssetTray";
 import BackgroundChooser from "./BackgroundChooser";
-import ObjectControls from "./ObjectControls";
+import SceneFileControls from "./SceneFileControls";
 import WorkspaceCanvas from "./WorkspaceCanvas";
 import {
   browseSceneAssets,
@@ -15,12 +15,14 @@ import useCollaborativeWorkspaceDocument from "./useCollaborativeWorkspaceDocume
 import {
   calculateInitialWorkspaceObjectSize,
   constrainWorkspaceObjectSize,
+  initialWorkspaceDocument,
   normalizeWorkspaceRotation,
 } from "./workspaceDocument";
 import "./CollaborativeWorkspacePrototype.css";
 
 export default function CollaborativeWorkspacePrototype() {
-  const { changeDocument, connection, document } = useCollaborativeWorkspaceDocument();
+  const { changeDocument, connection, document, replaceDocument } =
+    useCollaborativeWorkspaceDocument();
   // Search and selection are participant-local and never enter the collaboration adapter.
   const [assetQuery, setAssetQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -133,6 +135,18 @@ export default function CollaborativeWorkspacePrototype() {
           total={assetResults.total}
         />
         <section className="workspace-stage" aria-label="Activity area">
+          <SceneFileControls
+            document={document}
+            emptyDocument={initialWorkspaceDocument}
+            onLoad={(savedDocument) => {
+              setSelectedId(null);
+              replaceDocument(savedDocument);
+            }}
+            onNew={() => {
+              setSelectedId(null);
+              replaceDocument(structuredClone(initialWorkspaceDocument));
+            }}
+          />
           <div className="workspace-stage__topline">
             <BackgroundChooser
               backgrounds={sampleWorkspaceBackgrounds}
@@ -146,25 +160,15 @@ export default function CollaborativeWorkspacePrototype() {
               {document.objects.length === 1 ? "piece" : "pieces"}
             </span>
           </div>
-          {selectedObject ? (
-            <ObjectControls
-              canMoveBackward={selectedIndex > 0}
-              canMoveForward={selectedIndex < document.objects.length - 1}
-              key={selectedId}
-              object={selectedObject}
-              onAction={handleSelectedAction}
-            />
-          ) : (
-            <div className="workspace-selection-tip">
-              Select an object to see its controls.
-            </div>
-          )}
           <WorkspaceCanvas
+            canMoveBackward={selectedIndex > 0}
+            canMoveForward={selectedIndex < document.objects.length - 1}
             document={document}
             onChangeObject={(objectId, changes) =>
               changeDocument({ type: "object/update", objectId, changes })
             }
             onSelect={setSelectedId}
+            onSelectedAction={handleSelectedAction}
             selectedId={selectedId}
           />
         </section>

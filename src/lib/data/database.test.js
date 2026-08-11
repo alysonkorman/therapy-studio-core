@@ -98,6 +98,25 @@ describe("Therapy Studio database", () => {
     expect(await migrated.table("interventionGuidance").count()).toBe(0);
   });
 
+  it("preserves version-5 data during the Scene Document migration", async () => {
+    const name = `therapy-studio-test-${crypto.randomUUID()}`;
+    const versionFive = new Dexie(name, { indexedDB, IDBKeyRange });
+    versionFive.version(5).stores(THERAPY_STUDIO_VERSION_5_SCHEMA);
+    await versionFive.table("resources").put({ id: "resource", title: "Kept" });
+    await versionFive
+      .table("worksheetDocuments")
+      .put({ worksheetId: "worksheet", documentVersion: 1 });
+    versionFive.close();
+
+    const migrated = createTherapyStudioDatabase({ name, indexedDB, IDBKeyRange });
+    databases.push(migrated);
+    await migrated.open();
+
+    expect(await migrated.table("resources").get("resource")).toBeTruthy();
+    expect(await migrated.table("worksheetDocuments").get("worksheet")).toBeTruthy();
+    expect(await migrated.table("sceneDocuments").count()).toBe(0);
+  });
+
   it("preserves version-4 data during the Worksheet migration", async () => {
     const name = `therapy-studio-test-${crypto.randomUUID()}`;
     const versionFour = new Dexie(name, { indexedDB, IDBKeyRange });

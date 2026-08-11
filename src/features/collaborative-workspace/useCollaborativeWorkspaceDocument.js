@@ -39,5 +39,11 @@ export default function useCollaborativeWorkspaceDocument() {
     });
   }, []);
 
-  return { changeDocument, connection, document };
+  const replaceDocument = useCallback((nextDocument) => {
+    documentRef.current = nextDocument;
+    setDocument(nextDocument);
+    adapterRef.current?.publish(nextDocument);
+  }, []);
+
+  return { changeDocument, connection, document, replaceDocument };
 }
