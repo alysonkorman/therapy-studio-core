@@ -10,6 +10,8 @@ import { applyWorksheetStarter } from "../../engines/worksheets/worksheetStarter
 import {
   createBlankWorksheetDocument,
   createWorksheetResource,
+  isTherapistWorksheetTemplate,
+  THERAPIST_WORKSHEET_TEMPLATE_PROVENANCE,
   worksheetDocumentSchema,
   worksheetSchema,
 } from "../../models";
@@ -26,6 +28,7 @@ export const worksheetRepositoryErrorCodes = Object.freeze({
   transactionFailed: "transaction-failed",
   writeFailed: "write-failed",
   protectedStarter: "protected-starter",
+  invalidTemplate: "invalid-template",
 });
 
 export class WorksheetRepositoryError extends Error {
@@ -101,12 +104,18 @@ export function createWorksheetRepository({
   const resources = () => database.table("resources");
   const documents = () => database.table("worksheetDocuments");
 
-  async function getAllWorksheets({ includeArchived = false } = {}) {
+  async function getAllWorksheets({
+    includeArchived = false,
+    includeTemplates = false,
+  } = {}) {
     await ensureOpen(database);
     const stored = (await resources().toArray())
       .filter((record) => record.type === "worksheet")
       .map(parseWorksheet)
-      .filter((worksheet) => includeArchived || !worksheet.archived);
+      .filter((worksheet) => includeArchived || !worksheet.archived)
+      .filter(
+        (worksheet) => includeTemplates || !isTherapistWorksheetTemplate(worksheet)
+      );
     return [
       ...worksheetStarters.map((worksheet) => ({
         ...copyStarter(worksheet),
@@ -248,6 +257,14 @@ export function createWorksheetRepository({
   }
 
   async function duplicateWorksheet(sourceId) {
+    const source = await getWorksheetById(sourceId);
+    return copyWorksheet(sourceId, {
+      provenance: `duplicated-from:${sourceId}`,
+      title: `${source.title} Copy`,
+    });
+  }
+
+  async function copyWorksheet(sourceId, { provenance, title }) {
     await ensureOpen(database);
     const source = await getWorksheetById(sourceId);
     const sourceDocument = await getWorksheetDocument(sourceId);
@@ -258,9 +275,9 @@ export function createWorksheetRepository({
     const resource = worksheetSchema.parse({
       ...sourceResource,
       id,
-      title: `${source.title} Copy`,
+      title,
       attribution: "",
-      provenance: `duplicated-from:${sourceId}`,
+      provenance,
       createdAt: timestamp,
       updatedAt: timestamp,
     });
@@ -296,10 +313,70 @@ export function createWorksheetRepository({
       }
       throw repositoryError(
         worksheetRepositoryErrorCodes.writeFailed,
-        "Worksheet could not be duplicated.",
+        "Worksheet could not be copied.",
         { cause: error }
       );
     }
+  }
+
+  async function saveAsTemplate(sourceId, title) {
+    if (isWorksheetStarter(sourceId)) {
+      throw repositoryError(
+        worksheetRepositoryErrorCodes.protectedStarter,
+        "Therapy Studio starters cannot be saved as personal templates."
+      );
+    }
+    const source = await getWorksheetById(sourceId);
+    if (isTherapistWorksheetTemplate(source)) {
+      throw repositoryError(
+        worksheetRepositoryErrorCodes.invalidTemplate,
+        "This Worksheet is already a personal template."
+      );
+    }
+    return copyWorksheet(sourceId, {
+      provenance: THERAPIST_WORKSHEET_TEMPLATE_PROVENANCE,
+      title: title?.trim() || `${source.title} Template`,
+    });
+  }
+
+  async function createWorksheetFromTemplate(templateId, title) {
+    const template = await getWorksheetById(templateId);
+    if (!isTherapistWorksheetTemplate(template)) {
+      throw repositoryError(
+        worksheetRepositoryErrorCodes.invalidTemplate,
+        "Only a personal Worksheet template can be used here."
+      );
+    }
+    return copyWorksheet(templateId, {
+      provenance: `created-from-template:${templateId}`,
+      title:
+        title?.trim() || template.title.replace(/ Template$/u, "") || "New Worksheet",
+    });
+  }
+
+  async function renameWorksheetTemplate(templateId, title) {
+    const template = await getWorksheetById(templateId);
+    if (!isTherapistWorksheetTemplate(template)) {
+      throw repositoryError(
+        worksheetRepositoryErrorCodes.invalidTemplate,
+        "Only personal Worksheet templates can be renamed."
+      );
+    }
+    const normalizedTitle = title?.trim();
+    if (!normalizedTitle) {
+      throw repositoryError(
+        worksheetRepositoryErrorCodes.invalidTemplate,
+        "Template name is required."
+      );
+    }
+    const { archived, ...resource } = template;
+    const updated = worksheetSchema.parse({
+      ...resource,
+      title: normalizedTitle,
+      updatedAt: now(),
+    });
+    await resources().put({ ...updated, archived });
+    return { ...updated, archived };
   }
 
   return {
@@ -308,6 +385,9 @@ export function createWorksheetRepository({
     getWorksheetDocument,
     createWorksheet,
     duplicateWorksheet,
+    saveAsTemplate,
+    createWorksheetFromTemplate,
+    renameWorksheetTemplate,
     saveWorksheetDocument,
     archiveWorksheet: (id) => setArchived(id, true),
     restoreWorksheet: (id) => setArchived(id, false),

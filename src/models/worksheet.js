@@ -4,6 +4,11 @@ import { z } from "zod";
 import { resourceSchema } from "./resource";
 
 export const worksheetColorSchema = z.string().regex(/^#[0-9A-F]{6}$/);
+export const THERAPIST_WORKSHEET_TEMPLATE_PROVENANCE = "therapist-template";
+
+export function isTherapistWorksheetTemplate(worksheet) {
+  return worksheet?.provenance === THERAPIST_WORKSHEET_TEMPLATE_PROVENANCE;
+}
 
 export const worksheetSchema = resourceSchema
   .extend({

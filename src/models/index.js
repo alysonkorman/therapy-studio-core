@@ -7,7 +7,12 @@ export {
   resourceTypes,
   resourceTypeSchema,
 } from "./resource";
-export { createWorksheetResource, worksheetSchema } from "./worksheet";
+export {
+  createWorksheetResource,
+  isTherapistWorksheetTemplate,
+  THERAPIST_WORKSHEET_TEMPLATE_PROVENANCE,
+  worksheetSchema,
+} from "./worksheet";
 export {
   createBlankWorksheetDocument,
   worksheetBlockSchema,

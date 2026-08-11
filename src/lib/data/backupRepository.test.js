@@ -248,6 +248,47 @@ describe("backup repository", () => {
     ).toMatchObject({ overview: "Therapist-authored guidance" });
   });
 
+  it("exports and restores therapist-created Worksheet templates", async () => {
+    const source = createDatabase();
+    let id = 0;
+    const worksheets = createWorksheetRepository({
+      database: source,
+      createId: () => `backup-template-${++id}`,
+      now: () => timestamp,
+    });
+    const worksheet = await worksheets.createWorksheet({ title: "Source Worksheet" });
+    const template = await worksheets.saveAsTemplate(
+      worksheet.resource.id,
+      "My Backup Template"
+    );
+    const backup = await createBackupRepository({
+      database: source,
+      now: () => timestamp,
+    }).exportBackup();
+
+    expect(backup.version).toBe(1);
+    expect(backup.data.resources).toContainEqual(
+      expect.objectContaining({
+        id: template.resource.id,
+        provenance: "therapist-template",
+      })
+    );
+    expect(backup.data.worksheetDocuments).toContainEqual(
+      expect.objectContaining({ worksheetId: template.resource.id })
+    );
+
+    const destination = createDatabase();
+    await createBackupRepository({ database: destination }).restoreBackup(backup);
+    const restored = createWorksheetRepository({ database: destination });
+    expect(await restored.getWorksheetById(template.resource.id)).toMatchObject({
+      title: "My Backup Template",
+      provenance: "therapist-template",
+    });
+    expect(await restored.getWorksheetDocument(template.resource.id)).toEqual(
+      template.document
+    );
+  });
+
   it("keeps deterministic built-in content available after replacing local tables", async () => {
     const database = createDatabase();
     await database.open();

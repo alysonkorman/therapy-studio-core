@@ -74,11 +74,26 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.worksheet-library-sections {
+  display: grid;
+  gap: 32px;
+}
+
+.worksheet-library-sections > section {
+  display: grid;
+  gap: 14px;
+}
+
+.worksheet-library-sections h2 {
+  margin: 0;
+}
+
 .worksheet-library-card {
   min-width: 0;
 }
 
-.worksheet-starter-badge {
+.worksheet-starter-badge,
+.worksheet-template-badge {
   background: transparent;
   border-radius: 0;
   color: var(--accent-dark, #4c2e87);
@@ -87,6 +102,10 @@
   font-weight: 700;
   margin-bottom: 8px;
   padding: 0;
+}
+
+.worksheet-template-badge {
+  color: var(--accent-dark, #4c2e87);
 }
 
 .worksheet-library-card .worksheet-actions {
@@ -103,6 +122,11 @@
   color: var(--text);
   padding: 8px 10px;
   text-decoration: none;
+}
+
+.worksheet-actions .worksheet-template-delete-action {
+  border-color: var(--danger, #a33a3a);
+  color: var(--danger, #a33a3a);
 }
 
 .worksheet-builder-header,
