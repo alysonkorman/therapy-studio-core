@@ -168,6 +168,13 @@ base only with feature-specific presentation and document data.
 data and resource UI must use the model and `ResourceCard` rather than create parallel
 shapes or duplicate the card.
 
+Trivia exchange uses the versioned `therapy-studio-trivia` JSON envelope. Its `sets`
+array contains complete Resources validated by the strict Trivia Game schema, so the
+format preserves Resource and question IDs without creating a parallel representation.
+The complete envelope is validated before one atomic Resource-table write. This JSON
+format is the target boundary for future pasted-text, TXT, CSV, DOCX, or PDF converters;
+those human-friendly converters are intentionally separate and are not implemented yet.
+
 The vision describes some resource forms and learning fields not yet represented
 exactly in the current schema. Extend the schema only through an explicit Resource
 milestone; do not silently add types or fields during unrelated work.

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { generalKnowledgeTrivia } from "../../data/resources";
+import { searchResources } from "../../engines/search/searchResources";
 import { IDBKeyRange, indexedDB } from "../../test/indexedDb";
 import { createTherapyStudioDatabase } from "./database";
 import { createResourceRepository } from "./resourceRepository";
@@ -22,6 +23,7 @@ function repository(ids = ["game-created", "question-copy"]) {
   const idQueue = [...ids];
   return {
     database,
+    resources: resourceRepository,
     repository: createTriviaRepository({
       resources: resourceRepository,
       createId: () => idQueue.shift() ?? crypto.randomUUID(),
@@ -121,5 +123,82 @@ describe("Trivia authoring repository", () => {
         ],
       })
     ).rejects.toMatchObject({ code: triviaRepositoryErrorCodes.invalidTrivia });
+  });
+
+  it("imports single and bulk sets atomically and preserves complete data", async () => {
+    const { repository: trivia, resources } = repository();
+    const first = {
+      ...structuredClone(generalKnowledgeTrivia),
+      id: "imported-first",
+      title: "Imported First",
+      source: "Imported collection",
+    };
+    const second = {
+      ...structuredClone(generalKnowledgeTrivia),
+      id: "imported-second",
+      title: "Imported Second",
+    };
+
+    const imported = await trivia.importTriviaSets([first, second]);
+    expect(imported).toHaveLength(2);
+    expect(await trivia.getTriviaSetById(first.id)).toMatchObject({
+      source: "Imported collection",
+      starter: false,
+      questions: first.questions,
+    });
+    expect(
+      searchResources(await resources.getAllResources(), "Imported First")[0].resource.id
+    ).toBe(first.id);
+  });
+
+  it("round-trips a deleted therapist set with stable Resource and question IDs", async () => {
+    const { repository: trivia } = repository();
+    const created = await trivia.createTriviaSet({
+      title: "Round Trip Trivia",
+      questions: [
+        {
+          id: "stable-question",
+          question: "Ready?",
+          answer: "Yes",
+          choices: ["Yes", "No"],
+          explanation: "A preserved explanation",
+          sortOrder: 0,
+        },
+      ],
+    });
+    const { starter, ...exported } = created;
+    void starter;
+    await trivia.deleteTriviaSet(created.id);
+    await trivia.importTriviaSets([exported]);
+    const reopened = await trivia.getTriviaSetById(created.id);
+    expect(reopened.questions[0]).toMatchObject({
+      id: "stable-question",
+      choices: ["Yes", "No"],
+      explanation: "A preserved explanation",
+    });
+    await expect(
+      trivia.updateTriviaSet(created.id, { title: "Edited After Import" })
+    ).resolves.toMatchObject({ title: "Edited After Import" });
+  });
+
+  it("rejects protected and stored ID conflicts without partially importing", async () => {
+    const { database, repository: trivia } = repository();
+    const existing = await trivia.createTriviaSet({ title: "Existing" });
+    const newSet = {
+      ...structuredClone(generalKnowledgeTrivia),
+      id: "would-be-partial",
+      title: "Should Not Import",
+    };
+    const existingConflict = { ...newSet, id: existing.id };
+
+    await expect(
+      trivia.importTriviaSets([newSet, existingConflict])
+    ).rejects.toMatchObject({ code: triviaRepositoryErrorCodes.importConflict });
+    expect(await database.table("resources").get(newSet.id)).toBeUndefined();
+    await expect(trivia.importTriviaSets([generalKnowledgeTrivia])).rejects.toMatchObject(
+      {
+        code: triviaRepositoryErrorCodes.importConflict,
+      }
+    );
   });
 });

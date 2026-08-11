@@ -189,6 +189,55 @@ export function createResourceRepository({
     }
   }
 
+  async function createResourceRecords(inputs) {
+    if (!Array.isArray(inputs) || !inputs.length) {
+      throw repositoryError(
+        resourceRepositoryErrorCodes.invalidResource,
+        "Resource import must include at least one Resource."
+      );
+    }
+    const resources = inputs.map((input) => parseResource(input));
+    const ids = resources.map(({ id }) => id);
+    if (new Set(ids).size !== ids.length) {
+      throw repositoryError(
+        resourceRepositoryErrorCodes.duplicateResource,
+        "Resource import contains duplicate IDs."
+      );
+    }
+
+    await ensureDatabaseOpen(database);
+    try {
+      await database.transaction("rw", database.table("resources"), async () => {
+        const table = database.table("resources");
+        for (const id of ids) {
+          if (await table.get(id)) {
+            throw repositoryError(
+              resourceRepositoryErrorCodes.duplicateResource,
+              `Resource already exists: ${id}`,
+              { details: { id } }
+            );
+          }
+        }
+        await table.bulkAdd(resources.map((resource) => storedRecord(resource)));
+      });
+      return resources.map((resource) => ({ ...resource, archived: false }));
+    } catch (error) {
+      if (error instanceof ResourceRepositoryError) throw error;
+      if (error instanceof Dexie.ConstraintError || error?.name === "ConstraintError") {
+        throw repositoryError(
+          resourceRepositoryErrorCodes.duplicateResource,
+          "A Resource ID already exists.",
+          { cause: error }
+        );
+      }
+      rethrowRepositoryError(
+        error,
+        resourceRepositoryErrorCodes.writeFailed,
+        "Resources could not be created."
+      );
+    }
+  }
+
   async function updateResourceRecord(id, changes) {
     if (!changes || typeof changes !== "object" || Array.isArray(changes)) {
       throw repositoryError(
@@ -389,6 +438,7 @@ export function createResourceRepository({
     getAllResources,
     getResourceById,
     createResourceRecord,
+    createResourceRecords,
     updateResourceRecord,
     archiveResource,
     restoreResource,
@@ -412,6 +462,7 @@ function defaultOperation(name) {
 export const getAllResources = defaultOperation("getAllResources");
 export const getResourceById = defaultOperation("getResourceById");
 export const createResourceRecord = defaultOperation("createResourceRecord");
+export const createResourceRecords = defaultOperation("createResourceRecords");
 export const updateResourceRecord = defaultOperation("updateResourceRecord");
 export const archiveResource = defaultOperation("archiveResource");
 export const restoreResource = defaultOperation("restoreResource");

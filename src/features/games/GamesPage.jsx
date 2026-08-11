@@ -1,4 +1,4 @@
-import { Copy, Pencil, Play, Plus, Trash2 } from "lucide-react";
+import { Copy, Download, Pencil, Play, Plus, Trash2, Upload } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -6,14 +6,20 @@ import { EmptyState, Page } from "../../components/layout";
 import { triviaRepository } from "../../lib/data";
 import ResourceCompatibilityIndicators from "../clients/ResourceCompatibilityIndicators";
 import { IconRenderer } from "../icons";
+import { downloadTriviaSet } from "./downloadTriviaSet";
 import NewTriviaSetForm from "./NewTriviaSetForm";
+import TriviaImportPanel from "./TriviaImportPanel";
 import "./GamesPage.css";
 
-export default function GamesPage({ repository = triviaRepository }) {
+export default function GamesPage({
+  repository = triviaRepository,
+  onExport = downloadTriviaSet,
+}) {
   const navigate = useNavigate();
   const [games, setGames] = useState([]);
   const [status, setStatus] = useState("loading");
   const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [error, setError] = useState("");
 
   const refresh = useCallback(async () => {
@@ -127,6 +133,14 @@ export default function GamesPage({ repository = triviaRepository }) {
                     Duplicate
                   </button>
                   <button
+                    className="studio-button studio-button--secondary"
+                    onClick={() => onExport(game)}
+                    type="button"
+                  >
+                    <Download aria-hidden="true" size={17} />
+                    Export JSON
+                  </button>
+                  <button
                     className="studio-button studio-button--destructive"
                     onClick={() => void remove(game)}
                     type="button"
@@ -146,14 +160,24 @@ export default function GamesPage({ repository = triviaRepository }) {
   return (
     <Page
       actions={
-        <button
-          className="studio-button studio-button--primary"
-          onClick={() => setCreating(true)}
-          type="button"
-        >
-          <Plus aria-hidden="true" size={18} />
-          New Trivia Set
-        </button>
+        <div className="games-library__page-actions">
+          <button
+            className="studio-button studio-button--secondary"
+            onClick={() => setImporting(true)}
+            type="button"
+          >
+            <Upload aria-hidden="true" size={18} />
+            Import Trivia
+          </button>
+          <button
+            className="studio-button studio-button--primary"
+            onClick={() => setCreating(true)}
+            type="button"
+          >
+            <Plus aria-hidden="true" size={18} />
+            New Trivia Set
+          </button>
+        </div>
       }
       className="games-library"
       description="Choose a calm, screen-share-friendly game for the session."
@@ -173,6 +197,13 @@ export default function GamesPage({ repository = triviaRepository }) {
             await refresh();
             navigate(`/games/${created.id}/edit`);
           }}
+        />
+      ) : null}
+      {importing ? (
+        <TriviaImportPanel
+          onClose={() => setImporting(false)}
+          onImported={refresh}
+          repository={repository}
         />
       ) : null}
       {error ? <p role="alert">{error}</p> : null}

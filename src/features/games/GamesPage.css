@@ -17,6 +17,33 @@
   gap: var(--space-7);
 }
 
+.games-library__page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.trivia-import-panel {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-primary);
+}
+
+.trivia-import-panel label {
+  display: grid;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.trivia-import-preview {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-secondary);
+}
+
 .games-library__sections h2 {
   margin: 0 0 var(--space-4);
 }

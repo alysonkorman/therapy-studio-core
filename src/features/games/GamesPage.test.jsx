@@ -1,4 +1,5 @@
 import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { generalKnowledgeTrivia } from "../../data/resources";
@@ -29,5 +30,29 @@ describe("Games Library", () => {
         .map((link) => link.getAttribute("href"))
     ).toContain("/games/game-starter-general-knowledge-trivia");
     expect(screen.queryByText("Coming soon.")).toBeNull();
+  });
+
+  it("offers import and exports only therapist-owned Trivia Sets", async () => {
+    const user = userEvent.setup();
+    const saved = { ...generalKnowledgeTrivia, id: "saved-trivia", title: "My Trivia" };
+    const onExport = vi.fn();
+    renderWithRouter(
+      <GamesPage
+        onExport={onExport}
+        repository={{
+          getAllTriviaSets: vi.fn(async () => [
+            { ...generalKnowledgeTrivia, starter: true },
+            { ...saved, starter: false },
+          ]),
+        }}
+      />
+    );
+
+    await screen.findByRole("heading", { name: "My Trivia" });
+    expect(screen.getAllByRole("button", { name: "Export JSON" })).toHaveLength(1);
+    await user.click(screen.getByRole("button", { name: "Export JSON" }));
+    expect(onExport).toHaveBeenCalledWith(expect.objectContaining({ id: saved.id }));
+    await user.click(screen.getByRole("button", { name: "Import Trivia" }));
+    expect(screen.getByRole("heading", { name: "Import Trivia" })).toBeVisible();
   });
 });

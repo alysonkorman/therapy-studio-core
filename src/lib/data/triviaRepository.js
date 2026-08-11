@@ -4,6 +4,7 @@ import { triviaSets } from "../../data/resources";
 import { triviaGameSchema } from "../../models";
 import {
   createResourceRecord,
+  createResourceRecords,
   deleteResourcePermanently,
   getAllResources,
   getResourceById,
@@ -16,6 +17,8 @@ export const triviaRepositoryErrorCodes = Object.freeze({
   invalidTrivia: "invalid-trivia",
   triviaNotFound: "trivia-not-found",
   protectedStarter: "protected-starter",
+  importConflict: "import-conflict",
+  invalidImport: "invalid-import",
 });
 
 export class TriviaRepositoryError extends Error {
@@ -43,6 +46,7 @@ function parseTrivia(input) {
 export function createTriviaRepository({
   resources = {
     createResourceRecord,
+    createResourceRecords,
     deleteResourcePermanently,
     getAllResources,
     getResourceById,
@@ -181,12 +185,59 @@ export function createTriviaRepository({
     await resources.deleteResourcePermanently(id);
   }
 
+  async function importTriviaSets(inputs) {
+    if (!Array.isArray(inputs) || !inputs.length) {
+      throw new TriviaRepositoryError(
+        triviaRepositoryErrorCodes.invalidImport,
+        "Trivia import must include at least one Trivia Set."
+      );
+    }
+    let sets;
+    try {
+      sets = inputs.map(parseTrivia);
+    } catch (error) {
+      throw new TriviaRepositoryError(
+        triviaRepositoryErrorCodes.invalidImport,
+        "Trivia import failed validation.",
+        { cause: error }
+      );
+    }
+    const ids = sets.map(({ id }) => id);
+    if (new Set(ids).size !== ids.length) {
+      throw new TriviaRepositoryError(
+        triviaRepositoryErrorCodes.invalidImport,
+        "Trivia import contains duplicate set IDs."
+      );
+    }
+    const protectedId = ids.find((id) => starterIds.has(id));
+    if (protectedId) {
+      throw new TriviaRepositoryError(
+        triviaRepositoryErrorCodes.importConflict,
+        `Trivia Set ID conflicts with a protected starter: ${protectedId}`
+      );
+    }
+    try {
+      const created = await resources.createResourceRecords(sets);
+      return created.map(({ archived, ...set }) => {
+        void archived;
+        return { ...parseTrivia(set), starter: false };
+      });
+    } catch (error) {
+      throw new TriviaRepositoryError(
+        triviaRepositoryErrorCodes.importConflict,
+        error.message || "Trivia Sets could not be imported.",
+        { cause: error }
+      );
+    }
+  }
+
   return {
     createTriviaSet,
     deleteTriviaSet,
     duplicateTriviaSet,
     getAllTriviaSets,
     getTriviaSetById,
+    importTriviaSets,
     updateTriviaSet,
   };
 }

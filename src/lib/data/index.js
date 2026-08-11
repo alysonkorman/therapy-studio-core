@@ -31,6 +31,7 @@ export {
   archiveResource,
   clearResourceDatabaseForTests,
   createResourceRecord,
+  createResourceRecords,
   deleteResourcePermanently,
   getAllResources,
   getResourceById,
