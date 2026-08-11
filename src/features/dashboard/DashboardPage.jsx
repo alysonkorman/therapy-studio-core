@@ -29,9 +29,8 @@ const toolShortcuts = [
   {
     title: "Games",
     path: "/games",
-    description: "Interactive telehealth games are coming later.",
+    description: "Play a calm, screen-share-friendly Trivia game.",
     icon: Gamepad2,
-    status: "Coming Later",
   },
   {
     title: "Session Profiles",

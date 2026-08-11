@@ -78,4 +78,17 @@ export const resourceSearchFields = [
         .map((prompt) => prompt.text)
         .filter(Boolean),
   },
+  {
+    key: "triviaQuestionText",
+    label: "Trivia question or answer",
+    weight: 10,
+    values: (resource) =>
+      arrayValues(resource.questions)
+        .flatMap((question) => [
+          question.question,
+          question.answer,
+          ...arrayValues(question.choices),
+        ])
+        .filter(Boolean),
+  },
 ];

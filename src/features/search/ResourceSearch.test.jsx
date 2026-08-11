@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createTherapyStudioDatabase, createWorksheetRepository } from "../../lib/data";
 import { createWorksheetResource } from "../../models";
+import { generalKnowledgeTrivia } from "../../data/resources";
 import { useCurrentSessionStore } from "../../stores/currentSessionStore";
 import { IDBKeyRange, indexedDB } from "../../test/indexedDb";
 import { renderWithRouter } from "../../test/test-utils";
@@ -209,6 +210,30 @@ describe("ResourceSearch", () => {
     expect(
       within(result).getByRole("link", { name: "Open Intervention" })
     ).toHaveAttribute("href", "/interventions/imported-grounding");
+  });
+
+  it("adds a persisted Trivia Set and links to its playable route", async () => {
+    const user = userEvent.setup();
+    const game = {
+      ...generalKnowledgeTrivia,
+      id: "saved-space-trivia",
+      title: "Saved Space Trivia",
+      archived: false,
+    };
+    renderWithRouter(
+      <ResourceSearch
+        persistedGameRepository={{ getAllResources: vi.fn(async () => [game]) }}
+        resources={resources}
+      />
+    );
+    await user.type(screen.getByRole("searchbox"), "Saved Space Trivia{Enter}");
+    const result = await screen.findByRole("region", {
+      name: "Search result: Saved Space Trivia",
+    });
+    expect(within(result).getByRole("link", { name: "Play Trivia" })).toHaveAttribute(
+      "href",
+      "/games/saved-space-trivia"
+    );
   });
 
   it("does not return a permanently deleted Worksheet", async () => {

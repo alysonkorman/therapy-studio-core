@@ -16,10 +16,21 @@ const sections = [
 ];
 
 function MemoryResource({ item, onChange, repository }) {
-  const resourceDestination =
-    item.resource.type === "worksheet"
-      ? `/worksheets/${encodeURIComponent(item.resource.id)}`
-      : `/interventions/${encodeURIComponent(item.resource.id)}`;
+  const destinationByType = {
+    game: {
+      label: "Play Trivia",
+      path: `/games/${encodeURIComponent(item.resource.id)}`,
+    },
+    intervention: {
+      label: "Open Intervention",
+      path: `/interventions/${encodeURIComponent(item.resource.id)}`,
+    },
+    worksheet: {
+      label: "Open Worksheet",
+      path: `/worksheets/${encodeURIComponent(item.resource.id)}`,
+    },
+  };
+  const destination = destinationByType[item.resource.type];
   return item.resource.type === "prompt-deck" ? (
     <PromptDeckCard
       deck={item.resource}
@@ -33,9 +44,11 @@ function MemoryResource({ item, onChange, repository }) {
         onMemoryChange={onChange}
         resource={item.resource}
       />
-      <Link className="saved-page__resource-link" to={resourceDestination}>
-        Open {item.resource.type === "worksheet" ? "Worksheet" : "Intervention"}
-      </Link>
+      {destination ? (
+        <Link className="saved-page__resource-link" to={destination.path}>
+          {destination.label}
+        </Link>
+      ) : null}
     </div>
   );
 }

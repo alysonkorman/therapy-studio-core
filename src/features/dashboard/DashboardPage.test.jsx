@@ -54,10 +54,13 @@ describe("Dashboard tool navigation", () => {
     expect(document.querySelector("#universal-search")).toBeInTheDocument();
   });
 
-  it("labels the unfinished Games destination without presenting fake actions", () => {
+  it("presents Games as an available Trivia destination", () => {
     renderDashboard();
 
     expect(screen.getByRole("link", { name: "Open Games" })).toHaveTextContent(
+      "Play a calm, screen-share-friendly Trivia game."
+    );
+    expect(screen.getByRole("link", { name: "Open Games" })).not.toHaveTextContent(
       "Coming Later"
     );
     expect(screen.queryByRole("button", { name: /session|randomize/i })).toBeNull();
@@ -106,6 +109,21 @@ describe("Dashboard tool navigation", () => {
     expect(
       await screen.findByRole("link", { name: "Continue Calm Plan" })
     ).toHaveAttribute("href", "/interventions/intervention-1");
+  });
+
+  it("returns a recently used Trivia Set to its playable route", async () => {
+    renderDashboard({
+      recentResources: [
+        {
+          memory: { resourceId: "game-1", useCount: 1 },
+          resource: { id: "game-1", type: "game", title: "Space Trivia" },
+        },
+      ],
+    });
+
+    expect(
+      await screen.findByRole("link", { name: "Continue Space Trivia" })
+    ).toHaveAttribute("href", "/games/game-1");
   });
 });
 

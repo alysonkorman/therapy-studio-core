@@ -10,6 +10,7 @@ function resourceDestination(resource) {
   if (resource.type === "prompt-deck") return `/prompts/${id}`;
   if (resource.type === "worksheet") return `/worksheets/${id}`;
   if (resource.type === "intervention") return `/interventions/${id}`;
+  if (resource.type === "game") return `/games/${id}`;
   return "/saved";
 }
 

@@ -27,6 +27,7 @@ export {
 } from "./resourceMemory";
 export { createSessionProfile, sessionProfileSchema } from "./sessionProfile";
 export { interventionGuidanceSchema } from "./intervention";
+export { triviaDifficultySchema, triviaGameSchema, triviaQuestionSchema } from "./game";
 export { promptColorSchema, promptDeckSchema, promptItemSchema } from "./prompt";
 export {
   playlistItemSchema,

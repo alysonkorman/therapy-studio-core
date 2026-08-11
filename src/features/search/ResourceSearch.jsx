@@ -4,7 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { resources as defaultResources } from "../../data/resources";
 import { assembleSearchResources } from "../../engines/search/assembleSearchResources";
 import { searchResources } from "../../engines/search/searchResources";
-import { interventionRepository, worksheetRepository } from "../../lib/data";
+import {
+  getAllResources,
+  interventionRepository,
+  worksheetRepository,
+} from "../../lib/data";
 import { getResourceKey } from "../../models";
 import { useCurrentSessionStore } from "../../stores/currentSessionStore";
 import "../prompts/PromptsPage.css";
@@ -19,10 +23,13 @@ const suggestedSearches = [
   "telehealth",
 ];
 
+const defaultGameRepository = { getAllResources };
+
 export default function ResourceSearch({
   resources = defaultResources,
   persistedWorksheetRepository: suppliedWorksheetRepository,
   persistedInterventionRepository: suppliedInterventionRepository,
+  persistedGameRepository: suppliedGameRepository,
   sessionContext: suppliedSessionContext,
 }) {
   const activeWorksheetRepository =
@@ -31,16 +38,23 @@ export default function ResourceSearch({
   const activeInterventionRepository =
     suppliedInterventionRepository ??
     (resources === defaultResources ? interventionRepository : null);
+  const activeGameRepository =
+    suppliedGameRepository ??
+    (resources === defaultResources ? defaultGameRepository : null);
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [persistedWorksheets, setPersistedWorksheets] = useState([]);
   const [persistedInterventions, setPersistedInterventions] = useState([]);
+  const [persistedGames, setPersistedGames] = useState([]);
   const [worksheetSourceStatus, setWorksheetSourceStatus] = useState(
     activeWorksheetRepository ? "loading" : "ready"
   );
   const [interventionSourceStatus, setInterventionSourceStatus] = useState(
     activeInterventionRepository ? "loading" : "ready"
+  );
+  const [gameSourceStatus, setGameSourceStatus] = useState(
+    activeGameRepository ? "loading" : "ready"
   );
   const storedSessionContext = useCurrentSessionStore((state) => state.context);
   const sessionContext = suppliedSessionContext ?? storedSessionContext;
@@ -95,9 +109,38 @@ export default function ResourceSearch({
     };
   }, [activeInterventionRepository]);
 
+  useEffect(() => {
+    let active = true;
+    if (!activeGameRepository)
+      return () => {
+        active = false;
+      };
+    activeGameRepository
+      .getAllResources()
+      .then((items) => {
+        if (!active) return;
+        setPersistedGames(items.filter((item) => item.type === "game"));
+        setGameSourceStatus("ready");
+      })
+      .catch(() => {
+        if (!active) return;
+        setPersistedGames([]);
+        setGameSourceStatus("error");
+      });
+    return () => {
+      active = false;
+    };
+  }, [activeGameRepository]);
+
   const searchableResources = useMemo(
-    () => assembleSearchResources(resources, persistedWorksheets, persistedInterventions),
-    [persistedInterventions, persistedWorksheets, resources]
+    () =>
+      assembleSearchResources(
+        resources,
+        persistedWorksheets,
+        persistedInterventions,
+        persistedGames
+      ),
+    [persistedGames, persistedInterventions, persistedWorksheets, resources]
   );
   const unfilteredResults = useMemo(
     () => searchResources(searchableResources, submittedQuery, { sessionContext }),
@@ -191,6 +234,16 @@ export default function ResourceSearch({
         {interventionSourceStatus === "error" ? (
           <p className="resource-search-source-status" role="status">
             Imported Interventions are unavailable in Search right now.
+          </p>
+        ) : null}
+        {gameSourceStatus === "loading" ? (
+          <p className="resource-search-source-status" role="status">
+            Adding saved Games to Search…
+          </p>
+        ) : null}
+        {gameSourceStatus === "error" ? (
+          <p className="resource-search-source-status" role="status">
+            Saved Games are unavailable in Search right now.
           </p>
         ) : null}
       </section>

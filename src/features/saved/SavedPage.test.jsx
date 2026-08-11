@@ -79,4 +79,38 @@ describe("SavedPage", () => {
       await screen.findByRole("link", { name: "Open Intervention" })
     ).toHaveAttribute("href", "/interventions/intervention-1");
   });
+
+  it("links a saved Game to its playable route without changing other destinations", async () => {
+    const game = { ...deck, id: "game-1", type: "game", title: "Space Trivia" };
+    const worksheet = {
+      ...deck,
+      id: "worksheet-1",
+      type: "worksheet",
+      title: "Check In Sheet",
+    };
+    const repository = {
+      getFavoriteResources: vi.fn(async () => [
+        { memory: { ...memory, resourceId: game.id }, resource: game },
+        { memory: { ...memory, resourceId: worksheet.id }, resource: worksheet },
+      ]),
+      getRecentlyUsedResources: vi.fn(async () => []),
+      getMostUsedResources: vi.fn(async () => []),
+      getHighestRatedResources: vi.fn(async () => []),
+      getResourceMemory: vi.fn(async (resourceId) => ({ ...memory, resourceId })),
+    };
+    render(
+      <MemoryRouter>
+        <SavedPage repository={repository} />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByRole("link", { name: "Play Trivia" })).toHaveAttribute(
+      "href",
+      "/games/game-1"
+    );
+    expect(screen.getByRole("link", { name: "Open Worksheet" })).toHaveAttribute(
+      "href",
+      "/worksheets/worksheet-1"
+    );
+  });
 });

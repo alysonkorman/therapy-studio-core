@@ -1,5 +1,6 @@
 import Dexie from "dexie";
 
+import { triviaGameSchema } from "../../models/game";
 import { promptDeckSchema } from "../../models/prompt";
 import { resourceSchema } from "../../models/resource";
 import { worksheetSchema } from "../../models/worksheet";
@@ -34,6 +35,7 @@ function repositoryError(code, message, options) {
 function schemaFor(resource) {
   if (resource?.type === "prompt-deck") return promptDeckSchema;
   if (resource?.type === "worksheet") return worksheetSchema;
+  if (resource?.type === "game") return triviaGameSchema;
   return resourceSchema;
 }
 

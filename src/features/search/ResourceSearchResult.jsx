@@ -13,6 +13,9 @@ function genericResultDestination(resource) {
       path: `/interventions/${encodeURIComponent(resource.id)}`,
     };
   }
+  if (resource.type === "game") {
+    return { label: "Play Trivia", path: `/games/${encodeURIComponent(resource.id)}` };
+  }
   return null;
 }
 

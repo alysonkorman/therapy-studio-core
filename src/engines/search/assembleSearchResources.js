@@ -1,5 +1,6 @@
 import { getResourceKey } from "../../models/resource";
 import { resourceSchema } from "../../models/resource";
+import { triviaGameSchema } from "../../models/game";
 import { worksheetSchema } from "../../models/worksheet";
 
 function validPersistedWorksheets(records) {
@@ -23,10 +24,21 @@ function validPersistedInterventions(records) {
   });
 }
 
+function validPersistedGames(records) {
+  return records.flatMap((record) => {
+    if (!record || record.archived || record.type !== "game") return [];
+    const { archived, ...resource } = record;
+    void archived;
+    const result = triviaGameSchema.safeParse(resource);
+    return result.success ? [result.data] : [];
+  });
+}
+
 export function assembleSearchResources(
   staticResources,
   persistedWorksheets = [],
-  persistedInterventions = []
+  persistedInterventions = [],
+  persistedGames = []
 ) {
   const resourcesByKey = new Map();
 
@@ -34,6 +46,7 @@ export function assembleSearchResources(
     ...staticResources,
     ...validPersistedWorksheets(persistedWorksheets),
     ...validPersistedInterventions(persistedInterventions),
+    ...validPersistedGames(persistedGames),
   ]) {
     resourcesByKey.set(getResourceKey(resource), resource);
   }
@@ -41,4 +54,4 @@ export function assembleSearchResources(
   return [...resourcesByKey.values()];
 }
 
-export { validPersistedInterventions, validPersistedWorksheets };
+export { validPersistedGames, validPersistedInterventions, validPersistedWorksheets };
