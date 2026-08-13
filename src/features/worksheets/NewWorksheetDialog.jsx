@@ -34,7 +34,7 @@ export default function NewWorksheetDialog({ onCancel, onCreate }) {
           />
         </label>
         <label>
-          Starting Layout
+          Start With…
           <select
             onChange={(event) => setStarterId(event.target.value)}
             value={starterId}

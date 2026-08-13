@@ -1,6 +1,13 @@
 import WorksheetBlockRenderer from "./WorksheetBlockRenderer";
 import WorksheetSessionBlock from "./WorksheetSessionBlock";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+function isTypingTarget(target) {
+  return (
+    target instanceof HTMLElement &&
+    Boolean(target.closest("input, textarea, select, [contenteditable='true']"))
+  );
+}
 
 export default function WorksheetDocumentRenderer({
   document,
@@ -22,6 +29,28 @@ export default function WorksheetDocumentRenderer({
   const pages = selectedPageId
     ? document.pages.filter(({ id }) => id === selectedPageId)
     : document.pages;
+
+  useEffect(() => {
+    const selectedPage = pages.find((page) =>
+      page.blocks.some((block) => block.id === selectedBlockId)
+    );
+    const selectedBlock = selectedPage?.blocks.find(({ id }) => id === selectedBlockId);
+    if (!selectedPage || !selectedBlock || selectedPage.layoutMode !== "freeform") return;
+    const onKeyDown = (event) => {
+      if (isTypingTarget(event.target)) return;
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "d") {
+        event.preventDefault();
+        onDuplicateBlock?.(selectedBlock.id);
+        return;
+      }
+      if (["Delete", "Backspace"].includes(event.key)) {
+        event.preventDefault();
+        onDeleteBlock?.(selectedBlock.id);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onDeleteBlock, onDuplicateBlock, pages, selectedBlockId]);
   return (
     <div className="worksheet-document">
       {pages.map((page, index) => (
@@ -31,6 +60,13 @@ export default function WorksheetDocumentRenderer({
           key={page.id}
           onClick={(event) => {
             if (page.layoutMode !== "freeform" || !onAddTextAt) return;
+            if (
+              event.target instanceof HTMLElement &&
+              event.target.closest(
+                "button, input, textarea, select, [contenteditable='true']"
+              )
+            )
+              return;
             const rect = event.currentTarget.getBoundingClientRect();
             onAddTextAt({
               x: ((event.clientX - rect.left) / rect.width) * 100,
@@ -222,7 +258,7 @@ export default function WorksheetDocumentRenderer({
                         Move Down
                       </button>
                       <button onClick={() => onDuplicateBlock(block.id)} type="button">
-                        Duplicate
+                        {block.type === "line" ? "Duplicate Arrow" : "Duplicate"}
                       </button>
                       <button
                         className="worksheet-delete"
@@ -261,19 +297,28 @@ export default function WorksheetDocumentRenderer({
                           >
                             {layout.locked ? "Unlock" : "Lock"}
                           </button>
-                          <button
-                            onClick={() => onLayerChange?.(block.id, "forward")}
-                            type="button"
-                          >
-                            Bring Forward
-                          </button>
-                          <button
-                            onClick={() => onLayerChange?.(block.id, "backward")}
-                            type="button"
-                          >
-                            Send Backward
-                          </button>
-                          {block.type === "visual" ? (
+                          {!(
+                            block.type === "visual" &&
+                            layout.locked &&
+                            layout.zIndex === 0
+                          ) ? (
+                            <>
+                              <button
+                                onClick={() => onLayerChange?.(block.id, "forward")}
+                                type="button"
+                              >
+                                Bring Forward
+                              </button>
+                              <button
+                                onClick={() => onLayerChange?.(block.id, "backward")}
+                                type="button"
+                              >
+                                Send Backward
+                              </button>
+                            </>
+                          ) : null}
+                          {block.type === "visual" &&
+                          !(layout.locked && layout.zIndex === 0) ? (
                             <button
                               onClick={() => onSetBackground?.(block.id)}
                               type="button"

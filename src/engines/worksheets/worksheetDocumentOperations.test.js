@@ -13,6 +13,7 @@ import {
   setWorksheetBlockLayer,
   setWorksheetPageLayoutMode,
   setWorksheetVisualBackground,
+  setWorksheetVisualPlacement,
   updateWorksheetBlock,
   updateWorksheetBlockLayout,
 } from "./worksheetDocumentOperations";
@@ -197,6 +198,60 @@ describe("Worksheet document operations", () => {
 
     expect(document.pages[0].blocks[0]).toMatchObject({
       id: visualId,
+      layout: { x: 4, y: 4, width: 92, height: 92, locked: true, zIndex: 0 },
+    });
+  });
+
+  it("places freeform visuals quickly and offsets a selected duplicate", () => {
+    const createId = ids();
+    let document = createBlankWorksheetDocument("worksheet", {
+      createId,
+      now: "2026-08-04T12:00:00.000Z",
+    });
+    const pageId = document.pages[0].id;
+    document = setWorksheetPageLayoutMode(document, pageId, "freeform");
+    document = addWorksheetBlock(document, pageId, "visual", createId);
+    const visualId = document.pages[0].blocks[0].id;
+
+    document = setWorksheetVisualPlacement(
+      document,
+      pageId,
+      visualId,
+      "curated-example-visual",
+      "large"
+    );
+    expect(document.pages[0].blocks[0]).toMatchObject({
+      iconId: "curated-example-visual",
+      layout: { x: 15, y: 15, width: 70, height: 70, locked: false },
+    });
+
+    document = duplicateWorksheetBlock(document, pageId, visualId, createId);
+    expect(document.pages[0].blocks[1]).toMatchObject({
+      iconId: "curated-example-visual",
+      layout: { x: 18, y: 18, width: 70, height: 70, locked: false, zIndex: 1 },
+    });
+
+    document = setWorksheetVisualPlacement(
+      document,
+      pageId,
+      visualId,
+      "curated-replacement-visual",
+      "background"
+    );
+    expect(document.pages[0].blocks[0]).toMatchObject({
+      iconId: "curated-replacement-visual",
+      layout: { x: 4, y: 4, width: 92, height: 92, locked: true, zIndex: 0 },
+    });
+
+    document = setWorksheetVisualPlacement(
+      document,
+      pageId,
+      visualId,
+      "curated-replaced-background",
+      "normal"
+    );
+    expect(document.pages[0].blocks[0]).toMatchObject({
+      iconId: "curated-replaced-background",
       layout: { x: 4, y: 4, width: 92, height: 92, locked: true, zIndex: 0 },
     });
   });

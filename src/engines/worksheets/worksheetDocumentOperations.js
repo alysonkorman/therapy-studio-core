@@ -190,6 +190,20 @@ export function setWorksheetVisualBackground(document, pageId, blockId) {
   });
 }
 
+export function setWorksheetVisualPlacement(document, pageId, blockId, iconId, mode) {
+  if (!iconId) throw new Error("A visual icon is required");
+  const placement =
+    mode === "background"
+      ? { x: 4, y: 4, width: 92, height: 92, zIndex: 0, locked: true }
+      : mode === "large"
+        ? { x: 15, y: 15, width: 70, height: 70, locked: false }
+        : {};
+  const withIcon = updateWorksheetBlock(document, pageId, blockId, { iconId });
+  return Object.keys(placement).length
+    ? updateWorksheetBlockLayout(withIcon, pageId, blockId, placement)
+    : withIcon;
+}
+
 export function updateWorksheetBlock(document, pageId, blockId, changes) {
   return updatePage(document, pageId, (page) => {
     if (!page.blocks.some(({ id }) => id === blockId))
@@ -221,9 +235,25 @@ export function duplicateWorksheetBlock(
     const index = page.blocks.findIndex(({ id }) => id === blockId);
     if (index < 0) throw new Error(`Worksheet block not found: ${blockId}`);
     const blocks = [...page.blocks];
+    const source = page.blocks[index];
+    const sourceLayout = source.layout;
+    const offsetLayout = sourceLayout
+      ? {
+          ...sourceLayout,
+          x: Math.min(100 - sourceLayout.width, sourceLayout.x + 3),
+          y: Math.min(100 - sourceLayout.height, sourceLayout.y + 3),
+          locked: false,
+          zIndex:
+            Math.max(
+              ...page.blocks.map((block) => block.layout?.zIndex ?? 0),
+              sourceLayout.zIndex
+            ) + 1,
+        }
+      : undefined;
     blocks.splice(index + 1, 0, {
-      ...structuredClone(page.blocks[index]),
+      ...structuredClone(source),
       id: createId(),
+      ...(offsetLayout ? { layout: offsetLayout } : {}),
     });
     return { ...page, blocks: normalize(blocks) };
   });

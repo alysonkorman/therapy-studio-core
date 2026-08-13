@@ -189,4 +189,33 @@ describe("Worksheet Freeform Builder interactions", () => {
     expect(document.querySelector(".worksheet-center-guide")).toBeNull();
     expect(screen.queryByLabelText("Block Actions")).toBeNull();
   });
+
+  it("duplicates and deletes the selected freeform block with safe keyboard shortcuts", async () => {
+    const user = userEvent.setup();
+    const onDeleteBlock = vi.fn();
+    const onDuplicateBlock = vi.fn();
+    render(
+      <WorksheetDocumentRenderer
+        document={freeformDocument()}
+        interactive
+        onDeleteBlock={onDeleteBlock}
+        onDuplicateBlock={onDuplicateBlock}
+        onSelectBlock={vi.fn()}
+        selectedBlockId="text"
+      />
+    );
+
+    await user.keyboard("{Meta>}d{/Meta}");
+    expect(onDuplicateBlock).toHaveBeenCalledWith("text");
+    await user.keyboard("{Delete}");
+    expect(onDeleteBlock).toHaveBeenCalledWith("text");
+
+    const response = screen.getByRole("textbox", {
+      name: "Response for What do you notice?",
+    });
+    response.focus();
+    await user.keyboard("{Meta>}d{/Meta}{Backspace}");
+    expect(onDuplicateBlock).toHaveBeenCalledTimes(1);
+    expect(onDeleteBlock).toHaveBeenCalledTimes(1);
+  });
 });

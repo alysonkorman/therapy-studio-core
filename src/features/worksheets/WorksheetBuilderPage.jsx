@@ -14,6 +14,7 @@ import {
   setWorksheetBlockLayer,
   setWorksheetPageLayoutMode,
   setWorksheetVisualBackground,
+  setWorksheetVisualPlacement,
   updateWorksheetBlock,
   updateWorksheetBlockLayout,
   updateWorksheetPage,
@@ -81,6 +82,21 @@ export default function WorksheetBuilderPage({ repository = worksheetRepository 
     () => page?.title || `Page ${selectedPageIndex + 1}`,
     [page, selectedPageIndex]
   );
+
+  useEffect(() => {
+    const exitTextPlacement = (event) => {
+      if (event.key === "Escape") setAddingText(false);
+    };
+    window.addEventListener("keydown", exitTextPlacement);
+    return () => window.removeEventListener("keydown", exitTextPlacement);
+  }, []);
+
+  function duplicateSelectedBlock(selectedId) {
+    const sourceIndex = page.blocks.findIndex(({ id }) => id === selectedId);
+    const next = duplicateWorksheetBlock(draft, pageId, selectedId);
+    change(next);
+    setBlockId(next.pages.find(({ id }) => id === pageId).blocks[sourceIndex + 1].id);
+  }
 
   async function save() {
     setStatus("Saving…");
@@ -197,12 +213,7 @@ export default function WorksheetBuilderPage({ repository = worksheetRepository 
               setBlockId("");
             }}
             onDuplicateBlock={(selectedId) => {
-              const sourceIndex = page.blocks.findIndex(({ id }) => id === selectedId);
-              const next = duplicateWorksheetBlock(draft, pageId, selectedId);
-              change(next);
-              setBlockId(
-                next.pages.find(({ id }) => id === pageId).blocks[sourceIndex + 1].id
-              );
+              duplicateSelectedBlock(selectedId);
             }}
             onMoveBlock={(selectedId, offset) =>
               change(moveWorksheetBlock(draft, pageId, selectedId, offset))
@@ -221,7 +232,6 @@ export default function WorksheetBuilderPage({ repository = worksheetRepository 
               const next = addFreeformTextAt(draft, pageId, point);
               change(next);
               setBlockId(next.pages.find(({ id }) => id === pageId).blocks.at(-1).id);
-              setAddingText(false);
             }}
             onSelectBlock={setBlockId}
             selectedBlockId={blockId}
@@ -278,11 +288,17 @@ export default function WorksheetBuilderPage({ repository = worksheetRepository 
                 change(deleteWorksheetBlock(draft, pageId, block.id));
                 setBlockId("");
               }}
-              onDuplicate={() => change(duplicateWorksheetBlock(draft, pageId, block.id))}
+              onDuplicate={() => duplicateSelectedBlock(block.id)}
               onMove={(offset) =>
                 change(moveWorksheetBlock(draft, pageId, block.id, offset))
               }
               position={blockPosition}
+              layout={block.layout}
+              onVisualPlacement={(iconId, mode) => {
+                change(
+                  setWorksheetVisualPlacement(draft, pageId, block.id, iconId, mode)
+                );
+              }}
               total={page.blocks.length}
             />
           ) : null}

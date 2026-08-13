@@ -141,7 +141,15 @@ function ThoughtCheckControls({ draft, onChange }) {
   );
 }
 
-function TextControls({ block, draft, onChange }) {
+function TextControls({
+  block,
+  draft,
+  freeform,
+  onChange,
+  onVisualPlacement,
+  visualPlacement,
+  onVisualPlacementChange,
+}) {
   if (["heading", "instruction", "paragraph"].includes(block.type)) {
     return (
       <>
@@ -193,14 +201,43 @@ function TextControls({ block, draft, onChange }) {
     );
   }
   if (block.type === "visual") {
+    const placementMode = visualPlacement;
+    const isBackground = freeform && block.layout?.locked && block.layout?.zIndex === 0;
     return (
       <>
+        {freeform ? (
+          <SelectField
+            draft={{ placementMode }}
+            field="placementMode"
+            onChange={(_, value) => onVisualPlacementChange(value)}
+          >
+            <option value="large">Add Large & Centered</option>
+            <option value="background">Add as Background</option>
+            <option value="normal">Add Normally</option>
+          </SelectField>
+        ) : null}
         <IconBrowserField
-          actionLabel={draft.iconId ? "Change SVG" : "Choose SVG"}
+          actionLabel={
+            isBackground
+              ? "Replace Background"
+              : draft.iconId
+                ? "Change SVG"
+                : "Choose SVG"
+          }
           label="Worksheet Visual"
-          onSave={(iconId) => onChange("iconId", iconId)}
+          onSave={(iconId) => {
+            if (freeform && onVisualPlacement) {
+              onVisualPlacement(iconId, placementMode);
+              onChange("iconId", iconId);
+              return;
+            }
+            onChange("iconId", iconId);
+          }}
           value={draft.iconId}
         />
+        {isBackground ? (
+          <p className="worksheet-field-help">Background • Locked</p>
+        ) : null}
         {draft.iconId ? (
           <button onClick={() => onChange("iconId", null)} type="button">
             Clear SVG
@@ -395,15 +432,20 @@ function TextControls({ block, draft, onChange }) {
 
 export default function WorksheetBlockEditor({
   block,
+  layout,
   onApply,
   onClearSelection,
   onDelete,
   onDuplicate,
   onMove,
+  onVisualPlacement,
   position,
   total,
 }) {
   const [draft, setDraft] = useState(block);
+  const [visualPlacement, setVisualPlacement] = useState(
+    layout?.locked && layout?.zIndex === 0 ? "normal" : "large"
+  );
   const updateDraft = (field, value) =>
     setDraft((current) => ({ ...current, [field]: value }));
 
@@ -418,7 +460,15 @@ export default function WorksheetBlockEditor({
           Clear Selection
         </button>
       </div>
-      <TextControls block={block} draft={draft} onChange={updateDraft} />
+      <TextControls
+        block={{ ...block, layout }}
+        draft={draft}
+        freeform={Boolean(layout)}
+        onChange={updateDraft}
+        onVisualPlacement={onVisualPlacement}
+        visualPlacement={visualPlacement}
+        onVisualPlacementChange={setVisualPlacement}
+      />
       <button onClick={() => onApply(draft)} type="button">
         Apply Block Changes
       </button>
