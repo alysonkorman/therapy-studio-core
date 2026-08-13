@@ -88,6 +88,33 @@ describe("Worksheet Document", () => {
     );
   });
 
+  it("validates an additive freeform page and normalized positioned block", () => {
+    const document = createBlankWorksheetDocument("worksheet-1", {
+      createId: () => "page-1",
+      now: "2026-08-04T12:00:00.000Z",
+    });
+    const parsed = worksheetDocumentSchema.parse({
+      ...document,
+      pages: [
+        {
+          ...document.pages[0],
+          layoutMode: "freeform",
+          blocks: [
+            {
+              id: "heading-1",
+              type: "heading",
+              sortOrder: 0,
+              text: "Label this picture",
+              layout: { x: 10, y: 12, width: 64, height: 14, zIndex: 2, locked: false },
+            },
+          ],
+        },
+      ],
+    });
+    expect(parsed.pages[0].layoutMode).toBe("freeform");
+    expect(parsed.pages[0].blocks[0].layout?.width).toBe(64);
+  });
+
   it.each([
     {
       type: "reflection",

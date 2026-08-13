@@ -8,6 +8,16 @@ const requiredText = plainText.trim().min(1);
 const blockBase = {
   id: z.string().min(1),
   sortOrder: z.number().int().nonnegative(),
+  layout: z
+    .object({
+      x: z.number().min(0).max(100),
+      y: z.number().min(0).max(100),
+      width: z.number().min(4).max(100),
+      height: z.number().min(2).max(100),
+      zIndex: z.number().int().min(0).max(999).default(0),
+      locked: z.boolean().default(false),
+    })
+    .optional(),
 };
 
 export const worksheetSessionResponseSchema = z
@@ -108,7 +118,7 @@ export const worksheetBlockSchema = z.discriminatedUnion("type", [
       ...blockBase,
       type: z.literal("drawing-area"),
       prompt: requiredText,
-      height: z.enum(["small", "medium", "large"]).default("medium"),
+      height: z.enum(["small", "medium", "large", "xl"]).default("medium"),
     })
     .strict(),
   z
@@ -118,7 +128,7 @@ export const worksheetBlockSchema = z.discriminatedUnion("type", [
       iconId: z.string().trim().min(1).nullable().default(null),
       label: plainText.default(""),
       decorative: z.boolean().default(true),
-      size: z.enum(["small", "medium", "large"]).default("medium"),
+      size: z.enum(["small", "medium", "large", "xl"]).default("medium"),
       alignment: z.enum(["left", "center", "right"]).default("center"),
     })
     .strict(),
@@ -180,6 +190,19 @@ export const worksheetBlockSchema = z.discriminatedUnion("type", [
   z
     .object({
       ...blockBase,
+      type: z.literal("line"),
+      strokeColor: z
+        .string()
+        .regex(/^#[0-9a-fA-F]{6}$/)
+        .default("#6C46C3"),
+      strokeWidth: z.number().min(1).max(12).default(3),
+      arrowhead: z.boolean().default(false),
+      label: plainText.default(""),
+    })
+    .strict(),
+  z
+    .object({
+      ...blockBase,
       type: z.literal("divider"),
       style: z.enum(["solid", "dashed", "dotted"]).default("solid"),
     })
@@ -188,7 +211,7 @@ export const worksheetBlockSchema = z.discriminatedUnion("type", [
     .object({
       ...blockBase,
       type: z.literal("spacer"),
-      size: z.enum(["small", "medium", "large"]).default("medium"),
+      size: z.enum(["small", "medium", "large", "xl"]).default("medium"),
     })
     .strict(),
 ]);
@@ -207,6 +230,7 @@ export const worksheetPageSchema = z
     title: plainText.default(""),
     sortOrder: z.number().int().nonnegative(),
     settings: worksheetPageSettingsSchema,
+    layoutMode: z.enum(["flow", "freeform"]).default("flow"),
     blocks: z.array(worksheetBlockSchema),
   })
   .strict();

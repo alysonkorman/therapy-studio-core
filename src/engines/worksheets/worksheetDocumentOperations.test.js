@@ -10,7 +10,11 @@ import {
   duplicateWorksheetPage,
   moveWorksheetBlock,
   moveWorksheetPage,
+  setWorksheetBlockLayer,
+  setWorksheetPageLayoutMode,
+  setWorksheetVisualBackground,
   updateWorksheetBlock,
+  updateWorksheetBlockLayout,
 } from "./worksheetDocumentOperations";
 
 const ids = () => {
@@ -146,5 +150,54 @@ describe("Worksheet document operations", () => {
 
     expect(document.pages).toHaveLength(1);
     expect(document.pages[0].blocks).toEqual([]);
+  });
+
+  it("keeps flow pages unchanged while freeform pages persist normalized geometry", () => {
+    const createId = ids();
+    let document = createBlankWorksheetDocument("worksheet", {
+      createId,
+      now: "2026-08-04T12:00:00.000Z",
+    });
+    const pageId = document.pages[0].id;
+    document = addWorksheetBlock(document, pageId, "heading", createId);
+    expect(document.pages[0].layoutMode).toBe("flow");
+    expect(document.pages[0].blocks[0].layout).toBeUndefined();
+
+    document = setWorksheetPageLayoutMode(document, pageId, "freeform");
+    const blockId = document.pages[0].blocks[0].id;
+    document = updateWorksheetBlockLayout(document, pageId, blockId, {
+      x: 18,
+      y: 22,
+      width: 72,
+      height: 20,
+    });
+
+    expect(document.pages[0]).toMatchObject({ layoutMode: "freeform" });
+    expect(document.pages[0].blocks[0].layout).toMatchObject({
+      x: 18,
+      y: 22,
+      width: 72,
+      height: 20,
+      locked: false,
+    });
+  });
+
+  it("layers, locks, and backgrounds visual blocks without changing identity", () => {
+    const createId = ids();
+    let document = createBlankWorksheetDocument("worksheet", {
+      createId,
+      now: "2026-08-04T12:00:00.000Z",
+    });
+    const pageId = document.pages[0].id;
+    document = setWorksheetPageLayoutMode(document, pageId, "freeform");
+    document = addWorksheetBlock(document, pageId, "visual", createId);
+    const visualId = document.pages[0].blocks[0].id;
+    document = setWorksheetBlockLayer(document, pageId, visualId, "forward");
+    document = setWorksheetVisualBackground(document, pageId, visualId);
+
+    expect(document.pages[0].blocks[0]).toMatchObject({
+      id: visualId,
+      layout: { x: 4, y: 4, width: 92, height: 92, locked: true, zIndex: 0 },
+    });
   });
 });

@@ -187,6 +187,7 @@ function TextControls({ block, draft, onChange }) {
           <option value="small">Small</option>
           <option value="medium">Medium</option>
           <option value="large">Large</option>
+          <option value="xl">XL</option>
         </SelectField>
       </>
     );
@@ -216,6 +217,7 @@ function TextControls({ block, draft, onChange }) {
           <option value="small">Small</option>
           <option value="medium">Medium</option>
           <option value="large">Large</option>
+          <option value="xl">XL</option>
         </SelectField>
         <SelectField draft={draft} field="alignment" onChange={onChange}>
           <option value="left">Left</option>
@@ -345,12 +347,46 @@ function TextControls({ block, draft, onChange }) {
       </SelectField>
     );
   }
+  if (block.type === "line") {
+    return (
+      <>
+        <TextField draft={draft} field="label" onChange={onChange} />
+        <div className="worksheet-setting-row">
+          <label>
+            Stroke Color
+            <input
+              type="color"
+              value={draft.strokeColor}
+              onChange={(event) => onChange("strokeColor", event.target.value)}
+            />
+          </label>
+          <label>
+            Stroke Width
+            <input
+              max="12"
+              min="1"
+              type="number"
+              value={draft.strokeWidth}
+              onChange={(event) => onChange("strokeWidth", Number(event.target.value))}
+            />
+          </label>
+        </div>
+        <CheckboxField
+          draft={draft}
+          field="arrowhead"
+          label="Show arrowhead"
+          onChange={onChange}
+        />
+      </>
+    );
+  }
   if (block.type === "spacer") {
     return (
       <SelectField draft={draft} field="size" onChange={onChange}>
         <option value="small">Small</option>
         <option value="medium">Medium</option>
         <option value="large">Large</option>
+        <option value="xl">XL</option>
       </SelectField>
     );
   }

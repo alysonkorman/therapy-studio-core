@@ -78,6 +78,47 @@ describe("Worksheet repository", () => {
     expect(reopened.createdAt).toBe(created.document.createdAt);
   });
 
+  it("round-trips a freeform document without losing geometry or arrow settings", async () => {
+    const { repository } = setup();
+    const created = await repository.createWorksheet({ title: "Freeform Round Trip" });
+    const [page] = created.document.pages;
+    const document = {
+      ...created.document,
+      pages: [
+        {
+          ...page,
+          layoutMode: "freeform",
+          blocks: [
+            {
+              id: "background",
+              type: "visual",
+              iconId: "curated-culture-holidays-watarun01",
+              label: "Background",
+              decorative: true,
+              size: "xl",
+              alignment: "center",
+              sortOrder: 0,
+              layout: { x: 4, y: 4, width: 92, height: 92, zIndex: 0, locked: true },
+            },
+            {
+              id: "arrow",
+              type: "line",
+              strokeColor: "#6C46C3",
+              strokeWidth: 5,
+              arrowhead: true,
+              label: "Notice this",
+              sortOrder: 1,
+              layout: { x: 36, y: 28, width: 42, height: 12, zIndex: 5, locked: false },
+            },
+          ],
+        },
+      ],
+    };
+
+    await repository.saveWorksheetDocument(created.resource.id, document);
+    expect(await repository.getWorksheetDocument(created.resource.id)).toEqual(document);
+  });
+
   it("saves a completed copy while leaving the reusable source unchanged", async () => {
     const { repository } = setup();
     const created = await repository.createWorksheet({ title: "Calm Plan" });

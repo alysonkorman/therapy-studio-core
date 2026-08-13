@@ -112,7 +112,15 @@ export default function WorksheetBlockRenderer({ block }) {
           className="worksheet-visual__asset"
           decorative={block.decorative}
           iconId={block.iconId}
-          size={256}
+          size={
+            block.size === "xl"
+              ? 720
+              : block.size === "large"
+                ? 560
+                : block.size === "medium"
+                  ? 160
+                  : 96
+          }
         />
         {!block.decorative && block.label ? <figcaption>{block.label}</figcaption> : null}
       </figure>
@@ -207,6 +215,36 @@ export default function WorksheetBlockRenderer({ block }) {
           <ResponseLines count={block.lineCount} />
         </section>
       </section>
+    );
+  }
+  if (block.type === "line") {
+    return (
+      <figure className="worksheet-freeform-line">
+        <svg aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 100 100">
+          <defs>
+            <marker
+              id={`arrow-${block.id}`}
+              markerHeight="8"
+              markerWidth="8"
+              orient="auto"
+              refX="7"
+              refY="4"
+            >
+              <path d="M0,0 L8,4 L0,8 z" fill={block.strokeColor} />
+            </marker>
+          </defs>
+          <line
+            markerEnd={block.arrowhead ? `url(#arrow-${block.id})` : undefined}
+            stroke={block.strokeColor}
+            strokeWidth={block.strokeWidth}
+            x1="4"
+            x2="96"
+            y1="50"
+            y2="50"
+          />
+        </svg>
+        {block.label ? <figcaption>{block.label}</figcaption> : null}
+      </figure>
     );
   }
   if (block.type === "divider")

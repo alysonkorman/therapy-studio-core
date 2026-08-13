@@ -109,6 +109,54 @@ describe("therapist-created Worksheet templates", () => {
     });
   });
 
+  it("preserves freeform geometry in templates while regenerating document identities", async () => {
+    const { repository } = setup();
+    const original = await repository.createWorksheet({ title: "Freeform Source" });
+    const [page] = original.document.pages;
+    const source = {
+      ...original.document,
+      pages: [
+        {
+          ...page,
+          layoutMode: "freeform",
+          blocks: [
+            {
+              id: "source-arrow",
+              type: "line",
+              strokeColor: "#6C46C3",
+              strokeWidth: 4,
+              arrowhead: true,
+              label: "Follow this",
+              sortOrder: 0,
+              layout: { x: 25, y: 30, width: 45, height: 8, zIndex: 3, locked: true },
+            },
+          ],
+        },
+      ],
+    };
+    await repository.saveWorksheetDocument(original.resource.id, source);
+
+    const template = await repository.saveAsTemplate(
+      original.resource.id,
+      "Freeform Template"
+    );
+    const created = await repository.createWorksheetFromTemplate(
+      template.resource.id,
+      "Freeform Copy"
+    );
+    const templateBlock = template.document.pages[0].blocks[0];
+    const createdBlock = created.document.pages[0].blocks[0];
+
+    expect(template.document.pages[0].layoutMode).toBe("freeform");
+    expect(created.document.pages[0].layoutMode).toBe("freeform");
+    expect(createdBlock.id).not.toBe(templateBlock.id);
+    expect(createdBlock).toMatchObject({
+      arrowhead: true,
+      label: "Follow this",
+      layout: { x: 25, y: 30, width: 45, height: 8, zIndex: 3, locked: true },
+    });
+  });
+
   it("lists templates only when requested, renames them, and protects starters", async () => {
     const { repository } = setup();
     const original = await repository.createWorksheet({ title: "Original" });

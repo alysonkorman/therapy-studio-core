@@ -251,4 +251,73 @@ describe("WorksheetDocumentRenderer editing", () => {
     expect(screen.getByRole("region", { name: "Coping Plan" })).toBeVisible();
     expect(screen.getByText("☐ Breathe")).toBeVisible();
   });
+
+  it("renders a bounded freeform print document without Builder chrome", () => {
+    const freeform = {
+      pages: [
+        {
+          id: "freeform-page",
+          title: "Freeform Print Page",
+          layoutMode: "freeform",
+          settings: { paperSize: "letter", orientation: "portrait", margin: "normal" },
+          blocks: [
+            {
+              id: "background",
+              type: "visual",
+              iconId: "curated-culture-holidays-watarun01",
+              label: "Background visual",
+              decorative: true,
+              size: "xl",
+              alignment: "center",
+              sortOrder: 0,
+              layout: { x: 4, y: 4, width: 92, height: 92, zIndex: 0, locked: true },
+            },
+            {
+              id: "label",
+              type: "paragraph",
+              text: "Amygdala",
+              alignment: "left",
+              sortOrder: 1,
+              layout: { x: 18, y: 22, width: 26, height: 8, zIndex: 4, locked: false },
+            },
+            {
+              id: "reflection",
+              type: "reflection",
+              title: "What do you notice?",
+              instruction: "",
+              lineCount: 2,
+              sortOrder: 2,
+              layout: { x: 12, y: 70, width: 62, height: 18, zIndex: 5, locked: false },
+            },
+            {
+              id: "arrow",
+              type: "line",
+              strokeColor: "#6C46C3",
+              strokeWidth: 5,
+              arrowhead: true,
+              label: "Look here",
+              sortOrder: 3,
+              layout: { x: 45, y: 34, width: 38, height: 9, zIndex: 6, locked: false },
+            },
+          ],
+        },
+      ],
+    };
+    render(<WorksheetDocumentRenderer document={freeform} />);
+
+    const paper = screen.getByRole("article", { name: "Freeform Print Page" });
+    expect(paper).toHaveClass("worksheet-paper--freeform");
+    expect(screen.getByText("Amygdala").closest(".worksheet-block-shell")).toHaveStyle({
+      left: "18%",
+      top: "22%",
+      width: "26%",
+      height: "8%",
+      zIndex: "4",
+    });
+    expect(screen.getByText("Look here")).toBeVisible();
+    expect(screen.queryByLabelText("Block Actions")).toBeNull();
+    expect(screen.queryByLabelText("Resize selected block")).toBeNull();
+    expect(document.querySelector(".worksheet-center-guide")).toBeNull();
+    expect(document.querySelector(".worksheet-block-shell--selected")).toBeNull();
+  });
 });

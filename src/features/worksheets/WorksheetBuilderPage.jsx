@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 
 import {
   addWorksheetBlock,
+  addFreeformTextAt,
   addWorksheetPage,
   deleteWorksheetBlock,
   deleteWorksheetPage,
@@ -10,7 +11,11 @@ import {
   duplicateWorksheetPage,
   moveWorksheetBlock,
   moveWorksheetPage,
+  setWorksheetBlockLayer,
+  setWorksheetPageLayoutMode,
+  setWorksheetVisualBackground,
   updateWorksheetBlock,
+  updateWorksheetBlockLayout,
   updateWorksheetPage,
 } from "../../engines/worksheets/worksheetDocumentOperations";
 import { worksheetRepository } from "../../lib/data";
@@ -35,6 +40,7 @@ const worksheetBlockTypes = [
   ["sentence-completion", "Sentence Completion"],
   ["cbt-thought-check", "CBT Thought Check"],
   ["coping-plan", "Coping Plan"],
+  ["line", "Arrow / Line"],
   ["divider", "Divider"],
   ["spacer", "Spacer"],
 ];
@@ -47,6 +53,7 @@ export default function WorksheetBuilderPage({ repository = worksheetRepository 
   const [blockId, setBlockId] = useState("");
   const [status, setStatus] = useState("Loading…");
   const [error, setError] = useState("");
+  const [addingText, setAddingText] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -200,6 +207,22 @@ export default function WorksheetBuilderPage({ repository = worksheetRepository 
             onMoveBlock={(selectedId, offset) =>
               change(moveWorksheetBlock(draft, pageId, selectedId, offset))
             }
+            onLayoutChange={(selectedId, changes) =>
+              change(updateWorksheetBlockLayout(draft, pageId, selectedId, changes))
+            }
+            onLayerChange={(selectedId, direction) =>
+              change(setWorksheetBlockLayer(draft, pageId, selectedId, direction))
+            }
+            onSetBackground={(selectedId) =>
+              change(setWorksheetVisualBackground(draft, pageId, selectedId))
+            }
+            onAddTextAt={(point) => {
+              if (!addingText) return;
+              const next = addFreeformTextAt(draft, pageId, point);
+              change(next);
+              setBlockId(next.pages.find(({ id }) => id === pageId).blocks.at(-1).id);
+              setAddingText(false);
+            }}
             onSelectBlock={setBlockId}
             selectedBlockId={blockId}
             selectedPageId={pageId}
@@ -211,6 +234,15 @@ export default function WorksheetBuilderPage({ repository = worksheetRepository 
         >
           <section>
             <h2>Block Library</h2>
+            {page.layoutMode === "freeform" ? (
+              <button
+                className="studio-button studio-button--primary"
+                onClick={() => setAddingText(true)}
+                type="button"
+              >
+                {addingText ? "Click the Page to Place Text" : "Add Text"}
+              </button>
+            ) : null}
             <div className="worksheet-block-library">
               {worksheetBlockTypes.map(([type, label]) => (
                 <button
@@ -266,6 +298,18 @@ export default function WorksheetBuilderPage({ repository = worksheetRepository 
                 }
                 value={page.title}
               />
+            </label>
+            <label>
+              Layout
+              <select
+                onChange={(event) =>
+                  change(setWorksheetPageLayoutMode(draft, pageId, event.target.value))
+                }
+                value={page.layoutMode}
+              >
+                <option value="flow">Flow Document</option>
+                <option value="freeform">Freeform Page</option>
+              </select>
             </label>
             <label>
               Paper Size

@@ -319,7 +319,7 @@
   box-sizing: border-box;
   color: #231f33;
   max-width: 100%;
-  min-height: 720px;
+  min-height: 820px;
   width: min(100%, 760px);
 }
 
@@ -335,6 +335,89 @@
 }
 .worksheet-paper--margin-wide {
   padding: 76px;
+}
+
+.worksheet-paper--freeform {
+  aspect-ratio: 8.5 / 11;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+.worksheet-paper--freeform.worksheet-paper--landscape {
+  aspect-ratio: 11 / 8.5;
+}
+.worksheet-paper--freeform .worksheet-block-shell {
+  margin: 0;
+  position: absolute;
+}
+.worksheet-freeform-resize-handle {
+  background: var(--accent);
+  border: 2px solid white;
+  border-radius: 50%;
+  bottom: -7px;
+  cursor: nwse-resize;
+  height: 14px;
+  padding: 0;
+  position: absolute;
+  right: -7px;
+  width: 14px;
+}
+.worksheet-freeform-line {
+  display: grid;
+  height: 100%;
+  margin: 0;
+  width: 100%;
+}
+.worksheet-freeform-line svg {
+  height: 100%;
+  overflow: visible;
+  width: 100%;
+}
+.worksheet-freeform-line figcaption {
+  background: white;
+  justify-self: center;
+  margin-top: -0.5rem;
+  padding: 0 4px;
+}
+.worksheet-paper--freeform .worksheet-rendered-block {
+  height: 100%;
+  overflow: auto;
+}
+.worksheet-paper--freeform .worksheet-rendered-block--editable {
+  cursor: move;
+}
+.worksheet-paper--freeform .worksheet-block-shell--selected {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.worksheet-paper--freeform .worksheet-visual {
+  height: 100%;
+  width: 100%;
+}
+.worksheet-paper--freeform .worksheet-visual__asset {
+  height: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+.worksheet-center-guide {
+  background: color-mix(in srgb, var(--accent) 70%, transparent);
+  pointer-events: none;
+  position: absolute;
+  z-index: 1000;
+}
+.worksheet-center-guide--vertical {
+  height: 100%;
+  left: 50%;
+  top: 0;
+  width: 1px;
+}
+.worksheet-center-guide--horizontal {
+  height: 1px;
+  left: 0;
+  top: 50%;
+  width: 100%;
 }
 
 .worksheet-rendered-block {
@@ -518,7 +601,19 @@
   width: 160px;
 }
 .worksheet-visual--large .worksheet-visual__asset {
-  width: 240px;
+  width: 560px;
+}
+.worksheet-visual--xl .worksheet-visual__asset {
+  width: 720px;
+}
+.worksheet-paper--freeform .worksheet-visual__asset,
+.worksheet-paper--freeform .worksheet-visual--small .worksheet-visual__asset,
+.worksheet-paper--freeform .worksheet-visual--medium .worksheet-visual__asset,
+.worksheet-paper--freeform .worksheet-visual--large .worksheet-visual__asset,
+.worksheet-paper--freeform .worksheet-visual--xl .worksheet-visual__asset {
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
 }
 .worksheet-visual figcaption {
   margin-top: 8px;

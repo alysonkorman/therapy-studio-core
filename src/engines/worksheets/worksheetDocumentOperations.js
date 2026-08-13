@@ -70,6 +70,7 @@ const defaults = {
     helpedPrompt: "What helped",
     lineCount: 2,
   },
+  line: { strokeColor: "#6C46C3", strokeWidth: 3, arrowhead: true, label: "" },
   divider: { style: "solid" },
   spacer: { size: "medium" },
 };
@@ -88,6 +89,15 @@ function updatePage(document, pageId, change) {
   return parse({ ...document, pages });
 }
 
+const defaultFreeformLayout = (index = 0) => ({
+  x: 10 + (index % 3) * 7,
+  y: 10 + (index % 3) * 7,
+  width: 38,
+  height: 18,
+  zIndex: index,
+  locked: false,
+});
+
 export function createWorksheetBlock(type, sortOrder, createId = () => nanoid()) {
   if (!defaults[type]) throw new Error(`Unsupported Worksheet block type: ${type}`);
   return { id: createId(), type, sortOrder, ...structuredClone(defaults[type]) };
@@ -96,8 +106,88 @@ export function createWorksheetBlock(type, sortOrder, createId = () => nanoid())
 export function addWorksheetBlock(document, pageId, type, createId) {
   return updatePage(document, pageId, (page) => ({
     ...page,
-    blocks: [...page.blocks, createWorksheetBlock(type, page.blocks.length, createId)],
+    blocks: [
+      ...page.blocks,
+      {
+        ...createWorksheetBlock(type, page.blocks.length, createId),
+        ...(page.layoutMode === "freeform"
+          ? { layout: defaultFreeformLayout(page.blocks.length) }
+          : {}),
+      },
+    ],
   }));
+}
+
+export function addFreeformTextAt(document, pageId, point, createId = () => nanoid()) {
+  return updatePage(document, pageId, (page) => {
+    if (page.layoutMode !== "freeform")
+      throw new Error("Text placement requires a freeform page");
+    const width = 32;
+    const height = 10;
+    const x = Math.max(0, Math.min(100 - width, point.x));
+    const y = Math.max(0, Math.min(100 - height, point.y));
+    return {
+      ...page,
+      blocks: [
+        ...page.blocks,
+        {
+          ...createWorksheetBlock("paragraph", page.blocks.length, createId),
+          text: "Type here",
+          layout: { x, y, width, height, zIndex: page.blocks.length + 1, locked: false },
+        },
+      ],
+    };
+  });
+}
+
+export function updateWorksheetBlockLayout(document, pageId, blockId, changes) {
+  return updatePage(document, pageId, (page) => {
+    const block = page.blocks.find(({ id }) => id === blockId);
+    if (!block) throw new Error(`Worksheet block not found: ${blockId}`);
+    const layout = {
+      ...defaultFreeformLayout(block.sortOrder),
+      ...block.layout,
+      ...changes,
+    };
+    return {
+      ...page,
+      blocks: page.blocks.map((item) =>
+        item.id === blockId ? { ...item, layout } : item
+      ),
+    };
+  });
+}
+
+export function setWorksheetBlockLayer(document, pageId, blockId, direction) {
+  return updatePage(document, pageId, (page) => {
+    const maximum = Math.max(0, ...page.blocks.map((block) => block.layout?.zIndex ?? 0));
+    return {
+      ...page,
+      blocks: page.blocks.map((block) =>
+        block.id === blockId
+          ? {
+              ...block,
+              layout: {
+                ...defaultFreeformLayout(block.sortOrder),
+                ...block.layout,
+                zIndex: direction === "forward" ? maximum + 1 : 0,
+              },
+            }
+          : block
+      ),
+    };
+  });
+}
+
+export function setWorksheetVisualBackground(document, pageId, blockId) {
+  return updateWorksheetBlockLayout(document, pageId, blockId, {
+    x: 4,
+    y: 4,
+    width: 92,
+    height: 92,
+    zIndex: 0,
+    locked: true,
+  });
 }
 
 export function updateWorksheetBlock(document, pageId, blockId, changes) {
@@ -179,6 +269,20 @@ export function updateWorksheetPage(document, pageId, changes) {
     ...changes,
     id: page.id,
     sortOrder: page.sortOrder,
+  }));
+}
+
+export function setWorksheetPageLayoutMode(document, pageId, layoutMode) {
+  return updatePage(document, pageId, (page) => ({
+    ...page,
+    layoutMode,
+    blocks:
+      layoutMode === "freeform"
+        ? page.blocks.map((block, index) => ({
+            ...block,
+            layout: block.layout ?? defaultFreeformLayout(index),
+          }))
+        : page.blocks,
   }));
 }
 

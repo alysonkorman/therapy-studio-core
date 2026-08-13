@@ -343,6 +343,81 @@ describe("backup repository", () => {
     );
   });
 
+  it("restores a representative freeform Worksheet with its complete visual layout", async () => {
+    const source = createDatabase();
+    const worksheets = createWorksheetRepository({
+      database: source,
+      createId: () => "freeform-worksheet",
+      now: () => timestamp,
+    });
+    const created = await worksheets.createWorksheet({ title: "Brain Labels" });
+    const [page] = created.document.pages;
+    const freeform = {
+      ...created.document,
+      pages: [
+        {
+          ...page,
+          layoutMode: "freeform",
+          blocks: [
+            {
+              id: "background",
+              type: "visual",
+              iconId: "curated-culture-holidays-watarun01",
+              label: "Brain diagram",
+              decorative: true,
+              size: "xl",
+              alignment: "center",
+              sortOrder: 0,
+              layout: { x: 4, y: 4, width: 92, height: 92, zIndex: 0, locked: true },
+            },
+            {
+              id: "label",
+              type: "paragraph",
+              text: "Amygdala",
+              alignment: "left",
+              sortOrder: 1,
+              layout: { x: 18, y: 22, width: 26, height: 8, zIndex: 4, locked: false },
+            },
+            {
+              id: "reflection",
+              type: "reflection",
+              title: "What do you notice?",
+              instruction: "",
+              lineCount: 2,
+              sortOrder: 2,
+              layout: { x: 12, y: 70, width: 62, height: 18, zIndex: 5, locked: false },
+            },
+            {
+              id: "arrow",
+              type: "line",
+              strokeColor: "#6C46C3",
+              strokeWidth: 5,
+              arrowhead: true,
+              label: "Look here",
+              sortOrder: 3,
+              layout: { x: 45, y: 34, width: 38, height: 9, zIndex: 6, locked: false },
+            },
+          ],
+        },
+      ],
+    };
+    await worksheets.saveWorksheetDocument(created.resource.id, freeform);
+
+    const backup = await createBackupRepository({
+      database: source,
+      now: () => timestamp,
+    }).exportBackup();
+    const destination = createDatabase();
+    await createBackupRepository({ database: destination }).restoreBackup(backup);
+    const restored = createWorksheetRepository({ database: destination });
+
+    expect(await restored.getWorksheetById(created.resource.id)).toMatchObject({
+      id: created.resource.id,
+      title: "Brain Labels",
+    });
+    expect(await restored.getWorksheetDocument(created.resource.id)).toEqual(freeform);
+  });
+
   it("keeps deterministic built-in content available after replacing local tables", async () => {
     const database = createDatabase();
     await database.open();
