@@ -7,7 +7,7 @@ export function captureCognitoHostToken(
   history = window.history
 ) {
   const params = new URLSearchParams(location.hash.replace(/^#/, ""));
-  const token = params.get("access_token");
+  const token = params.get("id_token");
   if (token) {
     sessionStorage.setItem(hostTokenKey, token);
     history.replaceState(null, "", `${location.pathname}${location.search}`);

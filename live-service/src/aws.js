@@ -63,7 +63,6 @@ const store = {
 export async function handler(event) {
   // Deployment wiring supplies Cognito claims for host routes. Never accept a body role.
   const route = event.requestContext?.routeKey ?? event.routeKey;
-  const body = event.body ? JSON.parse(event.body) : {};
   const hostSubject = event.requestContext?.authorizer?.jwt?.claims?.sub;
   const authority = createRoomAuthority({
     adapter: whiteboardLiveSessionAdapter,
@@ -76,6 +75,7 @@ export async function handler(event) {
     }),
   });
   try {
+    const body = event.body ? JSON.parse(event.body) : {};
     if (route === "POST /live-sessions") {
       if (!hostSubject) return response(401);
       const created = await authority.createRoom({ hostSubject, state: body.state });

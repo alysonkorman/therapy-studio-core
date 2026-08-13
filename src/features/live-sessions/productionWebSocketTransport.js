@@ -8,7 +8,8 @@ function websocketOrigin(origin) {
 // kept out of component code and never persisted in localStorage.
 export function createProductionWebSocketTransport({
   credential,
-  origin = import.meta.env.VITE_LIVE_SESSION_ORIGIN,
+  origin = import.meta.env.VITE_LIVE_SESSION_WS_ORIGIN ??
+    import.meta.env.VITE_LIVE_SESSION_ORIGIN,
   role,
   sessionId,
   WebSocketImpl = globalThis.WebSocket,

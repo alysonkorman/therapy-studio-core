@@ -1,75 +1,195 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: Therapy Studio Live Sessions. Do not deploy with PHI before completing BAA and security review.
+Description: Therapy Studio Live Sessions NON-PHI development stack. No clinical-readiness claim.
 
 Parameters:
   FrontendOrigin:
     Type: String
-    Default: http://localhost:5173
+    Default: http://127.0.0.1:5173
+    Description: Exact development frontend origin, without a trailing slash.
+  CognitoDomainPrefix:
+    Type: String
+    Description: Globally unique lowercase Cognito Hosted UI domain prefix.
   TokenSigningSecret:
     Type: String
     NoEcho: true
+    MinLength: 32
+    Description: Long random server-only secret; never use a Vite variable.
 
 Resources:
   HostPool:
     Type: AWS::Cognito::UserPool
     Properties:
+      AutoVerifiedAttributes: [email]
       MfaConfiguration: OPTIONAL
       UsernameAttributes: [email]
-      AutoVerifiedAttributes: [email]
       Policies:
         PasswordPolicy:
-          {
-            MinimumLength: 14,
-            RequireLowercase: true,
-            RequireNumbers: true,
-            RequireSymbols: true,
-            RequireUppercase: true,
-          }
+          MinimumLength: 14
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+  HostPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref HostPool
+      GenerateSecret: false
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows: [implicit]
+      AllowedOAuthScopes: [openid, email]
+      CallbackURLs: [!Ref FrontendOrigin]
+      LogoutURLs: [!Ref FrontendOrigin]
+      SupportedIdentityProviders: [COGNITO]
+  HostPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties: { Domain: !Ref CognitoDomainPrefix, UserPoolId: !Ref HostPool }
   Rooms:
     Type: AWS::DynamoDB::Table
     Properties:
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
-        [{ AttributeName: pk, AttributeType: S }, { AttributeName: sk, AttributeType: S }]
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
       KeySchema:
-        [{ AttributeName: pk, KeyType: HASH }, { AttributeName: sk, KeyType: RANGE }]
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
       TimeToLiveSpecification: { AttributeName: ttl, Enabled: true }
       SSESpecification: { SSEEnabled: true }
   HttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
       CorsConfiguration:
-        {
-          AllowOrigins: [!Ref FrontendOrigin],
-          AllowHeaders: [authorization, content-type],
-          AllowMethods: [POST],
-        }
+        AllowOrigins: [!Ref FrontendOrigin]
+        AllowHeaders: [authorization, content-type]
+        AllowMethods: [POST]
+      Auth:
+        Authorizers:
+          HostJwt:
+            JwtConfiguration:
+              audience: [!Ref HostPoolClient]
+              issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${HostPool}
+            IdentitySource: "$request.header.Authorization"
   WebSocketApi:
     Type: AWS::ApiGatewayV2::Api
     Properties:
-      {
-        Name: therapy-studio-live-sessions,
-        ProtocolType: WEBSOCKET,
-        RouteSelectionExpression: "$request.body.type",
-      }
+      Name: therapy-studio-live-sessions
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: "$request.body.type"
   RoomHandler:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: src/aws.handler
+      # Package from repository root so Lambda uses the exact shared protocol and
+      # Whiteboard allowlist as the React client; it is not a parallel server model.
+      CodeUri: ../
+      Handler: live-service/src/aws.handler
       Runtime: nodejs22.x
       Timeout: 10
       Environment:
         Variables:
           { ROOMS_TABLE: !Ref Rooms, TOKEN_SIGNING_SECRET: !Ref TokenSigningSecret }
       Policies:
-        - DynamoDBCrudPolicy: { TableName: !Ref Rooms }
         - Statement:
             - Effect: Allow
+              Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:DeleteItem]
+              Resource: !GetAtt Rooms.Arn
+            - Effect: Allow
               Action: [execute-api:ManageConnections]
-              Resource: "*"
+              Resource: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*
+      Events:
+        CreateRoom:
+          Type: HttpApi
+          Properties:
+            {
+              ApiId: !Ref HttpApi,
+              Path: "/live-sessions",
+              Method: POST,
+              Auth: { Authorizer: HostJwt },
+            }
+        HostToken:
+          Type: HttpApi
+          Properties:
+            {
+              ApiId: !Ref HttpApi,
+              Path: "/live-sessions/{id}/host-token",
+              Method: POST,
+              Auth: { Authorizer: HostJwt },
+            }
+        EndRoom:
+          Type: HttpApi
+          Properties:
+            {
+              ApiId: !Ref HttpApi,
+              Path: "/live-sessions/{id}/end",
+              Method: POST,
+              Auth: { Authorizer: HostJwt },
+            }
+        JoinRoom:
+          Type: HttpApi
+          Properties:
+            { ApiId: !Ref HttpApi, Path: "/live-sessions/{id}/join", Method: POST }
+  WebSocketIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationMethod: POST
+      IntegrationUri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RoomHandler.Arn}/invocations
+  WebSocketConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      {
+        ApiId: !Ref WebSocketApi,
+        RouteKey: $connect,
+        AuthorizationType: NONE,
+        Target: !Join [/, [integrations, !Ref WebSocketIntegration]],
+      }
+  WebSocketDisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      {
+        ApiId: !Ref WebSocketApi,
+        RouteKey: $disconnect,
+        Target: !Join [/, [integrations, !Ref WebSocketIntegration]],
+      }
+  WebSocketDefaultRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      {
+        ApiId: !Ref WebSocketApi,
+        RouteKey: $default,
+        Target: !Join [/, [integrations, !Ref WebSocketIntegration]],
+      }
+  WebSocketPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      {
+        Action: lambda:InvokeFunction,
+        FunctionName: !Ref RoomHandler,
+        Principal: apigateway.amazonaws.com,
+      }
+  WebSocketDeployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn: [WebSocketConnectRoute, WebSocketDisconnectRoute, WebSocketDefaultRoute]
+    Properties: { ApiId: !Ref WebSocketApi }
+  WebSocketStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      {
+        ApiId: !Ref WebSocketApi,
+        DeploymentId: !Ref WebSocketDeployment,
+        StageName: dev,
+        AutoDeploy: false,
+      }
 
-# HTTP and WebSocket route integrations are intentionally documented in README.md.
-# Complete the Cognito authorizer and API Gateway route wiring in a non-PHI AWS account;
-# no deployment is performed by this repository.
+Outputs:
+  HttpApiOrigin:
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"
+    Description: Set as VITE_LIVE_SESSION_ORIGIN.
+  WebSocketOrigin:
+    Value: !Sub "wss://${WebSocketApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/dev"
+    Description: Set as VITE_LIVE_SESSION_WS_ORIGIN.
+  UserPoolId: { Value: !Ref HostPool }
+  UserPoolClientId: { Value: !Ref HostPoolClient }
+  CognitoHostedUiBase:
+    Value: !Sub "https://${CognitoDomainPrefix}.auth.${AWS::Region}.amazoncognito.com"
