@@ -34,6 +34,26 @@ and blank Whiteboards may all open into a session canvas, while their source doc
 and persistence remain separate. Template authoring/import, Universal Search exposure,
 Worksheet embedding, and remote child-device collaboration are deferred.
 
+## Local Live Session Foundation
+
+**Invite Child** currently creates a local-development participant URL for same-origin,
+two-tab testing only. It does not provide cross-device or internet collaboration and does
+not authenticate a therapist or child. The child route is isolated from the regular
+Therapy Studio shell and exposes no local saved-board, Resource Memory, library, Settings,
+or backup controls.
+
+The Whiteboard Live Session adapter shares a validated allowlist: strokes, text, shapes,
+arrows, curated SVG semantic IDs, and their normal geometry. It never shares imported
+PDF/image media, `localMediaAssets` IDs, binary content, filesystem paths, Save/Open/New
+state, local selection, undo/redo history, active tools, zoom/pan, or therapist data.
+If a host board contains a local imported image, it remains local and a warning explains
+that it is not sent to the participant.
+
+Phase 1B will replace the local transport with an authenticated internet room transport.
+That milestone must establish therapist authentication, short-lived participant join
+tokens, host authority, server-side expiry, and secure cross-device media policy before
+it can be described as production collaboration.
+
 ## Activity Import
 
 **Add Activity** accepts local PDF, JPEG, PNG, and WebP files without uploading them.

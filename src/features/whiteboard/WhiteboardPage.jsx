@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { Redo2, RotateCcw, Save, Trash2, Undo2, ZoomIn, ZoomOut } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   addWhiteboardObject,
@@ -20,10 +20,17 @@ import { sessionCanvasTemplates } from "../../data/sessionCanvasTemplates";
 import { localMediaRepository, whiteboardRepository } from "../../lib/data";
 import { createBlankWhiteboardDocument, whiteboardDocumentSchema } from "../../models";
 import { IconBrowserField } from "../icons";
+import LiveSessionPanel from "../live-sessions/LiveSessionPanel";
+import { useLiveSession } from "../live-sessions/useLiveSession";
+import { createLiveSession } from "../../models/liveSession";
 import WhiteboardCanvas from "./WhiteboardCanvas";
 import ActivityImportPanel from "./ActivityImportPanel";
 import SessionCanvasStartPanel from "./SessionCanvasStartPanel";
 import { createWhiteboardCollaborationAdapter } from "./whiteboardCollaborationAdapter";
+import {
+  projectWhiteboardForLiveSession,
+  whiteboardLiveSessionAdapter,
+} from "./whiteboardLiveSessionAdapter";
 import WhiteboardToolbar from "./WhiteboardToolbar";
 import "./WhiteboardPage.css";
 
@@ -56,6 +63,7 @@ function moveObject(object, dx, dy) {
 export default function WhiteboardPage({
   collaborationFactory = createWhiteboardCollaborationAdapter,
   createId = () => nanoid(),
+  liveSession: suppliedLiveSession = null,
   repository = whiteboardRepository,
   mediaRepository = localMediaRepository,
 }) {
@@ -76,10 +84,14 @@ export default function WhiteboardPage({
   const [message, setMessage] = useState("");
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [hostLiveSession, setHostLiveSession] = useState(null);
   const adapterRef = useRef(null);
   const participantId = useRef(createId());
   const temporaryAssetIds = useRef(new Set());
   const document = history.present;
+  const documentRef = useRef(document);
+  const activeLiveSession = suppliedLiveSession ?? hostLiveSession;
+  const participantMode = activeLiveSession?.role === "participant";
   const selected = useMemo(
     () => document.objects.find(({ id }) => id === selectedId),
     [document.objects, selectedId]
@@ -90,6 +102,31 @@ export default function WhiteboardPage({
   );
 
   useEffect(() => {
+    documentRef.current = document;
+  }, [document]);
+
+  const applyRemoteSharedState = useCallback((sharedState) => {
+    const current = documentRef.current;
+    setHistory(
+      createHistory({
+        ...current,
+        objects: sharedState.objects,
+      })
+    );
+  }, []);
+
+  const live = useLiveSession({
+    adapter: whiteboardLiveSessionAdapter,
+    onRemoteState: applyRemoteSharedState,
+    role: activeLiveSession?.role,
+    sessionId: activeLiveSession?.sessionId,
+    sharedState: projectWhiteboardForLiveSession(document),
+  });
+
+  const liveEnded = Boolean(activeLiveSession && live.status === "ended");
+
+  useEffect(() => {
+    if (activeLiveSession) return undefined;
     const adapter = collaborationFactory({
       boardId: document.id,
       participantId: participantId.current,
@@ -100,11 +137,13 @@ export default function WhiteboardPage({
     });
     adapterRef.current = adapter;
     return () => adapter.close();
-  }, [collaborationFactory, document.id]);
+  }, [activeLiveSession, collaborationFactory, document.id]);
 
   function commit(next) {
+    if (liveEnded) return;
     setHistory((current) => commitHistory(current, next));
-    adapterRef.current?.publish(next);
+    if (activeLiveSession) live.publishState(projectWhiteboardForLiveSession(next));
+    else adapterRef.current?.publish(next);
   }
 
   function point(event) {
@@ -117,6 +156,7 @@ export default function WhiteboardPage({
   }
 
   function canvasPointerDown(event) {
+    if (liveEnded) return;
     const location = point(event);
     if (tool === "draw") {
       setDraftObject({
@@ -152,6 +192,7 @@ export default function WhiteboardPage({
   }
 
   function pointerMove(event) {
+    if (liveEnded) return;
     const location = point(event);
     if (draftObject?.kind === "stroke") {
       setDraftObject((current) => ({
@@ -217,6 +258,7 @@ export default function WhiteboardPage({
   }
 
   function pointerUp() {
+    if (liveEnded) return;
     if (draftObject) {
       const valid = draftObject.kind !== "stroke" || draftObject.points.length > 1;
       if (valid) {
@@ -225,17 +267,23 @@ export default function WhiteboardPage({
       }
       setDraftObject(null);
     } else if (["move", "resize"].includes(gesture?.type)) {
-      setHistory((current) => ({
-        past: [...current.past, gesture.document],
-        present: current.present,
-        future: [],
-      }));
-      adapterRef.current?.publish(history.present);
+      setHistory((current) => {
+        const next = {
+          past: [...current.past, gesture.document],
+          present: current.present,
+          future: [],
+        };
+        if (activeLiveSession)
+          live.publishState(projectWhiteboardForLiveSession(next.present));
+        else adapterRef.current?.publish(next.present);
+        return next;
+      });
     }
     setGesture(null);
   }
 
   function objectPointerDown(event, object) {
+    if (liveEnded) return;
     if (tool === "erase") {
       event.stopPropagation();
       commit(deleteWhiteboardObject(document, object.id));
@@ -382,6 +430,39 @@ export default function WhiteboardPage({
     commit(updateWhiteboardObject(document, selected.id, changes));
   }
 
+  function createLocalLiveSession() {
+    const created = createLiveSession({
+      activityKind: "whiteboard",
+      expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+      id: createId(),
+    });
+    const origin = window.location.origin;
+    setHostLiveSession({
+      ...created,
+      participantUrl: `${origin}/join/${encodeURIComponent(created.id)}`,
+      role: "host",
+      sessionId: created.id,
+    });
+    setShowStarters(false);
+    setMessage("Local Live Session ready. Open the participant link in another tab.");
+  }
+
+  async function copyParticipantLink() {
+    try {
+      await navigator.clipboard?.writeText(hostLiveSession.participantUrl);
+      setMessage("Local participant link copied.");
+    } catch {
+      setMessage("Copy the local participant link shown in the Live Session panel.");
+    }
+  }
+
+  function endLocalLiveSession() {
+    live.endSession();
+    setHostLiveSession((current) =>
+      current ? { ...current, status: "ended" } : current
+    );
+  }
+
   const selectedStyleKind = selected?.kind;
   const styleVisible =
     ["draw", "rectangle", "ellipse", "arrow", "text"].includes(tool) || selected;
@@ -410,64 +491,92 @@ export default function WhiteboardPage({
     <main className="whiteboard-page">
       <header className="whiteboard-header">
         <div>
-          <p className="eyebrow">Creative Workspace</p>
-          <h1>Whiteboard</h1>
+          <p className="eyebrow">
+            {participantMode ? "Live Activity" : "Creative Workspace"}
+          </p>
+          <h1>{participantMode ? "Whiteboard Session" : "Whiteboard"}</h1>
         </div>
-        <div className="whiteboard-document-controls">
-          <label>
-            Title{" "}
-            <input
-              aria-label="Whiteboard title"
-              onChange={(event) => commit({ ...document, title: event.target.value })}
-              value={document.title}
-            />
-          </label>
-          <button onClick={() => setShowStarters(true)} type="button">
-            Start With…
-          </button>
-          {background ? (
+        {participantMode ? (
+          <p aria-live="polite" className="whiteboard-live-status">
+            {live.status === "ended"
+              ? "Session ended"
+              : live.status === "connected"
+                ? "Connected"
+                : "Connecting to session…"}
+          </p>
+        ) : (
+          <div className="whiteboard-document-controls">
+            <label>
+              Title{" "}
+              <input
+                aria-label="Whiteboard title"
+                onChange={(event) => commit({ ...document, title: event.target.value })}
+                value={document.title}
+              />
+            </label>
+            <button onClick={() => setShowStarters(true)} type="button">
+              Start With…
+            </button>
+            {background ? (
+              <button
+                onClick={() => {
+                  commit(
+                    updateWhiteboardObject(document, background.id, {
+                      locked: !background.locked,
+                    })
+                  );
+                  setSelectedId(background.locked ? background.id : null);
+                }}
+                type="button"
+              >
+                {background.locked ? "Unlock Background" : "Lock Background"}
+              </button>
+            ) : null}
+            {background ? (
+              <button onClick={resetMarks} type="button">
+                Reset Marks
+              </button>
+            ) : null}
+            <button onClick={() => void save()} type="button">
+              <Save aria-hidden="true" size={17} /> Save
+            </button>
             <button
               onClick={() => {
-                commit(
-                  updateWhiteboardObject(document, background.id, {
-                    locked: !background.locked,
-                  })
-                );
-                setSelectedId(background.locked ? background.id : null);
+                void refreshSaved();
+                setShowOpen(true);
               }}
               type="button"
             >
-              {background.locked ? "Unlock Background" : "Lock Background"}
+              Open
             </button>
-          ) : null}
-          {background ? (
-            <button onClick={resetMarks} type="button">
-              Reset Marks
+            <button onClick={startNew} type="button">
+              <RotateCcw aria-hidden="true" size={17} /> New
             </button>
-          ) : null}
-          <button onClick={() => void save()} type="button">
-            <Save aria-hidden="true" size={17} /> Save
-          </button>
-          <button
-            onClick={() => {
-              void refreshSaved();
-              setShowOpen(true);
-            }}
-            type="button"
-          >
-            Open
-          </button>
-          <button onClick={startNew} type="button">
-            <RotateCcw aria-hidden="true" size={17} /> New
-          </button>
-        </div>
+          </div>
+        )}
       </header>
 
-      {showStarters ? (
+      {!participantMode ? (
+        <LiveSessionPanel
+          onCopy={() => void copyParticipantLink()}
+          onCreate={createLocalLiveSession}
+          onEnd={endLocalLiveSession}
+          participantState={live.participantState}
+          session={hostLiveSession}
+        />
+      ) : null}
+
+      {activeLiveSession && document.objects.some(({ kind }) => kind === "image") ? (
+        <p className="whiteboard-live-media-warning" role="status">
+          Imported local images stay on this device and are not shared in a Live Session.
+        </p>
+      ) : null}
+
+      {showStarters && !activeLiveSession ? (
         <SessionCanvasStartPanel onUse={useTemplate} templates={sessionCanvasTemplates} />
       ) : null}
 
-      {showActivityImport ? (
+      {showActivityImport && !activeLiveSession ? (
         <ActivityImportPanel
           onCancel={() => setShowActivityImport(false)}
           onImport={importActivity}
@@ -476,9 +585,11 @@ export default function WhiteboardPage({
 
       <section className="whiteboard-workspace">
         <WhiteboardToolbar
+          disabled={liveEnded}
           onShowActivity={() => setShowActivityImport(true)}
           onShowIcons={() => setShowIcons(true)}
           onToolChange={setTool}
+          participantMode={participantMode}
           tool={tool}
         />
         {styleVisible ? (
@@ -663,7 +774,7 @@ export default function WhiteboardPage({
             />
           </div>
         ) : null}
-        {showOpen ? (
+        {showOpen && !participantMode ? (
           <section aria-label="Saved Whiteboards" className="whiteboard-open-panel">
             <div>
               <h2>Saved Whiteboards</h2>
@@ -702,6 +813,7 @@ export default function WhiteboardPage({
             onPointerMove={pointerMove}
             onPointerUp={pointerUp}
             onResizePointerDown={(event, object) => {
+              if (liveEnded) return;
               event.stopPropagation();
               setGesture({ type: "resize", document, object, start: point(event) });
             }}
@@ -716,60 +828,68 @@ export default function WhiteboardPage({
             zoom={zoom}
             mediaRepository={mediaRepository}
           />
-          <div
-            aria-label="History and zoom controls"
-            className="whiteboard-corner-controls"
-          >
+          {!participantMode ? (
+            <div
+              aria-label="History and zoom controls"
+              className="whiteboard-corner-controls"
+            >
+              <button
+                aria-label="Undo"
+                disabled={!history.past.length}
+                onClick={() => {
+                  const next = undoHistory(history);
+                  setHistory(next);
+                  if (activeLiveSession)
+                    live.publishState(projectWhiteboardForLiveSession(next.present));
+                  else adapterRef.current?.publish(next.present);
+                }}
+                type="button"
+              >
+                <Undo2 aria-hidden="true" size={17} />
+              </button>
+              <button
+                aria-label="Redo"
+                disabled={!history.future.length}
+                onClick={() => {
+                  const next = redoHistory(history);
+                  setHistory(next);
+                  if (activeLiveSession)
+                    live.publishState(projectWhiteboardForLiveSession(next.present));
+                  else adapterRef.current?.publish(next.present);
+                }}
+                type="button"
+              >
+                <Redo2 aria-hidden="true" size={17} />
+              </button>
+              <button
+                aria-label="Zoom out"
+                onClick={() => setZoom((value) => Math.max(0.5, value - 0.1))}
+                type="button"
+              >
+                <ZoomOut aria-hidden="true" size={17} />
+              </button>
+              <output aria-label="Zoom percentage">{Math.round(zoom * 100)}%</output>
+              <button
+                aria-label="Zoom in"
+                onClick={() => setZoom((value) => Math.min(2, value + 0.1))}
+                type="button"
+              >
+                <ZoomIn aria-hidden="true" size={17} />
+              </button>
+            </div>
+          ) : null}
+          {!participantMode ? (
             <button
-              aria-label="Undo"
-              disabled={!history.past.length}
+              className="whiteboard-clear"
               onClick={() => {
-                const next = undoHistory(history);
-                setHistory(next);
-                adapterRef.current?.publish(next.present);
+                if (window.confirm("Clear the entire Whiteboard?"))
+                  commit(clearWhiteboard(document));
               }}
               type="button"
             >
-              <Undo2 aria-hidden="true" size={17} />
+              <Trash2 aria-hidden="true" size={17} /> Clear Board
             </button>
-            <button
-              aria-label="Redo"
-              disabled={!history.future.length}
-              onClick={() => {
-                const next = redoHistory(history);
-                setHistory(next);
-                adapterRef.current?.publish(next.present);
-              }}
-              type="button"
-            >
-              <Redo2 aria-hidden="true" size={17} />
-            </button>
-            <button
-              aria-label="Zoom out"
-              onClick={() => setZoom((value) => Math.max(0.5, value - 0.1))}
-              type="button"
-            >
-              <ZoomOut aria-hidden="true" size={17} />
-            </button>
-            <output aria-label="Zoom percentage">{Math.round(zoom * 100)}%</output>
-            <button
-              aria-label="Zoom in"
-              onClick={() => setZoom((value) => Math.min(2, value + 0.1))}
-              type="button"
-            >
-              <ZoomIn aria-hidden="true" size={17} />
-            </button>
-          </div>
-          <button
-            className="whiteboard-clear"
-            onClick={() => {
-              if (window.confirm("Clear the entire Whiteboard?"))
-                commit(clearWhiteboard(document));
-            }}
-            type="button"
-          >
-            <Trash2 aria-hidden="true" size={17} /> Clear Board
-          </button>
+          ) : null}
         </div>
       </section>
       <p className="whiteboard-sharing-note">

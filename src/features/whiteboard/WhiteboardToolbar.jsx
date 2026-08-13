@@ -25,17 +25,23 @@ const tools = [
 ];
 
 export default function WhiteboardToolbar({
+  disabled = false,
   onShowActivity,
   onShowIcons,
   onToolChange,
+  participantMode = false,
   tool,
 }) {
+  const availableTools = participantMode
+    ? tools.filter(([value]) => value !== "activity" && value !== "pan")
+    : tools;
   return (
     <div aria-label="Whiteboard tools" className="whiteboard-toolbar" role="toolbar">
-      {tools.map(([value, label, Icon]) => (
+      {availableTools.map(([value, label, Icon]) => (
         <button
           aria-label={label}
           aria-pressed={tool === value}
+          disabled={disabled}
           key={value}
           onClick={() => {
             if (value === "visual") onShowIcons();

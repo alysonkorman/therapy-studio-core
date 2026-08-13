@@ -356,6 +356,59 @@
   font-size: var(--meta-size);
 }
 
+.whiteboard-live-session-button,
+.whiteboard-live-session-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.whiteboard-live-session-button {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-1);
+  justify-self: end;
+  padding: var(--space-2) var(--space-3);
+}
+
+.whiteboard-live-session-panel {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-2);
+}
+
+.whiteboard-live-session-panel > div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.whiteboard-live-session-panel span,
+.whiteboard-live-session-panel p,
+.whiteboard-live-media-warning,
+.whiteboard-live-status {
+  color: var(--text-muted);
+  font-size: var(--meta-size);
+  margin: 0;
+}
+
+.whiteboard-live-session-panel code {
+  background: var(--surface-soft);
+  border-radius: var(--radius-sm);
+  max-width: min(34rem, 100%);
+  overflow-wrap: anywhere;
+  padding: var(--space-1);
+}
+
+.whiteboard-live-session-panel__end {
+  color: #8f2f3b;
+}
+
+.whiteboard-live-session-panel p {
+  flex-basis: 100%;
+}
+
 @media (max-width: 60rem) {
   .session-canvas-start__grid {
     grid-template-columns: 1fr;

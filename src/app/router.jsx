@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import ClientsPage from "../features/clients/ClientsPage";
+import LiveSessionParticipantPage from "../features/live-sessions/LiveSessionParticipantPage";
 import DashboardPage from "../features/dashboard/DashboardPage";
 import GamesPage from "../features/games/GamesPage";
 import TriviaGamePage from "../features/games/TriviaGamePage";
@@ -37,6 +38,11 @@ function workspaceLabRoute() {
 
 export function createAppRoutes({ enableWorkspaceLab = import.meta.env.DEV } = {}) {
   return [
+    {
+      path: "/join/:sessionId",
+      element: <LiveSessionParticipantPage />,
+      errorElement: <ErrorFallback />,
+    },
     {
       path: "/",
       element: <AppLayout />,

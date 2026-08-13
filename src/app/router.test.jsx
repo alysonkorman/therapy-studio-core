@@ -19,6 +19,7 @@ const paths = [
   "/worksheets/example-worksheet/session",
   "/workbooks",
   "/whiteboard",
+  "/join/local-session",
   "/scene-builder",
   "/workspace-lab",
   "/clients",
@@ -48,5 +49,12 @@ describe("application routes", () => {
     const matches = matchRoutes(productionRoutes, "/workspace-lab");
 
     expect(matches?.at(-1)?.route.path).toBe("*");
+  });
+
+  it("keeps participant sessions outside the therapist application shell route", () => {
+    const matches = matchRoutes(appRoutes, "/join/local-session");
+
+    expect(matches).toHaveLength(1);
+    expect(matches?.[0].route.path).toBe("/join/:sessionId");
   });
 });

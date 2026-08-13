@@ -54,3 +54,10 @@ export {
   THERAPY_STUDIO_BACKUP_VERSION,
 } from "./backup";
 export { sessionCanvasTemplateSchema } from "./sessionCanvasTemplate";
+export {
+  createLiveSession,
+  liveSessionActivityKindSchema,
+  liveSessionRoleSchema,
+  liveSessionSchema,
+  liveSessionStatusSchema,
+} from "./liveSession";

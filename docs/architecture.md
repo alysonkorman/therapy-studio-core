@@ -313,6 +313,31 @@ not remote collaboration: internet-connected sessions still require a future bac
 transport. Resource Memory and other therapist-private data are not mounted inside the
 Whiteboard workspace.
 
+## Live Sessions Foundation (Phase 1A)
+
+Live Sessions introduces a transport-neutral client boundary for future host-and-child
+telehealth activities. The versioned Live Session model intentionally contains only a
+session ID, activity kind, lifecycle status, revision, and expiry metadata. It never
+contains child identity, Session Profile data, Resource Memory, therapist notes, or
+transport credentials.
+
+Each activity supplies a small adapter that owns its own shared-state schema and action
+validation. The first adapter is Whiteboard: it projects only validated strokes, text,
+shapes, arrows, and semantic SVG IDs. Imported image objects and their local media asset
+references are excluded. Selection, tool, history, persistence, zoom, pan, imports, and
+therapist UI remain local.
+
+The Phase 1A `BroadcastChannel` transport is strictly a same-origin development harness.
+It supplies local presence, snapshot bootstrap, revision handling, reconnect testing, and
+end-session behavior, but is not internet networking. A future authenticated room
+transport will be responsible for host authorization, short-lived participant tokens,
+authoritative revisions, expiry, and cross-device delivery.
+
+Participant links use a dedicated `/join/:sessionId` route outside `AppLayout`. That
+surface mounts only minimal Therapy Studio identity, connection state, and the permitted
+activity UI; it does not mount navigation, libraries, Settings, backups, Session Profiles,
+Resource Memory, Save/Open/New, or canonical Resource metadata.
+
 ## Intervention Architecture
 
 The Intervention Library is built on the canonical Resource model.
