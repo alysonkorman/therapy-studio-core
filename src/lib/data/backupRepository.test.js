@@ -211,6 +211,16 @@ async function seed(database) {
   await database.table("worksheetDocuments").add(data.document);
   await database.table("interventionGuidance").add(data.guidance);
   await database.table("whiteboardDocuments").add(data.whiteboard);
+  await database.table("localMediaAssets").add({
+    id: "activity-asset",
+    mimeType: "image/png",
+    width: 640,
+    height: 480,
+    size: 4,
+    accessibilityLabel: "Maze activity",
+    createdAt: timestamp,
+    data: new Uint8Array([1, 2, 3, 4]).buffer,
+  });
   return data;
 }
 
@@ -242,6 +252,10 @@ describe("backup repository", () => {
     expect(backup.data.worksheetDocuments[0]).toEqual(data.document);
     expect(backup.data.interventionGuidance[0]).toEqual(data.guidance);
     expect(backup.data.whiteboardDocuments[0]).toEqual(data.whiteboard);
+    expect(backup.data.localMediaAssets[0]).toMatchObject({
+      id: "activity-asset",
+      dataBase64: "AQIDBA==",
+    });
     expect(backup.data.playlists[0].items[0].deckId).toBe(data.deck.id);
   });
 
@@ -283,6 +297,9 @@ describe("backup repository", () => {
     expect(await destination.table("whiteboardDocuments").get("whiteboard-1")).toEqual(
       backup.data.whiteboardDocuments[0]
     );
+    const media = await destination.table("localMediaAssets").get("activity-asset");
+    expect(media).toMatchObject({ mimeType: "image/png", width: 640, height: 480 });
+    expect([...new Uint8Array(media.data)]).toEqual([1, 2, 3, 4]);
   });
 
   it("exports and restores therapist-created Worksheet templates", async () => {

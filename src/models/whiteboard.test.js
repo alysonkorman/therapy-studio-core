@@ -89,4 +89,38 @@ describe("Whiteboard document model", () => {
     ).not.toThrow();
     expect(document.documentVersion).toBe(1);
   });
+
+  it("accepts asset-referenced images and optional arrow labels without binary data", () => {
+    const document = whiteboardDocumentSchema.parse({
+      ...createBlankWhiteboardDocument({ id: "board", now }),
+      objects: [
+        {
+          id: "activity",
+          kind: "image",
+          assetId: "local-asset",
+          x: 0,
+          y: 16,
+          width: 1000,
+          height: 668,
+          locked: true,
+          background: true,
+          accessibilityLabel: "Maze",
+        },
+        {
+          id: "arrow",
+          kind: "arrow",
+          x1: 20,
+          y1: 30,
+          x2: 200,
+          y2: 120,
+          strokeColor: "#67529D",
+          strokeWidth: 4,
+          label: "Start here",
+        },
+      ],
+    });
+    expect(document.objects[0]).toMatchObject({ assetId: "local-asset" });
+    expect(document.objects[0]).not.toHaveProperty("blob");
+    expect(document.objects[1]).toMatchObject({ label: "Start here" });
+  });
 });

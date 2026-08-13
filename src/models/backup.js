@@ -13,6 +13,7 @@ export const therapyStudioBackupDataSchema = z
     worksheetDocuments: z.array(z.unknown()),
     interventionGuidance: z.array(z.unknown()).default([]),
     whiteboardDocuments: z.array(z.unknown()).default([]),
+    localMediaAssets: z.array(z.unknown()).default([]),
   })
   .strict();
 

@@ -15,6 +15,7 @@ import {
   THERAPY_STUDIO_VERSION_6_SCHEMA,
   THERAPY_STUDIO_VERSION_7_SCHEMA,
   THERAPY_STUDIO_VERSION_8_SCHEMA,
+  THERAPY_STUDIO_VERSION_9_SCHEMA,
 } from "./database";
 
 const databases = [];
@@ -43,7 +44,7 @@ describe("Therapy Studio database", () => {
     expect(THERAPY_STUDIO_DATABASE_NAME).toBe("therapy-studio");
     expect(THERAPY_STUDIO_DATABASE_VERSION).toBe(1);
     expect(THERAPY_STUDIO_VERSION_1_SCHEMA).toEqual({ resources: "id" });
-    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(8);
+    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(9);
     expect(THERAPY_STUDIO_VERSION_2_SCHEMA).toEqual({
       resources: "id",
       categories: "id",
@@ -62,16 +63,18 @@ describe("Therapy Studio database", () => {
     expect(THERAPY_STUDIO_VERSION_6_SCHEMA.sceneDocuments).toBe("id, updatedAt");
     expect(THERAPY_STUDIO_VERSION_7_SCHEMA.interventionGuidance).toBe("resourceId");
     expect(THERAPY_STUDIO_VERSION_8_SCHEMA.whiteboardDocuments).toBe("id, updatedAt");
+    expect(THERAPY_STUDIO_VERSION_9_SCHEMA.localMediaAssets).toBe("id, createdAt");
   });
 
-  it("initializes version 8 with additive Whiteboard documents", async () => {
+  it("initializes version 9 with additive local media assets", async () => {
     const database = createTestDatabase();
     await database.open();
 
-    expect(database.verno).toBe(8);
+    expect(database.verno).toBe(9);
     expect(database.tables.map((table) => table.name).sort()).toEqual([
       "categories",
       "interventionGuidance",
+      "localMediaAssets",
       "playlists",
       "resourceMemory",
       "resources",
@@ -82,6 +85,23 @@ describe("Therapy Studio database", () => {
     ]);
     expect(database.table("resources").schema.primKey.name).toBe("id");
     expect(database.table("resources").schema.indexes).toEqual([]);
+  });
+
+  it("preserves version-8 Whiteboards during the local-media migration", async () => {
+    const name = `therapy-studio-test-${crypto.randomUUID()}`;
+    const versionEight = new Dexie(name, { indexedDB, IDBKeyRange });
+    versionEight.version(8).stores(THERAPY_STUDIO_VERSION_8_SCHEMA);
+    await versionEight.table("whiteboardDocuments").put({
+      id: "whiteboard",
+      title: "Kept",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+    });
+    versionEight.close();
+    const migrated = createTherapyStudioDatabase({ name, indexedDB, IDBKeyRange });
+    databases.push(migrated);
+    await migrated.open();
+    expect(await migrated.table("whiteboardDocuments").get("whiteboard")).toBeTruthy();
+    expect(await migrated.table("localMediaAssets").count()).toBe(0);
   });
 
   it("preserves version-7 data during the Whiteboard migration", async () => {

@@ -16,6 +16,7 @@ import {
   worksheetSchema,
   whiteboardDocumentSchema,
 } from "../../models";
+import { localMediaBackupAssetSchema } from "../../models/localMediaAsset";
 import {
   getTherapyStudioDatabase,
   THERAPY_STUDIO_DATABASE_LATEST_VERSION,
@@ -30,7 +31,21 @@ const tableNames = [
   "worksheetDocuments",
   "interventionGuidance",
   "whiteboardDocuments",
+  "localMediaAssets",
 ];
+
+function bytesToBase64(data) {
+  const bytes = new Uint8Array(data);
+  let binary = "";
+  bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
+  return btoa(binary);
+}
+
+function base64ToBlob(dataBase64, mimeType) {
+  const binary = atob(dataBase64);
+  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  return new Blob([bytes], { type: mimeType });
+}
 
 export const backupErrorCodes = Object.freeze({
   invalidJson: "invalid-json",
@@ -200,6 +215,9 @@ export function validateBackup(input) {
     whiteboardDocuments: envelope.data.whiteboardDocuments.map((record) =>
       parseStrict(whiteboardDocumentSchema, record, "Whiteboard document")
     ),
+    localMediaAssets: envelope.data.localMediaAssets.map((record) =>
+      parseStrict(localMediaBackupAssetSchema, record, "local media asset")
+    ),
   };
 
   assertUnique(data.resources, "id", "Resources");
@@ -210,6 +228,7 @@ export function validateBackup(input) {
   assertUnique(data.worksheetDocuments, "worksheetId", "Worksheet documents");
   assertUnique(data.interventionGuidance, "resourceId", "Intervention guidance");
   assertUnique(data.whiteboardDocuments, "id", "Whiteboard documents");
+  assertUnique(data.localMediaAssets, "id", "local media assets");
   validateWorksheetPairs(data);
   validateInterventionPairs(data);
 
@@ -224,6 +243,7 @@ export function validateBackup(input) {
       worksheetDocuments: sorted(data.worksheetDocuments, "worksheetId"),
       interventionGuidance: sorted(data.interventionGuidance, "resourceId"),
       whiteboardDocuments: sorted(data.whiteboardDocuments, "id"),
+      localMediaAssets: sorted(data.localMediaAssets, "id"),
     },
   };
 }
@@ -274,12 +294,21 @@ export function createBackupRepository({
       const values = await database.transaction("r", tables(), () =>
         Promise.all(tables().map((table) => table.toArray()))
       );
+      const data = Object.fromEntries(
+        tableNames.map((name, index) => [name, values[index]])
+      );
+      data.localMediaAssets = await Promise.all(
+        data.localMediaAssets.map(async ({ data: bytes, ...metadata }) => ({
+          ...metadata,
+          dataBase64: bytesToBase64(bytes),
+        }))
+      );
       return validateBackup({
         format: THERAPY_STUDIO_BACKUP_FORMAT,
         version: THERAPY_STUDIO_BACKUP_VERSION,
         exportedAt: now(),
         databaseVersion: THERAPY_STUDIO_DATABASE_LATEST_VERSION,
-        data: Object.fromEntries(tableNames.map((name, index) => [name, values[index]])),
+        data,
       });
     } catch (error) {
       if (error instanceof BackupRepositoryError) throw error;
@@ -299,7 +328,19 @@ export function createBackupRepository({
         for (const table of tables()) await table.clear();
         for (const name of tableNames) {
           if (backup.data[name].length) {
-            await database.table(name).bulkAdd(backup.data[name]);
+            const records =
+              name === "localMediaAssets"
+                ? await Promise.all(
+                    backup.data[name].map(async ({ dataBase64, ...metadata }) => ({
+                      ...metadata,
+                      data: await base64ToBlob(
+                        dataBase64,
+                        metadata.mimeType
+                      ).arrayBuffer(),
+                    }))
+                  )
+                : backup.data[name];
+            await database.table(name).bulkAdd(records);
           }
         }
       });

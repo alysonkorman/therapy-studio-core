@@ -9,15 +9,19 @@ import {
   createHistory,
   deleteWhiteboardObject,
   redoHistory,
+  resetWhiteboardMarks,
+  setWhiteboardImageBackground,
   undoHistory,
   updateWhiteboardObject,
 } from "../../engines/whiteboard/whiteboardOperations";
 import { instantiateSessionCanvasTemplate } from "../../engines/whiteboard/sessionCanvasTemplates";
+import { fitActivity } from "../../engines/whiteboard/activityImport";
 import { sessionCanvasTemplates } from "../../data/sessionCanvasTemplates";
-import { whiteboardRepository } from "../../lib/data";
+import { localMediaRepository, whiteboardRepository } from "../../lib/data";
 import { createBlankWhiteboardDocument, whiteboardDocumentSchema } from "../../models";
 import { IconBrowserField } from "../icons";
 import WhiteboardCanvas from "./WhiteboardCanvas";
+import ActivityImportPanel from "./ActivityImportPanel";
 import SessionCanvasStartPanel from "./SessionCanvasStartPanel";
 import { createWhiteboardCollaborationAdapter } from "./whiteboardCollaborationAdapter";
 import WhiteboardToolbar from "./WhiteboardToolbar";
@@ -53,6 +57,7 @@ export default function WhiteboardPage({
   collaborationFactory = createWhiteboardCollaborationAdapter,
   createId = () => nanoid(),
   repository = whiteboardRepository,
+  mediaRepository = localMediaRepository,
 }) {
   const [history, setHistory] = useState(() => createHistory(blank(createId)));
   const [tool, setTool] = useState("select");
@@ -67,15 +72,21 @@ export default function WhiteboardPage({
   const [showOpen, setShowOpen] = useState(false);
   const [showIcons, setShowIcons] = useState(false);
   const [showStarters, setShowStarters] = useState(true);
+  const [showActivityImport, setShowActivityImport] = useState(false);
   const [message, setMessage] = useState("");
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const adapterRef = useRef(null);
   const participantId = useRef(createId());
+  const temporaryAssetIds = useRef(new Set());
   const document = history.present;
   const selected = useMemo(
     () => document.objects.find(({ id }) => id === selectedId),
     [document.objects, selectedId]
+  );
+  const background = useMemo(
+    () => document.objects.find(({ kind, background }) => kind === "image" && background),
+    [document.objects]
   );
 
   useEffect(() => {
@@ -183,10 +194,16 @@ export default function WhiteboardPage({
                   Math.min(96, object.size + location.x - gesture.start.x)
                 ),
               }
-            : {
-                width: Math.max(32, location.x - object.x),
-                height: Math.max(32, location.y - object.y),
-              };
+            : object.kind === "image"
+              ? {
+                  width: Math.max(32, location.x - object.x),
+                  height:
+                    Math.max(32, location.x - object.x) * (object.height / object.width),
+                }
+              : {
+                  width: Math.max(32, location.x - object.x),
+                  height: Math.max(32, location.y - object.y),
+                };
       setHistory((current) => ({
         ...current,
         present: updateWhiteboardObject(gesture.document, object.id, changes),
@@ -236,6 +253,9 @@ export default function WhiteboardPage({
 
   async function save() {
     const saved = await repository.saveWhiteboard(document);
+    saved.objects
+      .filter(({ kind }) => kind === "image")
+      .forEach(({ assetId }) => temporaryAssetIds.current.delete(assetId));
     setHistory(createHistory(saved));
     setMessage("Whiteboard saved locally.");
   }
@@ -246,12 +266,92 @@ export default function WhiteboardPage({
       !window.confirm("Start a new Whiteboard? Unsaved changes will be lost.")
     )
       return;
+    document.objects
+      .filter(
+        ({ kind, assetId }) => kind === "image" && temporaryAssetIds.current.has(assetId)
+      )
+      .forEach(({ assetId }) => {
+        temporaryAssetIds.current.delete(assetId);
+        void mediaRepository.deleteAsset(assetId);
+      });
     setHistory(createHistory(blank(createId)));
     setSelectedId(null);
     setPan({ x: 0, y: 0 });
     setZoom(1);
     setMessage("");
     setShowStarters(true);
+  }
+
+  async function importActivity({ blob, width, height, mode, sourceName }) {
+    if (
+      mode === "activity" &&
+      document.objects.length &&
+      !window.confirm("Open this activity? Unsaved Whiteboard content will be replaced.")
+    )
+      return;
+    const label = sourceName.replace(/\.[^.]+$/, "") || "Imported activity";
+    const asset = await mediaRepository.saveAsset({
+      blob,
+      width,
+      height,
+      accessibilityLabel: label,
+    });
+    temporaryAssetIds.current.add(asset.id);
+    const placement =
+      mode === "activity"
+        ? fitActivity(asset)
+        : fitActivity(asset, { width: 420, height: 300 });
+    const image = {
+      id: createId(),
+      kind: "image",
+      assetId: asset.id,
+      ...placement,
+      locked: mode === "activity",
+      background: mode === "activity",
+      accessibilityLabel: label,
+    };
+    const next = {
+      ...document,
+      title: mode === "activity" ? `${label} — Activity` : document.title,
+      objects: mode === "activity" ? [image] : [...document.objects, image],
+    };
+    commit(next);
+    setSelectedId(mode === "activity" ? null : image.id);
+    setTool(mode === "activity" ? "draw" : "select");
+    setShowActivityImport(false);
+    setShowStarters(false);
+    setMessage(
+      mode === "activity"
+        ? "Activity is ready. Draw or annotate on top."
+        : "Image inserted as a movable object."
+    );
+  }
+
+  function setImageAsBackground() {
+    if (selected?.kind !== "image") return;
+    const image = {
+      ...selected,
+      ...fitActivity(selected),
+      locked: true,
+      background: true,
+    };
+    const withPlacement = updateWhiteboardObject(document, selected.id, image);
+    commit(setWhiteboardImageBackground(withPlacement, selected.id));
+    setSelectedId(null);
+  }
+
+  function resetMarks() {
+    if (document.objects.every(({ kind, background }) => kind === "image" && background))
+      return;
+    if (
+      !window.confirm(
+        "Reset marks? Annotations added over this activity will be removed."
+      )
+    ) {
+      return;
+    }
+    commit(resetWhiteboardMarks(document));
+    setSelectedId(null);
   }
 
   function useTemplate(template) {
@@ -286,6 +386,26 @@ export default function WhiteboardPage({
   const styleVisible =
     ["draw", "rectangle", "ellipse", "arrow", "text"].includes(tool) || selected;
 
+  useEffect(() => {
+    function deleteSelected(event) {
+      if (!selected || selected.locked || !["Backspace", "Delete"].includes(event.key)) {
+        return;
+      }
+      const target = event.target;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target?.isContentEditable
+      )
+        return;
+      event.preventDefault();
+      commit(deleteWhiteboardObject(document, selected.id));
+      setSelectedId(null);
+    }
+    window.addEventListener("keydown", deleteSelected);
+    return () => window.removeEventListener("keydown", deleteSelected);
+  });
+
   return (
     <main className="whiteboard-page">
       <header className="whiteboard-header">
@@ -305,6 +425,26 @@ export default function WhiteboardPage({
           <button onClick={() => setShowStarters(true)} type="button">
             Start With…
           </button>
+          {background ? (
+            <button
+              onClick={() => {
+                commit(
+                  updateWhiteboardObject(document, background.id, {
+                    locked: !background.locked,
+                  })
+                );
+                setSelectedId(background.locked ? background.id : null);
+              }}
+              type="button"
+            >
+              {background.locked ? "Unlock Background" : "Lock Background"}
+            </button>
+          ) : null}
+          {background ? (
+            <button onClick={resetMarks} type="button">
+              Reset Marks
+            </button>
+          ) : null}
           <button onClick={() => void save()} type="button">
             <Save aria-hidden="true" size={17} /> Save
           </button>
@@ -327,8 +467,16 @@ export default function WhiteboardPage({
         <SessionCanvasStartPanel onUse={useTemplate} templates={sessionCanvasTemplates} />
       ) : null}
 
+      {showActivityImport ? (
+        <ActivityImportPanel
+          onCancel={() => setShowActivityImport(false)}
+          onImport={importActivity}
+        />
+      ) : null}
+
       <section className="whiteboard-workspace">
         <WhiteboardToolbar
+          onShowActivity={() => setShowActivityImport(true)}
           onShowIcons={() => setShowIcons(true)}
           onToolChange={setTool}
           tool={tool}
@@ -445,6 +593,37 @@ export default function WhiteboardPage({
                 />
               </label>
             ) : null}
+            {selectedStyleKind === "arrow" ? (
+              <label>
+                Arrow Label{" "}
+                <input
+                  aria-label="Arrow Label"
+                  onChange={(event) =>
+                    updateSelected({ label: event.target.value || undefined })
+                  }
+                  value={selected.label ?? ""}
+                />
+              </label>
+            ) : null}
+            {selectedStyleKind === "image" ? (
+              <>
+                <label>
+                  Image Label{" "}
+                  <input
+                    aria-label="Image Label"
+                    onChange={(event) =>
+                      updateSelected({ accessibilityLabel: event.target.value })
+                    }
+                    value={selected.accessibilityLabel}
+                  />
+                </label>
+                {!selected.background ? (
+                  <button onClick={setImageAsBackground} type="button">
+                    Set as Background
+                  </button>
+                ) : null}
+              </>
+            ) : null}
             {selected ? (
               <button
                 className="whiteboard-delete"
@@ -535,6 +714,7 @@ export default function WhiteboardPage({
             selectedId={selectedId}
             tool={tool}
             zoom={zoom}
+            mediaRepository={mediaRepository}
           />
           <div
             aria-label="History and zoom controls"

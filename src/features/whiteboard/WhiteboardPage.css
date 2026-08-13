@@ -103,6 +103,37 @@
   position: relative;
 }
 
+.activity-import-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-2);
+  max-width: 46rem;
+  padding: var(--space-3);
+}
+
+.activity-import-panel__heading {
+  align-items: start;
+  display: flex;
+  justify-content: space-between;
+}
+
+.activity-import-panel h2,
+.activity-import-panel p {
+  margin: 0;
+}
+
+.activity-import-panel fieldset {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.activity-import-panel label {
+  display: grid;
+  gap: var(--space-1);
+}
+
 .whiteboard-toolbar {
   align-self: start;
   background: color-mix(in srgb, var(--surface) 96%, transparent);
@@ -244,6 +275,42 @@
 
 .whiteboard-visual img {
   object-fit: contain;
+}
+
+.whiteboard-image__content,
+.whiteboard-image__content img {
+  height: 100%;
+  width: 100%;
+}
+
+.whiteboard-image__content img {
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.whiteboard-image--locked {
+  pointer-events: none;
+}
+
+.whiteboard-image-missing {
+  align-items: center;
+  background: var(--surface-soft);
+  border: 2px dashed var(--border);
+  color: var(--muted);
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+.whiteboard-arrow-label {
+  font-size: 20px;
+  font-weight: 700;
+  paint-order: stroke;
+  pointer-events: none;
+  stroke: #fff;
+  stroke-width: 5px;
 }
 
 .whiteboard-corner-controls,

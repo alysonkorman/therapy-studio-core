@@ -22,6 +22,30 @@ export function clearWhiteboard(document) {
   return { ...document, objects: [] };
 }
 
+export function resetWhiteboardMarks(document) {
+  return {
+    ...document,
+    objects: document.objects.filter(
+      ({ kind, background }) => kind === "image" && background
+    ),
+  };
+}
+
+export function setWhiteboardImageBackground(document, objectId) {
+  return {
+    ...document,
+    objects: document.objects.map((object) =>
+      object.kind === "image"
+        ? {
+            ...object,
+            background: object.id === objectId,
+            locked: object.id === objectId ? true : object.locked,
+          }
+        : object
+    ),
+  };
+}
+
 export function createHistory(document) {
   return { past: [], present: document, future: [] };
 }

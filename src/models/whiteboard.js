@@ -38,6 +38,21 @@ export const whiteboardVisualSchema = z
   })
   .strict();
 
+export const whiteboardImageSchema = z
+  .object({
+    id: z.string().min(1),
+    kind: z.literal("image"),
+    assetId: z.string().min(1),
+    x: z.number().finite(),
+    y: z.number().finite(),
+    width: z.number().min(32).max(2000),
+    height: z.number().min(32).max(1400),
+    locked: z.boolean().default(false),
+    background: z.boolean().default(false),
+    accessibilityLabel: z.string().trim().max(160).default("Imported activity"),
+  })
+  .strict();
+
 export const whiteboardShapeSchema = z
   .object({
     id: z.string().min(1),
@@ -62,6 +77,7 @@ export const whiteboardArrowSchema = z
     y2: z.number().finite(),
     strokeColor: colorSchema,
     strokeWidth: z.number().min(1).max(40),
+    label: z.string().trim().max(160).optional(),
   })
   .strict();
 
@@ -69,6 +85,7 @@ export const whiteboardObjectSchema = z.discriminatedUnion("kind", [
   whiteboardStrokeSchema,
   whiteboardTextSchema,
   whiteboardVisualSchema,
+  whiteboardImageSchema,
   whiteboardShapeSchema,
   whiteboardArrowSchema,
 ]);

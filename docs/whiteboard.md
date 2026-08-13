@@ -33,3 +33,18 @@ This establishes a deliberately small future boundary: Worksheets, Canvas Templa
 and blank Whiteboards may all open into a session canvas, while their source documents
 and persistence remain separate. Template authoring/import, Universal Search exposure,
 Worksheet embedding, and remote child-device collaboration are deferred.
+
+## Activity Import
+
+**Add Activity** accepts local PDF, JPEG, PNG, and WebP files without uploading them.
+For PDFs, the therapist chooses a page when the document has more than one. **Open as
+Activity** renders that page or image into the canvas, fits and centers it, locks it
+behind all marks, and activates Draw. **Insert as Object** instead creates a movable,
+proportionally resizable image that can later be set as the background.
+
+Imported media is stored in the shared `localMediaAssets` table and referenced by a
+stable `assetId`; Whiteboard documents never contain filesystem paths, temporary object
+URLs, raw binary data, or base64. Saved media participates in local backup and restore.
+The background can be deliberately unlocked and relocked. **Reset Marks** removes
+annotations while preserving the activity background. Remote file storage, OCR, PDF
+management, and child-device networking remain deferred.

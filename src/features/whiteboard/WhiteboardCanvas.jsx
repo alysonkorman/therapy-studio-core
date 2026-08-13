@@ -1,4 +1,5 @@
 import { IconRenderer } from "../icons";
+import LocalMediaImage from "./LocalMediaImage";
 
 function pointsValue(points) {
   return points.map(({ x, y }) => `${x},${y}`).join(" ");
@@ -37,15 +38,17 @@ export default function WhiteboardCanvas({
   selectedId,
   tool,
   zoom,
+  mediaRepository,
 }) {
   const renderObject = (object, draft = false) => {
-    const common = draft
-      ? {}
-      : {
-          onPointerDown: (event) => onObjectPointerDown(event, object),
-          role: "button",
-          tabIndex: 0,
-        };
+    const common =
+      draft || object.locked
+        ? {}
+        : {
+            onPointerDown: (event) => onObjectPointerDown(event, object),
+            role: "button",
+            tabIndex: 0,
+          };
     if (object.kind === "stroke")
       return (
         <polyline
@@ -94,19 +97,29 @@ export default function WhiteboardCanvas({
       );
     if (object.kind === "arrow")
       return (
-        <line
-          aria-label="Arrow object"
-          key={object.id}
-          markerEnd="url(#whiteboard-arrowhead)"
-          stroke={object.strokeColor}
-          strokeLinecap="round"
-          strokeWidth={object.strokeWidth}
-          x1={object.x1}
-          x2={object.x2}
-          y1={object.y1}
-          y2={object.y2}
-          {...common}
-        />
+        <g aria-label="Arrow object" key={object.id} {...common}>
+          <line
+            markerEnd="url(#whiteboard-arrowhead)"
+            stroke={object.strokeColor}
+            strokeLinecap="round"
+            strokeWidth={object.strokeWidth}
+            x1={object.x1}
+            x2={object.x2}
+            y1={object.y1}
+            y2={object.y2}
+          />
+          {object.label ? (
+            <text
+              className="whiteboard-arrow-label"
+              fill={object.strokeColor}
+              textAnchor="middle"
+              x={(object.x1 + object.x2) / 2}
+              y={(object.y1 + object.y2) / 2 - 10}
+            >
+              {object.label}
+            </text>
+          ) : null}
+        </g>
       );
     if (object.kind === "text")
       return (
@@ -122,9 +135,28 @@ export default function WhiteboardCanvas({
           {object.text}
         </text>
       );
+    if (object.kind === "visual")
+      return (
+        <foreignObject
+          aria-label={`Visual object: ${object.iconId}`}
+          height={object.height}
+          key={object.id}
+          width={object.width}
+          x={object.x}
+          y={object.y}
+          {...common}
+        >
+          <div className="whiteboard-visual">
+            <IconRenderer decorative iconId={object.iconId} size={object.width} />
+          </div>
+        </foreignObject>
+      );
     return (
       <foreignObject
-        aria-label={`Visual object: ${object.iconId}`}
+        aria-label={`${object.locked ? "Locked " : ""}Activity image: ${object.accessibilityLabel}`}
+        className={
+          object.locked ? "whiteboard-image whiteboard-image--locked" : "whiteboard-image"
+        }
         height={object.height}
         key={object.id}
         width={object.width}
@@ -132,8 +164,12 @@ export default function WhiteboardCanvas({
         y={object.y}
         {...common}
       >
-        <div className="whiteboard-visual">
-          <IconRenderer decorative iconId={object.iconId} size={object.width} />
+        <div className="whiteboard-image__content">
+          <LocalMediaImage
+            assetId={object.assetId}
+            label={object.accessibilityLabel}
+            repository={mediaRepository}
+          />
         </div>
       </foreignObject>
     );
@@ -173,7 +209,9 @@ export default function WhiteboardCanvas({
         x="-500"
         y="-350"
       />
-      {document.objects.map((object) => renderObject(object))}
+      {[...document.objects]
+        .sort((left, right) => Number(right.background) - Number(left.background))
+        .map((object) => renderObject(object))}
       {draftObject ? renderObject(draftObject, true) : null}
       {box ? (
         <g aria-label="Selection handles" className="whiteboard-selection-box">

@@ -5,7 +5,7 @@ export const THERAPY_STUDIO_DATABASE_VERSION = 1;
 export const THERAPY_STUDIO_VERSION_1_SCHEMA = Object.freeze({
   resources: "id",
 });
-export const THERAPY_STUDIO_DATABASE_LATEST_VERSION = 8;
+export const THERAPY_STUDIO_DATABASE_LATEST_VERSION = 9;
 export const THERAPY_STUDIO_VERSION_2_SCHEMA = Object.freeze({
   resources: "id",
   categories: "id",
@@ -37,6 +37,10 @@ export const THERAPY_STUDIO_VERSION_8_SCHEMA = Object.freeze({
   ...THERAPY_STUDIO_VERSION_7_SCHEMA,
   whiteboardDocuments: "id, updatedAt",
 });
+export const THERAPY_STUDIO_VERSION_9_SCHEMA = Object.freeze({
+  ...THERAPY_STUDIO_VERSION_8_SCHEMA,
+  localMediaAssets: "id, createdAt",
+});
 
 export function createTherapyStudioDatabase({
   name = THERAPY_STUDIO_DATABASE_NAME,
@@ -58,6 +62,7 @@ export function createTherapyStudioDatabase({
   database.version(6).stores(THERAPY_STUDIO_VERSION_6_SCHEMA);
   database.version(7).stores(THERAPY_STUDIO_VERSION_7_SCHEMA);
   database.version(8).stores(THERAPY_STUDIO_VERSION_8_SCHEMA);
+  database.version(9).stores(THERAPY_STUDIO_VERSION_9_SCHEMA);
 
   return database;
 }

@@ -6,7 +6,7 @@ The application database is named `therapy-studio`. It uses Dexie over IndexedDB
 database is created lazily through `src/lib/data/database.js`; importing application
 modules does not open or seed it.
 
-Version 1 introduced one table. Additive version 8 has this current schema:
+Version 1 introduced one table. Additive version 9 has this current schema:
 
 | Table                  | Primary key   | Secondary indexes                              |
 | ---------------------- | ------------- | ---------------------------------------------- |
@@ -19,6 +19,7 @@ Version 1 introduced one table. Additive version 8 has this current schema:
 | `sceneDocuments`       | `id`          | `updatedAt`                                    |
 | `interventionGuidance` | `resourceId`  | None                                           |
 | `whiteboardDocuments`  | `id`          | `updatedAt`                                    |
+| `localMediaAssets`     | `id`          | `createdAt`                                    |
 
 Stable Resource IDs are the IndexedDB primary keys. No secondary index is justified by
 the current repository operations or collection size. Repository archive state is
@@ -41,6 +42,11 @@ Resource and guidance record together in one transaction.
 Version 8 adds independently validated Whiteboard documents keyed by stable document
 ID. Whiteboards are local tools rather than Game Resources. Their drawings, text, and
 semantic icon references are also included in Therapy Studio backup and restore.
+
+Version 9 adds reusable local media assets for imported activity images and rendered
+PDF pages. Binary bytes remain in IndexedDB, while Whiteboard image objects store only
+the stable asset ID, dimensions, placement, lock state, and an accessibility label.
+Backup and restore encode those bytes only inside the downloaded backup file.
 
 ## Session Profiles
 

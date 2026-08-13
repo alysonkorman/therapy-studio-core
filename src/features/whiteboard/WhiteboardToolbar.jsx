@@ -5,6 +5,7 @@ import {
   Eraser,
   Hand,
   ImagePlus,
+  FileImage,
   MousePointer2,
   Square,
   Type,
@@ -19,10 +20,16 @@ const tools = [
   ["draw", "Draw", Brush],
   ["text", "Text", Type],
   ["visual", "Add Visual", ImagePlus],
+  ["activity", "Add Activity", FileImage],
   ["erase", "Eraser", Eraser],
 ];
 
-export default function WhiteboardToolbar({ onShowIcons, onToolChange, tool }) {
+export default function WhiteboardToolbar({
+  onShowActivity,
+  onShowIcons,
+  onToolChange,
+  tool,
+}) {
   return (
     <div aria-label="Whiteboard tools" className="whiteboard-toolbar" role="toolbar">
       {tools.map(([value, label, Icon]) => (
@@ -32,6 +39,7 @@ export default function WhiteboardToolbar({ onShowIcons, onToolChange, tool }) {
           key={value}
           onClick={() => {
             if (value === "visual") onShowIcons();
+            else if (value === "activity") onShowActivity();
             else onToolChange(value);
           }}
           title={label}

@@ -15,11 +15,28 @@ function repository(saved = []) {
   };
 }
 
+function mediaRepository() {
+  return {
+    saveAsset: vi.fn(async ({ blob, width, height, accessibilityLabel }) => ({
+      id: "activity-asset",
+      mimeType: blob.type,
+      width,
+      height,
+      size: blob.size,
+      accessibilityLabel,
+      createdAt: now,
+    })),
+    getAsset: vi.fn(async () => null),
+    deleteAsset: vi.fn(async () => {}),
+  };
+}
+
 function renderPage(options = {}) {
   return renderWithRouter(
     <WhiteboardPage
       collaborationFactory={() => ({ close() {}, publish: vi.fn() })}
       createId={() => crypto.randomUUID()}
+      mediaRepository={options.mediaRepository ?? mediaRepository()}
       repository={options.repository ?? repository()}
     />
   );
@@ -285,5 +302,87 @@ describe("WhiteboardPage", () => {
     renderPage();
     expect(screen.queryByText(/private notes|resource memory/i)).toBeNull();
     expect(screen.getByText(/Internet collaboration is not enabled/i)).toBeVisible();
+  });
+
+  it("opens an image as a locked activity and resets only added marks", async () => {
+    const user = userEvent.setup();
+    const media = mediaRepository();
+    vi.stubGlobal(
+      "createImageBitmap",
+      vi.fn(async () => ({ width: 1200, height: 800, close: vi.fn() }))
+    );
+    renderPage({ mediaRepository: media });
+
+    await user.click(screen.getByRole("button", { name: "Add Activity" }));
+    await user.upload(
+      screen.getByLabelText("Activity file"),
+      new File(["image"], "maze.png", { type: "image/png" })
+    );
+    await user.click(screen.getByRole("button", { name: "Open as Activity" }));
+
+    expect(media.saveAsset).toHaveBeenCalledOnce();
+    expect(screen.getByText(/Activity is ready/)).toBeVisible();
+    expect(screen.getByRole("button", { name: "Draw" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByRole("button", { name: "Unlock Background" })).toBeVisible();
+
+    const canvas = screen.getByRole("img", { name: "Whiteboard canvas" });
+    fireEvent.pointerDown(canvas, { clientX: 10, clientY: 10 });
+    fireEvent.pointerMove(canvas, { clientX: 30, clientY: 30 });
+    fireEvent.pointerUp(canvas);
+    expect(screen.getByLabelText("Drawing stroke")).toBeVisible();
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    await user.click(screen.getByRole("button", { name: "Reset Marks" }));
+    expect(screen.queryByLabelText("Drawing stroke")).toBeNull();
+    expect(screen.getByRole("button", { name: "Unlock Background" })).toBeVisible();
+    vi.unstubAllGlobals();
+  });
+
+  it("inserts an image as an object and saves its stable asset reference", async () => {
+    const user = userEvent.setup();
+    const media = mediaRepository();
+    const data = repository();
+    vi.stubGlobal(
+      "createImageBitmap",
+      vi.fn(async () => ({ width: 600, height: 900, close: vi.fn() }))
+    );
+    renderPage({ mediaRepository: media, repository: data });
+
+    await user.click(screen.getByRole("button", { name: "Add Activity" }));
+    await user.click(screen.getByRole("radio", { name: /Insert as Object — move/ }));
+    await user.upload(
+      screen.getByLabelText("Activity file"),
+      new File(["image"], "card.webp", { type: "image/webp" })
+    );
+    await user.click(screen.getByRole("button", { name: "Insert as Object" }));
+    expect(screen.getByRole("button", { name: "Set as Background" })).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(data.saveWhiteboard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        objects: [
+          expect.objectContaining({
+            kind: "image",
+            assetId: "activity-asset",
+            locked: false,
+            background: false,
+          }),
+        ],
+      })
+    );
+    vi.unstubAllGlobals();
+  });
+
+  it("deletes selected objects with the keyboard but not while typing", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole("button", { name: "Text" }));
+    fireEvent.pointerDown(screen.getByRole("img", { name: "Whiteboard canvas" }));
+    const editor = screen.getByRole("textbox", { name: "Selected text" });
+    fireEvent.keyDown(editor, { key: "Delete" });
+    expect(screen.getByLabelText("Text object: Text")).toBeVisible();
+    fireEvent.keyDown(window, { key: "Delete" });
+    expect(screen.queryByLabelText("Text object: Text")).toBeNull();
   });
 });

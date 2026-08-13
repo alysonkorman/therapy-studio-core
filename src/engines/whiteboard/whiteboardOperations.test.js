@@ -1,35 +1,38 @@
 import { describe, expect, it } from "vitest";
 
+import { createBlankWhiteboardDocument } from "../../models";
 import {
-  addWhiteboardObject,
-  clearWhiteboard,
-  commitHistory,
-  createHistory,
-  deleteWhiteboardObject,
-  redoHistory,
-  undoHistory,
-  updateWhiteboardObject,
+  resetWhiteboardMarks,
+  setWhiteboardImageBackground,
 } from "./whiteboardOperations";
 
-const document = { id: "board", objects: [] };
-const text = { id: "text", kind: "text", text: "Hello" };
+const now = "2026-08-13T12:00:00.000Z";
 
-describe("Whiteboard operations", () => {
-  it("adds, updates, deletes, and clears objects without mutating the source", () => {
-    const added = addWhiteboardObject(document, text);
-    const updated = updateWhiteboardObject(added, text.id, { text: "Updated" });
-    expect(document.objects).toEqual([]);
-    expect(updated.objects[0].text).toBe("Updated");
-    expect(deleteWhiteboardObject(updated, text.id).objects).toEqual([]);
-    expect(clearWhiteboard(added).objects).toEqual([]);
+describe("Whiteboard activity operations", () => {
+  it("sets an image as the sole locked background", () => {
+    const document = {
+      ...createBlankWhiteboardDocument({ id: "board", now }),
+      objects: [
+        { id: "first", kind: "image", background: true, locked: true },
+        { id: "second", kind: "image", background: false, locked: false },
+      ],
+    };
+    expect(setWhiteboardImageBackground(document, "second").objects).toEqual([
+      expect.objectContaining({ id: "first", background: false }),
+      expect.objectContaining({ id: "second", background: true, locked: true }),
+    ]);
   });
 
-  it("supports deterministic undo and redo", () => {
-    const history = commitHistory(
-      createHistory(document),
-      addWhiteboardObject(document, text)
-    );
-    expect(undoHistory(history).present.objects).toEqual([]);
-    expect(redoHistory(undoHistory(history)).present.objects).toEqual([text]);
+  it("resets marks while preserving the activity source", () => {
+    const document = {
+      ...createBlankWhiteboardDocument({ id: "board", now }),
+      objects: [
+        { id: "activity", kind: "image", background: true },
+        { id: "mark", kind: "stroke" },
+      ],
+    };
+    expect(resetWhiteboardMarks(document).objects).toEqual([
+      expect.objectContaining({ id: "activity" }),
+    ]);
   });
 });
