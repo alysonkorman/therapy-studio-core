@@ -1,4 +1,7 @@
-import { roomCredentialSchema } from "./liveSessionProtocol";
+import {
+  participantRoomCredentialSchema,
+  roomCredentialSchema,
+} from "./liveSessionProtocol";
 
 const origin = () => import.meta.env.VITE_LIVE_SESSION_ORIGIN?.replace(/\/$/, "");
 
@@ -27,7 +30,11 @@ export async function joinRemoteLiveSession({ capability, sessionId }) {
   const result = await request(`/live-sessions/${encodeURIComponent(sessionId)}/join`, {
     body: { capability },
   });
-  return roomCredentialSchema.parse(result);
+  const credential = participantRoomCredentialSchema.parse(result);
+  // The deployed initial service supports Whiteboard only. This compatibility
+  // fallback is not participant-controlled and keeps existing rooms joinable
+  // until the activity-kind response is deployed.
+  return { ...credential, activityKind: credential.activityKind ?? "whiteboard" };
 }
 export async function getHostRoomCredential({ sessionId, token }) {
   return roomCredentialSchema.parse(

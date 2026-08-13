@@ -16,9 +16,9 @@ export default function LiveSessionPanel({
 
   const connected = participantState === "connected";
   return (
-    <section aria-label="Local Live Session" className="whiteboard-live-session-panel">
+    <section aria-label="Live Session" className="whiteboard-live-session-panel">
       <div>
-        <strong>Local Live Session</strong>
+        <strong>Live Session</strong>
         <span>{connected ? "Child connected" : "Waiting for child"}</span>
       </div>
       <code>{session.participantUrl}</code>
@@ -32,7 +32,7 @@ export default function LiveSessionPanel({
       >
         <X aria-hidden="true" size={16} /> End
       </button>
-      <p>Local development only — same-browser testing, not internet collaboration.</p>
+      <p>Non-PHI development only — use fake content while testing.</p>
     </section>
   );
 }

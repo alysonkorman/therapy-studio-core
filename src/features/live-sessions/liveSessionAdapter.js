@@ -14,6 +14,7 @@ export const liveSessionActionEnvelopeSchema = z
 // Activity adapters intentionally own their schemas. The shared controller only
 // knows how to carry validated actions and snapshots between participants.
 export function createLiveSessionAdapter({
+  activityKind,
   applyAction,
   createAction,
   getInitialSharedState,
@@ -22,6 +23,7 @@ export function createLiveSessionAdapter({
   validateSnapshot,
 }) {
   return Object.freeze({
+    activityKind,
     applyAction,
     createAction,
     getInitialSharedState,

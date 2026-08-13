@@ -43,14 +43,15 @@ export function createRoomAuthority({
     return room;
   };
   return {
-    async createRoom({ hostSubject, state }) {
+    async createRoom({ activityKind = "whiteboard", hostSubject, state }) {
+      if (activityKind !== adapter.activityKind) throw new Error("invalid");
       const validated = adapter.validateSnapshot(state);
       if (!validated.success) throw new Error("invalid");
       const capability = opaque();
       const room = {
         ...createLiveSession({
           id: opaque(18),
-          activityKind: "whiteboard",
+          activityKind,
           expiresAt: expiry(),
           now: now(),
         }),
@@ -83,7 +84,10 @@ export function createRoomAuthority({
       const expiresAt = new Date(
         Math.min(new Date(room.expiresAt).getTime(), clock().getTime() + 5 * 60 * 1000)
       ).toISOString();
-      return tokenIssuer({ expiresAt, role: "participant", sessionId });
+      return {
+        ...tokenIssuer({ expiresAt, role: "participant", sessionId }),
+        activityKind: room.activityKind,
+      };
     },
     async hostCredential({ hostSubject, sessionId }) {
       const room = await load(sessionId);

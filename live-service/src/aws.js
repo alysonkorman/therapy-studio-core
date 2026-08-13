@@ -78,7 +78,11 @@ export async function handler(event) {
     const body = event.body ? JSON.parse(event.body) : {};
     if (route === "POST /live-sessions") {
       if (!hostSubject) return response(401);
-      const created = await authority.createRoom({ hostSubject, state: body.state });
+      const created = await authority.createRoom({
+        activityKind: body.activityKind,
+        hostSubject,
+        state: body.state,
+      });
       return response(201, {
         ...created.room,
         participantUrl: `/join/${created.room.id}#p=${created.capability}`,

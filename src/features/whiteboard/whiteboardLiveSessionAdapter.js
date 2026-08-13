@@ -36,6 +36,7 @@ export function projectWhiteboardForLiveSession(document) {
 }
 
 export const whiteboardLiveSessionAdapter = createLiveSessionAdapter({
+  activityKind: "whiteboard",
   applyAction(_state, action) {
     return action.state;
   },

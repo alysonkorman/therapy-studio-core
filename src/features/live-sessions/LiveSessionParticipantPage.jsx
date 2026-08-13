@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import WhiteboardPage from "../whiteboard/WhiteboardPage";
 import { joinRemoteLiveSession } from "./liveSessionApi";
+import { getLiveActivity } from "./liveActivityRegistry";
 import { hasConfiguredLiveSessionBackend } from "./liveSessionHostAuth";
 import "./LiveSessions.css";
 
@@ -20,6 +20,10 @@ export default function LiveSessionParticipantPage() {
         ? "local"
         : "unavailable"
   );
+  const activity = getLiveActivity(
+    credential?.activityKind ?? (state === "local" ? "whiteboard" : null)
+  );
+  const ParticipantView = activity?.ParticipantView;
 
   useEffect(() => {
     if (!sessionId) return;
@@ -47,7 +51,11 @@ export default function LiveSessionParticipantPage() {
         <span>Live Activity</span>
       </header>
       {credential || state === "local" ? (
-        <WhiteboardPage liveSession={{ credential, role: "participant", sessionId }} />
+        ParticipantView ? (
+          <ParticipantView liveSession={{ credential, role: "participant", sessionId }} />
+        ) : (
+          <p className="live-session-status">This activity is unavailable.</p>
+        )
       ) : (
         <p className="live-session-status">Connecting to session…</p>
       )}

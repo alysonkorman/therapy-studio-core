@@ -31,9 +31,11 @@ import {
 } from "../live-sessions/liveSessionApi";
 import {
   captureCognitoHostToken,
+  consumePendingLiveSessionInvite,
   getCognitoHostToken,
   hasConfiguredLiveSessionBackend,
   liveSessionLoginUrl,
+  rememberPendingLiveSessionInvite,
 } from "../live-sessions/liveSessionHostAuth";
 import WhiteboardCanvas from "./WhiteboardCanvas";
 import ActivityImportPanel from "./ActivityImportPanel";
@@ -72,6 +74,10 @@ function moveObject(object, dx, dy) {
   return { x: object.x + dx, y: object.y + dy };
 }
 
+function participantUrlFor(created) {
+  return new URL(created.participantUrl, window.location.origin).toString();
+}
+
 export default function WhiteboardPage({
   collaborationFactory = createWhiteboardCollaborationAdapter,
   createId = () => nanoid(),
@@ -98,8 +104,10 @@ export default function WhiteboardPage({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [hostLiveSession, setHostLiveSession] = useState(null);
   const adapterRef = useRef(null);
+  const createLiveSessionRef = useRef(null);
   const participantId = useRef(createId());
   const temporaryAssetIds = useRef(new Set());
+  const pendingInviteHandled = useRef(false);
   const document = history.present;
   const documentRef = useRef(document);
   const activeLiveSession = suppliedLiveSession ?? hostLiveSession;
@@ -449,12 +457,15 @@ export default function WhiteboardPage({
     commit(updateWhiteboardObject(document, selected.id, changes));
   }
 
-  async function createLocalLiveSession() {
+  const createLocalLiveSession = useCallback(async () => {
     if (hasConfiguredLiveSessionBackend()) {
       const token = captureCognitoHostToken();
       if (!token) {
         const login = liveSessionLoginUrl();
-        if (login) window.location.assign(login);
+        if (login) {
+          rememberPendingLiveSessionInvite();
+          window.location.assign(login);
+        }
         else setMessage("Sign in to use Live Sessions.");
         return;
       }
@@ -467,6 +478,7 @@ export default function WhiteboardPage({
         setHostLiveSession({
           ...created,
           credential,
+          participantUrl: participantUrlFor(created),
           role: "host",
           sessionId: created.id,
         });
@@ -497,14 +509,30 @@ export default function WhiteboardPage({
     });
     setShowStarters(false);
     setMessage("Local Live Session ready. Open the participant link in another tab.");
-  }
+  }, [createId, document]);
+
+  useEffect(() => {
+    createLiveSessionRef.current = createLocalLiveSession;
+  }, [createLocalLiveSession]);
+
+  useEffect(() => {
+    if (
+      pendingInviteHandled.current ||
+      !hasConfiguredLiveSessionBackend() ||
+      !captureCognitoHostToken() ||
+      !consumePendingLiveSessionInvite()
+    )
+      return;
+    pendingInviteHandled.current = true;
+    void createLiveSessionRef.current?.();
+  }, []);
 
   async function copyParticipantLink() {
     try {
       await navigator.clipboard?.writeText(hostLiveSession.participantUrl);
-      setMessage("Local participant link copied.");
+      setMessage("Participant link copied.");
     } catch {
-      setMessage("Copy the local participant link shown in the Live Session panel.");
+      setMessage("Copy the participant link shown in the Live Session panel.");
     }
   }
 

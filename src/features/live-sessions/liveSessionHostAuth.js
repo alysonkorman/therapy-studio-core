@@ -1,4 +1,5 @@
 const hostTokenKey = "therapy-studio-live-session-host-token";
+const pendingInviteKey = "therapy-studio-live-session-pending-invite";
 
 // Cognito Hosted UI returns this short-lived token in the fragment. It is held only
 // for the browser session and immediately removed from the visible URL.
@@ -16,6 +17,17 @@ export function captureCognitoHostToken(
 }
 export function getCognitoHostToken() {
   return sessionStorage.getItem(hostTokenKey);
+}
+export function rememberPendingLiveSessionInvite() {
+  sessionStorage.setItem(pendingInviteKey, "true");
+}
+export function hasPendingLiveSessionInvite() {
+  return sessionStorage.getItem(pendingInviteKey) === "true";
+}
+export function consumePendingLiveSessionInvite() {
+  const pending = hasPendingLiveSessionInvite();
+  sessionStorage.removeItem(pendingInviteKey);
+  return pending;
 }
 export function liveSessionLoginUrl() {
   return import.meta.env.VITE_COGNITO_LOGIN_URL || null;

@@ -26,9 +26,17 @@ describe("AWS room authority", () => {
     });
     expect(room.participantCapabilityHash).toBeUndefined();
     await expect(
+      authority.createRoom({
+        activityKind: "scene-builder",
+        hostSubject: "host-subject",
+        state: { version: 1, objects: [] },
+      })
+    ).rejects.toThrow("invalid");
+    await expect(
       authority.join({ sessionId: room.id, capability: "wrong" })
     ).rejects.toThrow("forbidden");
     const participant = await authority.join({ sessionId: room.id, capability });
+    expect(participant.activityKind).toBe("whiteboard");
     await authority.connect({ connectionId: "participant", credential: participant });
     const stale = await authority.action({
       connectionId: "participant",

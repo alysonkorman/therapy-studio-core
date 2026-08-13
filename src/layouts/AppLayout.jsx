@@ -1,12 +1,17 @@
 import { Menu, Search, Sparkles, X } from "lucide-react";
-import { useRef, useState } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import "../App.css";
 import { createNavigationItems, getNavigationItemForPath } from "../app/navigation";
+import {
+  captureCognitoHostToken,
+  hasPendingLiveSessionInvite,
+} from "../features/live-sessions/liveSessionHostAuth";
 
 export default function AppLayout({ enableWorkspaceLab = import.meta.env.DEV }) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuPath, setMobileMenuPath] = useState(null);
   const navigationRef = useRef(null);
   const navigationToggleRef = useRef(null);
@@ -14,6 +19,12 @@ export default function AppLayout({ enableWorkspaceLab = import.meta.env.DEV }) 
   const navigationItems = createNavigationItems({ enableWorkspaceLab });
   const currentPageLabel =
     getNavigationItemForPath(pathname, { enableWorkspaceLab })?.label ?? "Therapy Studio";
+
+  useEffect(() => {
+    const token = captureCognitoHostToken();
+    if (token && hasPendingLiveSessionInvite() && pathname !== "/whiteboard")
+      navigate("/whiteboard", { replace: true });
+  }, [navigate, pathname]);
 
   function closeMobileMenu() {
     setMobileMenuPath(null);

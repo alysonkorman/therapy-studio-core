@@ -64,6 +64,12 @@ export const roomCredentialSchema = z
   })
   .strict();
 
+// Join responses carry the room-authoritative activity kind. It is deliberately
+// not read from a participant-controlled URL parameter.
+export const participantRoomCredentialSchema = roomCredentialSchema.extend({
+  activityKind: liveSessionActivityKindSchema.optional(),
+});
+
 export function hasSafeActionSize(value) {
   try {
     return (
