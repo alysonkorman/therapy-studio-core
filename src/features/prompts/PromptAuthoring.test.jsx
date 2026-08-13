@@ -45,6 +45,12 @@ describe("Prompt authoring interactions", () => {
     expect(formatPromptDisplayLabel(stored)).toBe("Executive Function");
     expect(stored).toBe("executive-function");
     expect(formatPromptDisplayLabel("deep conversations")).toBe("Deep Conversations");
+    expect(formatPromptDisplayLabel("act")).toBe("ACT");
+    expect(formatPromptDisplayLabel("cbt")).toBe("CBT");
+    expect(formatPromptDisplayLabel("dbt-skills")).toBe("DBT Skills");
+    expect(formatPromptDisplayLabel("parents/caregivers")).toBe("Parents/Caregivers");
+    expect(formatPromptDisplayLabel("self-esteem")).toBe("Self-Esteem");
+    expect(formatPromptDisplayLabel("strengths-based")).toBe("Strengths-Based");
   });
 
   it("supports preset, full-range, direct hex, and reset color selection", async () => {

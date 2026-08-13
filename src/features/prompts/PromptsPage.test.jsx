@@ -30,6 +30,21 @@ const testDecks = [
   },
 ];
 
+const rawCategoryDecks = [
+  {
+    ...testDecks[0],
+    id: "cbt-deck",
+    title: "CBT Skills",
+    category: "cbt",
+  },
+  {
+    ...testDecks[1],
+    id: "executive-function-deck",
+    title: "Planning Practice",
+    category: "executive-function",
+  },
+];
+
 function authoringRepositories({
   createFailure,
   seedFailure,
@@ -332,6 +347,27 @@ describe("PromptsPage", () => {
     expect(screen.getByText("Showing 2 of 2 decks")).toBeVisible();
     expect(screen.getByRole("searchbox", { name: /search prompts/i })).toHaveValue("");
     expect(screen.getByRole("combobox", { name: /category/i })).toHaveValue("");
+  });
+
+  it("shows polished category labels while filtering with canonical raw values", async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<PromptsPage decks={rawCategoryDecks} />);
+
+    const category = screen.getByRole("combobox", { name: /category/i });
+    expect(screen.getByRole("option", { name: "CBT" })).toHaveValue("cbt");
+    expect(screen.getByRole("option", { name: "Executive Function" })).toHaveValue(
+      "executive-function"
+    );
+    expect(rawCategoryDecks.map((deck) => deck.category)).toEqual([
+      "cbt",
+      "executive-function",
+    ]);
+
+    await user.selectOptions(category, "cbt");
+
+    expect(category).toHaveValue("cbt");
+    expect(screen.getByRole("heading", { name: "CBT Skills" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "Planning Practice" })).toBeNull();
   });
 
   it("shows a clear empty state when nothing matches", async () => {

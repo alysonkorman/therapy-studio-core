@@ -7,6 +7,7 @@ import {
 } from "../../engines/prompts/searchPromptDecks";
 import PromptDeckCard from "./PromptDeckCard";
 import PromptAuthoringPanel from "./PromptAuthoringPanel";
+import formatPromptDisplayLabel from "./formatPromptDisplayLabel";
 import { usePromptAuthoring } from "./usePromptAuthoring";
 import "./PromptsPage.css";
 import { resourceMemoryRepository } from "../../lib/data";
@@ -153,7 +154,7 @@ export default function PromptsPage({
             <option value="">All categories</option>
             {categories.map((categoryName) => (
               <option key={categoryName} value={categoryName}>
-                {categoryName}
+                {formatPromptDisplayLabel(categoryName)}
               </option>
             ))}
           </select>
