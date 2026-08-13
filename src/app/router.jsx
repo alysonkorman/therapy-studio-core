@@ -6,6 +6,7 @@ import GamesPage from "../features/games/GamesPage";
 import TriviaGamePage from "../features/games/TriviaGamePage";
 import TriviaEditorPage from "../features/games/TriviaEditorPage";
 import InterventionsPage from "../features/interventions/InterventionsPage";
+import InterventionEditorPage from "../features/interventions/InterventionEditorPage";
 import InterventionDetailPage from "../features/interventions/InterventionDetailPage";
 import NotFoundPage from "../features/not-found/NotFoundPage";
 import PromptDeckPage from "../features/prompts/PromptDeckPage";
@@ -56,6 +57,10 @@ export function createAppRoutes({ enableWorkspaceLab = import.meta.env.DEV } = {
         {
           path: "interventions",
           element: <InterventionsPage />,
+        },
+        {
+          path: "interventions/:interventionId/edit",
+          element: <InterventionEditorPage />,
         },
         {
           path: "interventions/:interventionId",

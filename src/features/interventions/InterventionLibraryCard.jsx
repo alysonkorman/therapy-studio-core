@@ -1,4 +1,4 @@
-import { Clock3, Monitor } from "lucide-react";
+import { Clock3, Copy, Monitor, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import ResourceMemoryControls from "../resource-memory/ResourceMemoryControls";
@@ -7,6 +7,7 @@ export default function InterventionLibraryCard({
   intervention,
   memoryRepository,
   onDelete,
+  onDuplicate,
 }) {
   return (
     <article className="intervention-library-card">
@@ -48,6 +49,31 @@ export default function InterventionLibraryCard({
           repository={memoryRepository}
           resourceId={intervention.id}
         />
+        {intervention.starter ? (
+          <button
+            className="studio-button studio-button--secondary"
+            onClick={onDuplicate}
+            type="button"
+          >
+            <Copy aria-hidden="true" size={16} /> Duplicate to Edit
+          </button>
+        ) : (
+          <>
+            <Link
+              className="studio-button studio-button--secondary"
+              to={`/interventions/${intervention.id}/edit`}
+            >
+              <Pencil aria-hidden="true" size={16} /> Edit Intervention
+            </Link>
+            <button
+              className="studio-button studio-button--secondary"
+              onClick={onDuplicate}
+              type="button"
+            >
+              <Copy aria-hidden="true" size={16} /> Duplicate
+            </button>
+          </>
+        )}
         {onDelete ? (
           <button
             className="studio-button studio-button--danger"

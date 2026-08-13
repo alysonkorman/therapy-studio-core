@@ -128,6 +128,33 @@ describe("interventionRepository", () => {
     });
   });
 
+  it("duplicates a starter into an independent therapist-owned Resource and guidance pair", async () => {
+    const database = createTherapyStudioDatabase({
+      name: `intervention-repository-${crypto.randomUUID()}`,
+      indexedDB,
+      IDBKeyRange,
+    });
+    databases.push(database);
+    const repository = createInterventionRepository({
+      database,
+      createId: () => "copied-intervention",
+      now: () => timestamp,
+    });
+
+    const copy = await repository.duplicateIntervention("intervention-worry-thermometer");
+
+    expect(copy.resource).toMatchObject({
+      id: "copied-intervention",
+      title: "Worry Thermometer Copy",
+      usageCount: 0,
+      favorite: false,
+    });
+    expect(copy.guidance.resourceId).toBe("copied-intervention");
+    expect((await repository.getInterventionById("copied-intervention")).starter).toBe(
+      false
+    );
+  });
+
   it("uses existing Resource Memory and Saved collections for imported Interventions", async () => {
     const { database, repository } = setup();
     const imported = pair("favorite-imported");

@@ -1,7 +1,8 @@
-import { Search, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { EmptyState, Page } from "../../components/layout";
+import { useNavigate } from "react-router-dom";
 import { interventions as starterInterventions } from "../../data/resources";
 import { filterInterventions } from "../../engines/interventions/filterInterventions";
 import { interventionRepository, resourceMemoryRepository } from "../../lib/data";
@@ -23,6 +24,7 @@ export default function InterventionsPage({
   const [ageRange, setAgeRange] = useState("");
   const [maxDuration, setMaxDuration] = useState("");
   const [telehealthOnly, setTelehealthOnly] = useState(false);
+  const navigate = useNavigate();
   const loadInterventions = useCallback(async () => {
     try {
       setInterventions(await repository.getAllInterventions());
@@ -84,6 +86,15 @@ export default function InterventionsPage({
     await loadInterventions();
   }
 
+  async function duplicateIntervention(intervention) {
+    try {
+      const copy = await repository.duplicateIntervention(intervention.id);
+      navigate(`/interventions/${copy.resource.id}/edit`);
+    } catch {
+      setSourceStatus("error");
+    }
+  }
+
   return (
     <Page
       className="interventions-page"
@@ -91,6 +102,14 @@ export default function InterventionsPage({
       title="Interventions"
     >
       <div className="intervention-library-tools">
+        <button
+          className="studio-button studio-button--primary"
+          onClick={() => navigate("/interventions/new/edit")}
+          type="button"
+        >
+          <Plus aria-hidden="true" size={17} />
+          New Intervention
+        </button>
         <button
           className="studio-button studio-button--secondary"
           onClick={() => setShowImport((value) => !value)}
@@ -188,6 +207,7 @@ export default function InterventionsPage({
               intervention={item}
               key={item.id}
               memoryRepository={memoryRepository}
+              onDuplicate={() => duplicateIntervention(item)}
               onDelete={item.starter ? undefined : () => deleteIntervention(item)}
             />
           ))}

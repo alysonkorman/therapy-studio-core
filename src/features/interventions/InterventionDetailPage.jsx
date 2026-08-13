@@ -1,6 +1,6 @@
-import { ArrowLeft, Clock3, Monitor } from "lucide-react";
+import { ArrowLeft, Copy, Clock3, Monitor, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { EmptyState, Page, Section } from "../../components/layout";
 import { interventionRepository } from "../../lib/data";
@@ -27,6 +27,7 @@ export default function InterventionDetailPage({
 }) {
   const { interventionId: routeId } = useParams();
   const interventionId = suppliedId ?? routeId;
+  const navigate = useNavigate();
   const [pair, setPair] = useState(null);
   const [status, setStatus] = useState("loading");
   useEffect(() => {
@@ -78,10 +79,33 @@ export default function InterventionDetailPage({
   return (
     <Page
       actions={
-        <Link className="studio-button studio-button--secondary" to="/interventions">
-          <ArrowLeft aria-hidden="true" size={17} />
-          Back to Interventions
-        </Link>
+        <div className="intervention-detail__actions">
+          <Link className="studio-button studio-button--secondary" to="/interventions">
+            <ArrowLeft aria-hidden="true" size={17} />
+            Back to Interventions
+          </Link>
+          {intervention.starter ? (
+            <button
+              className="studio-button studio-button--secondary"
+              onClick={async () => {
+                const copy = await repository.duplicateIntervention(intervention.id);
+                navigate(`/interventions/${copy.resource.id}/edit`);
+              }}
+              type="button"
+            >
+              <Copy aria-hidden="true" size={16} />
+              Duplicate to Edit
+            </button>
+          ) : (
+            <Link
+              className="studio-button studio-button--secondary"
+              to={`/interventions/${intervention.id}/edit`}
+            >
+              <Pencil aria-hidden="true" size={16} />
+              Edit Intervention
+            </Link>
+          )}
+        </div>
       }
       className="intervention-detail"
       description={intervention.description}

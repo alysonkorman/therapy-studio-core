@@ -150,6 +150,8 @@
 }
 .intervention-library-tools {
   display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
   justify-content: flex-end;
   margin-bottom: var(--space-3);
 }
@@ -219,5 +221,98 @@
 @media (max-width: 700px) {
   .intervention-conversion__grid {
     grid-template-columns: 1fr;
+  }
+}
+
+.intervention-detail__actions,
+.intervention-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.intervention-editor {
+  max-width: 920px;
+}
+.intervention-editor form {
+  display: grid;
+  gap: var(--space-4);
+}
+.intervention-editor__grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.intervention-editor label,
+.intervention-editor__repeatable {
+  color: var(--text);
+  display: grid;
+  font-size: 0.88rem;
+  font-weight: 700;
+  gap: var(--space-1);
+}
+.intervention-editor input,
+.intervention-editor textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  font-weight: 400;
+  min-height: 40px;
+  padding: 8px 10px;
+}
+.intervention-editor textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+.intervention-editor__wide {
+  grid-column: 1 / -1;
+}
+.intervention-editor__checkbox {
+  align-items: center;
+  display: flex !important;
+  font-weight: 600 !important;
+}
+.intervention-editor__checkbox input {
+  min-height: 18px;
+  width: 18px;
+}
+.intervention-editor__repeatable {
+  border: 0;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+}
+.intervention-editor__repeatable legend {
+  margin-bottom: var(--space-2);
+}
+.intervention-editor__repeatable-row {
+  align-items: center;
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr) repeat(3, auto);
+  margin-bottom: var(--space-2);
+}
+.intervention-editor__repeatable button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  padding: 7px 9px;
+}
+.intervention-editor__repeatable button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+@media (max-width: 600px) {
+  .intervention-editor__grid {
+    grid-template-columns: 1fr;
+  }
+  .intervention-editor__repeatable-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .intervention-editor__repeatable-row input {
+    grid-column: 1 / -1;
   }
 }

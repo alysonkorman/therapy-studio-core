@@ -1,4 +1,5 @@
 import Dexie from "dexie";
+import { nanoid } from "nanoid";
 
 import {
   getInterventionById as getStarterIntervention,
@@ -111,6 +112,8 @@ function publicResource(record) {
 
 export function createInterventionRepository({
   database = getTherapyStudioDatabase(),
+  createId = () => nanoid(),
+  now = () => new Date().toISOString(),
 } = {}) {
   const resources = () => database.table("resources");
   const guidance = () => database.table("interventionGuidance");
@@ -279,9 +282,47 @@ export function createInterventionRepository({
     });
   }
 
+  async function duplicateIntervention(id) {
+    const { resource, guidance: sourceGuidance } = await getInterventionPair(id);
+    const copyId = createId();
+    const timestamp = now();
+    const {
+      starter,
+      archived,
+      id: ignoredId,
+      createdAt,
+      updatedAt,
+      ...details
+    } = resource;
+    void starter;
+    void archived;
+    void ignoredId;
+    void createdAt;
+    void updatedAt;
+    return createIntervention({
+      resource: {
+        ...details,
+        id: copyId,
+        type: "intervention",
+        title: `${resource.title} Copy`,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        usageCount: 0,
+        lastUsedAt: null,
+        favorite: false,
+        rating: null,
+      },
+      guidance: {
+        ...sourceGuidance,
+        resourceId: copyId,
+      },
+    });
+  }
+
   return {
     createIntervention,
     deleteInterventionPermanently,
+    duplicateIntervention,
     getAllInterventions,
     getInterventionById,
     getInterventionGuidance,
