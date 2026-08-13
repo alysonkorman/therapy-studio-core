@@ -37,8 +37,10 @@ export default function PromptManageView({
   return (
     <div className="prompt-manage-view">
       <section className="deck-editor">
-        <div className="deck-editor__overview">
-          <span className="deck-editor__section-label">Deck Details</span>
+        <section className="deck-editor__overview" aria-labelledby="deck-details-title">
+          <h2 className="deck-editor__section-label" id="deck-details-title">
+            Deck Details
+          </h2>
           <div className="deck-editor__copy">
             <InlineEdit
               className="deck-editor__title"
@@ -58,7 +60,7 @@ export default function PromptManageView({
               value={deck.description}
             />
           </div>
-        </div>
+        </section>
         <section className="appearance-section" aria-labelledby="appearance-title">
           <div className="appearance-section__header">
             <h2 id="appearance-title">Appearance</h2>

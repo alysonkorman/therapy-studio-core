@@ -45,6 +45,13 @@ const rawCategoryDecks = [
   },
 ];
 
+function memoryRepository(entries = []) {
+  return {
+    getResourceMemory: vi.fn(async () => null),
+    getResourceMemoryMap: vi.fn(async () => new Map(entries)),
+  };
+}
+
 function authoringRepositories({
   createFailure,
   seedFailure,
@@ -347,6 +354,31 @@ describe("PromptsPage", () => {
     expect(screen.getByText("Showing 2 of 2 decks")).toBeVisible();
     expect(screen.getByRole("searchbox", { name: /search prompts/i })).toHaveValue("");
     expect(screen.getByRole("combobox", { name: /category/i })).toHaveValue("");
+  });
+
+  it("keeps Resource Memory, Sort, and Clear Results controls working", async () => {
+    const user = userEvent.setup();
+    renderWithRouter(
+      <PromptsPage
+        decks={testDecks}
+        memoryRepository={memoryRepository([
+          ["strengths", { favorite: true, rating: 5, useCount: 3 }],
+        ])}
+      />
+    );
+
+    const memory = screen.getByRole("combobox", { name: /resource memory/i });
+    await user.selectOptions(memory, "favorites");
+    expect(screen.getByRole("heading", { name: "Everyday Superpowers" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "Feelings Check-In" })).toBeNull();
+
+    await user.selectOptions(screen.getByRole("combobox", { name: /^sort$/i }), "rating");
+    expect(screen.getByRole("combobox", { name: /^sort$/i })).toHaveValue("rating");
+
+    await user.click(screen.getByRole("button", { name: /clear results/i }));
+    expect(memory).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: /^sort$/i })).toHaveValue("");
+    expect(screen.getByText("Showing 2 of 2 decks")).toBeVisible();
   });
 
   it("shows polished category labels while filtering with canonical raw values", async () => {

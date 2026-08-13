@@ -33,16 +33,30 @@
 /* -------------------------------------------------------------------------- */
 
 .prompt-filters {
-  align-items: end;
   background: var(--surface);
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(240px, 1fr) minmax(180px, 280px) auto;
   margin-bottom: 18px;
-  padding: 0 0 14px;
+  padding: 14px;
+}
+
+.prompt-filters__primary,
+.prompt-filters__secondary {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+}
+
+.prompt-filters__primary {
+  grid-template-columns: minmax(260px, 1.8fr) minmax(150px, 0.7fr) minmax(130px, 0.5fr);
+}
+
+.prompt-filters__secondary {
+  border-top: 1px solid var(--border);
+  grid-template-columns: minmax(180px, 260px) 1fr auto;
+  padding-top: 12px;
 }
 
 .prompt-filters label {
@@ -72,6 +86,13 @@
   min-width: 0;
 }
 
+.prompt-search-control button {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  font-weight: 750;
+}
+
 .prompt-filters button,
 .prompt-session__controls button {
   align-items: center;
@@ -85,6 +106,19 @@
   gap: 8px;
   justify-content: center;
   padding: 11px 14px;
+}
+
+.prompt-filters__secondary > button {
+  align-self: end;
+  background: transparent;
+  border-color: transparent;
+  color: var(--accent-dark);
+  font-size: 0.88rem;
+  padding: 8px 6px;
+}
+
+.prompt-filters__secondary > button:not(:disabled):hover {
+  background: var(--accent-soft);
 }
 
 .prompt-filters button:disabled,
@@ -105,11 +139,13 @@
 
 .prompts-page__summary {
   color: var(--muted);
-  margin: 0 0 16px;
+  font-size: 0.88rem;
+  margin: 0;
+  padding-bottom: 10px;
 }
 
 .prompt-library-tools {
-  margin: -4px 0 14px;
+  margin: 0 0 14px;
 }
 
 .prompt-library-tools > summary {
@@ -506,12 +542,21 @@
 /* -------------------------------------------------------------------------- */
 
 @media (max-width: 760px) {
-  .prompt-filters {
+  .prompt-filters__primary,
+  .prompt-filters__secondary {
     grid-template-columns: 1fr;
   }
 
   .prompt-search-control {
     flex-direction: column;
+  }
+
+  .prompt-filters__secondary > button {
+    align-self: start;
+  }
+
+  .prompts-page__summary {
+    padding-bottom: 0;
   }
 
   .prompt-deck-page__header {

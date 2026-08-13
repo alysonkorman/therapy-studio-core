@@ -111,58 +111,68 @@ export default function PromptsPage({
         className="prompt-filters"
         onSubmit={handleSearchSubmit}
       >
-        <label>
-          Search prompts
-          <span className="prompt-search-control">
-            <input
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search decks or prompt text"
-              type="search"
-              value={query}
-            />
-            <button type="submit">
-              <Search aria-hidden="true" size={18} />
-              Search
-            </button>
-          </span>
-        </label>
-        <label>
-          Resource Memory
-          <select
-            onChange={(event) => setMemoryFilter(event.target.value)}
-            value={memoryFilter}
-          >
-            <option value="">All decks</option>
-            <option value="favorites">Favorites</option>
-          </select>
-        </label>
-        <label>
-          Sort
-          <select
-            onChange={(event) => setMemorySort(event.target.value)}
-            value={memorySort}
-          >
-            <option value="">Library order</option>
-            <option value="rating">Highest rated</option>
-            <option value="recent">Recently used</option>
-            <option value="used">Most used</option>
-          </select>
-        </label>
-        <label>
-          Category
-          <select onChange={(event) => setCategory(event.target.value)} value={category}>
-            <option value="">All categories</option>
-            {categories.map((categoryName) => (
-              <option key={categoryName} value={categoryName}>
-                {formatPromptDisplayLabel(categoryName)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button disabled={!hasActiveFilters} onClick={clearResults} type="button">
-          <X aria-hidden="true" size={18} />
-          Clear results
-        </button>
+        <div className="prompt-filters__primary">
+          <label className="prompt-filters__search">
+            Search prompts
+            <span className="prompt-search-control">
+              <input
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search decks or prompt text"
+                type="search"
+                value={query}
+              />
+              <button type="submit">
+                <Search aria-hidden="true" size={18} />
+                Search
+              </button>
+            </span>
+          </label>
+          <label>
+            Resource Memory
+            <select
+              onChange={(event) => setMemoryFilter(event.target.value)}
+              value={memoryFilter}
+            >
+              <option value="">All decks</option>
+              <option value="favorites">Favorites</option>
+            </select>
+          </label>
+          <label>
+            Sort
+            <select
+              onChange={(event) => setMemorySort(event.target.value)}
+              value={memorySort}
+            >
+              <option value="">Library order</option>
+              <option value="rating">Highest rated</option>
+              <option value="recent">Recently used</option>
+              <option value="used">Most used</option>
+            </select>
+          </label>
+        </div>
+        <div className="prompt-filters__secondary">
+          <label>
+            Category
+            <select
+              onChange={(event) => setCategory(event.target.value)}
+              value={category}
+            >
+              <option value="">All categories</option>
+              {categories.map((categoryName) => (
+                <option key={categoryName} value={categoryName}>
+                  {formatPromptDisplayLabel(categoryName)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p aria-live="polite" className="prompts-page__summary">
+            Showing {matchingDecks.length} of {visibleDecks.length} decks
+          </p>
+          <button disabled={!hasActiveFilters} onClick={clearResults} type="button">
+            <X aria-hidden="true" size={16} />
+            Clear results
+          </button>
+        </div>
       </form>
 
       {!suppliedDecks ? (
@@ -206,10 +216,6 @@ export default function PromptsPage({
           </div>
         </details>
       ) : null}
-
-      <p className="prompts-page__summary" aria-live="polite">
-        Showing {matchingDecks.length} of {visibleDecks.length} decks
-      </p>
 
       {matchingDecks.length ? (
         <div className="prompt-deck-grid">
