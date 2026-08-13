@@ -23,6 +23,18 @@ import { IconBrowserField } from "../icons";
 import LiveSessionPanel from "../live-sessions/LiveSessionPanel";
 import { useLiveSession } from "../live-sessions/useLiveSession";
 import { createLiveSession } from "../../models/liveSession";
+import { createProductionWebSocketTransport } from "../live-sessions/productionWebSocketTransport";
+import {
+  createRemoteLiveSession,
+  getHostRoomCredential,
+  endRemoteLiveSession,
+} from "../live-sessions/liveSessionApi";
+import {
+  captureCognitoHostToken,
+  getCognitoHostToken,
+  hasConfiguredLiveSessionBackend,
+  liveSessionLoginUrl,
+} from "../live-sessions/liveSessionHostAuth";
 import WhiteboardCanvas from "./WhiteboardCanvas";
 import ActivityImportPanel from "./ActivityImportPanel";
 import SessionCanvasStartPanel from "./SessionCanvasStartPanel";
@@ -121,6 +133,13 @@ export default function WhiteboardPage({
     role: activeLiveSession?.role,
     sessionId: activeLiveSession?.sessionId,
     sharedState: projectWhiteboardForLiveSession(document),
+    transportFactory: activeLiveSession?.credential
+      ? (options) =>
+          createProductionWebSocketTransport({
+            ...options,
+            credential: activeLiveSession.credential,
+          })
+      : undefined,
   });
 
   const liveEnded = Boolean(activeLiveSession && live.status === "ended");
@@ -430,7 +449,40 @@ export default function WhiteboardPage({
     commit(updateWhiteboardObject(document, selected.id, changes));
   }
 
-  function createLocalLiveSession() {
+  async function createLocalLiveSession() {
+    if (hasConfiguredLiveSessionBackend()) {
+      const token = captureCognitoHostToken();
+      if (!token) {
+        const login = liveSessionLoginUrl();
+        if (login) window.location.assign(login);
+        else setMessage("Sign in to use Live Sessions.");
+        return;
+      }
+      try {
+        const created = await createRemoteLiveSession({
+          state: projectWhiteboardForLiveSession(document),
+          token,
+        });
+        const credential = await getHostRoomCredential({ sessionId: created.id, token });
+        setHostLiveSession({
+          ...created,
+          credential,
+          role: "host",
+          sessionId: created.id,
+        });
+        setShowStarters(false);
+        setMessage("Live Session ready. Copy the participant link.");
+      } catch {
+        setMessage(
+          "Live Session is unavailable. You can continue using this Whiteboard locally."
+        );
+      }
+      return;
+    }
+    if (!import.meta.env.DEV) {
+      setMessage("Remote Live Sessions are not configured.");
+      return;
+    }
     const created = createLiveSession({
       activityKind: "whiteboard",
       expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
@@ -456,7 +508,17 @@ export default function WhiteboardPage({
     }
   }
 
-  function endLocalLiveSession() {
+  async function endLocalLiveSession() {
+    if (hostLiveSession?.credential) {
+      try {
+        await endRemoteLiveSession({
+          sessionId: hostLiveSession.sessionId,
+          token: getCognitoHostToken(),
+        });
+      } catch {
+        /* transport end remains safe locally */
+      }
+    }
     live.endSession();
     setHostLiveSession((current) =>
       current ? { ...current, status: "ended" } : current

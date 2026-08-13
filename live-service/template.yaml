@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Therapy Studio Live Sessions. Do not deploy with PHI before completing BAA and security review.
+
+Parameters:
+  FrontendOrigin:
+    Type: String
+    Default: http://localhost:5173
+  TokenSigningSecret:
+    Type: String
+    NoEcho: true
+
+Resources:
+  HostPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      MfaConfiguration: OPTIONAL
+      UsernameAttributes: [email]
+      AutoVerifiedAttributes: [email]
+      Policies:
+        PasswordPolicy:
+          {
+            MinimumLength: 14,
+            RequireLowercase: true,
+            RequireNumbers: true,
+            RequireSymbols: true,
+            RequireUppercase: true,
+          }
+  Rooms:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        [{ AttributeName: pk, AttributeType: S }, { AttributeName: sk, AttributeType: S }]
+      KeySchema:
+        [{ AttributeName: pk, KeyType: HASH }, { AttributeName: sk, KeyType: RANGE }]
+      TimeToLiveSpecification: { AttributeName: ttl, Enabled: true }
+      SSESpecification: { SSEEnabled: true }
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        {
+          AllowOrigins: [!Ref FrontendOrigin],
+          AllowHeaders: [authorization, content-type],
+          AllowMethods: [POST],
+        }
+  WebSocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      {
+        Name: therapy-studio-live-sessions,
+        ProtocolType: WEBSOCKET,
+        RouteSelectionExpression: "$request.body.type",
+      }
+  RoomHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: src/aws.handler
+      Runtime: nodejs22.x
+      Timeout: 10
+      Environment:
+        Variables:
+          { ROOMS_TABLE: !Ref Rooms, TOKEN_SIGNING_SECRET: !Ref TokenSigningSecret }
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref Rooms }
+        - Statement:
+            - Effect: Allow
+              Action: [execute-api:ManageConnections]
+              Resource: "*"
+
+# HTTP and WebSocket route integrations are intentionally documented in README.md.
+# Complete the Cognito authorizer and API Gateway route wiring in a non-PHI AWS account;
+# no deployment is performed by this repository.

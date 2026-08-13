@@ -333,6 +333,35 @@ end-session behavior, but is not internet networking. A future authenticated roo
 transport will be responsible for host authorization, short-lived participant tokens,
 authoritative revisions, expiry, and cross-device delivery.
 
+## Live Sessions Production Transport (Phase 1B)
+
+Phase 1B adds an undeployed AWS SAM project at `live-service/`. Its intended production
+boundary is Cognito host authentication, API Gateway HTTP endpoints for room and
+short-lived credential operations, API Gateway WebSockets for delivery, Lambda for
+authoritative action validation, and DynamoDB for minimal ephemeral room state. The React
+client consumes it through the existing Live Session transport boundary; Whiteboard itself
+does not depend on AWS SDKs.
+
+Participant links use an opaque room ID and a high-entropy capability in the URL fragment.
+The service stores only its hash, exchanges it for a five-minute room-and-role scoped
+WebSocket credential, and removes the fragment after exchange. A room stores only its
+validated Whiteboard projection, revision, lifecycle/expiry metadata, host subject, and
+connection metadata. It excludes local media, Resource Memory, Session Profiles, notes,
+canonical Resources, backups, and client identifiers. DynamoDB TTL is cleanup only; the
+room authority enforces expiry on every request.
+
+The server never trusts client roles or client revisions. It validates the authenticated
+connection role and allowlisted action, checks `baseRevision`, applies the adapter action,
+increments the authoritative revision, persists, then broadcasts a snapshot. Selection,
+tools, history, zoom, pan, persistence UI, and imported media remain local. Logs must
+exclude room IDs, action/snapshot content, credentials, capabilities, Resource IDs, and
+clinical metadata.
+
+Production use requires deliberate AWS BAA, eligible-service configuration, Cognito MFA,
+retention/access controls, API Gateway query/body log redaction, frontend-hosting boundary,
+and legal/compliance review. Tests and this architecture do **not** establish HIPAA
+compliance. See `live-service/README.md` for the exact preclinical setup checklist.
+
 Participant links use a dedicated `/join/:sessionId` route outside `AppLayout`. That
 surface mounts only minimal Therapy Studio identity, connection state, and the permitted
 activity UI; it does not mount navigation, libraries, Settings, backups, Session Profiles,
