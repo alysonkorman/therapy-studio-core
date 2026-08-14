@@ -14,7 +14,7 @@ describe("Live Session participant route", () => {
       { initialEntries: ["/join/local-test"] }
     );
 
-    expect(screen.getAllByText("Live Activity")).toHaveLength(2);
+    expect(screen.getByText("Live Activity")).toBeVisible();
     expect(screen.getByRole("heading", { name: "Whiteboard Session" })).toBeVisible();
     expect(screen.queryByLabelText("Main navigation")).toBeNull();
     expect(screen.queryByText("Therapist Resource Memory")).toBeNull();

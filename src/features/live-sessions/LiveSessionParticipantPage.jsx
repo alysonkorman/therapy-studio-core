@@ -46,10 +46,6 @@ export default function LiveSessionParticipantPage() {
 
   return (
     <main className="live-session-participant-page">
-      <header className="live-session-participant-brand">
-        <strong>Therapy Studio</strong>
-        <span>Live Activity</span>
-      </header>
       {credential || state === "local" ? (
         ParticipantView ? (
           <ParticipantView liveSession={{ credential, role: "participant", sessionId }} />

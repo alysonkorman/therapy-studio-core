@@ -56,7 +56,14 @@ export default function WhiteboardCanvas({
           className="whiteboard-stroke"
           fill="none"
           key={object.id}
-          onPointerDown={(event) => onStrokeErase(event, object.id)}
+          onPointerDown={
+            draft || object.locked
+              ? undefined
+              : (event) => {
+                  if (tool === "erase") onStrokeErase(event, object);
+                  else onObjectPointerDown(event, object);
+                }
+          }
           points={pointsValue(object.points)}
           stroke={object.color}
           strokeLinecap="round"

@@ -23,6 +23,7 @@ export function createProductionWebSocketTransport({
   };
   return {
     available: !unavailable,
+    authoritative: true,
     connect(nextHandlers = {}) {
       handlers = nextHandlers;
       if (unavailable) {

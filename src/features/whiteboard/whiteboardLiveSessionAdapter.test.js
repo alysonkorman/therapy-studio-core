@@ -41,27 +41,111 @@ describe("Whiteboard Live Session adapter", () => {
     expect(state).toEqual({
       version: 1,
       objects: [expect.objectContaining({ id: "draw" })],
+      session: {
+        participantPermission: "everything",
+        participantPreset: "young",
+      },
     });
     expect(JSON.stringify(state)).not.toContain("local-only");
   });
 
-  it("allows validated replacement actions for host and participant only", () => {
-    const state = { version: 1, objects: [] };
-    const action = { type: "whiteboard/replace", state };
+  it("enforces participant editing permissions in the shared action layer", () => {
+    const state = { version: 1, objects: [], session: {} };
+    const action = {
+      type: "whiteboard/add",
+      object: {
+        id: "stroke",
+        kind: "stroke",
+        points: [
+          { x: 1, y: 1 },
+          { x: 2, y: 2 },
+        ],
+        color: "#112233",
+        width: 4,
+      },
+    };
 
     expect(whiteboardLiveSessionAdapter.validateAction("host", action).success).toBe(
       true
     );
     expect(
-      whiteboardLiveSessionAdapter.validateAction("participant", action).success
+      whiteboardLiveSessionAdapter.validateAction("participant", action, state).success
     ).toBe(true);
     expect(whiteboardLiveSessionAdapter.validateAction("observer", action).success).toBe(
       false
     );
     expect(
-      whiteboardLiveSessionAdapter.validateAction("participant", { type: "delete" })
-        .success
+      whiteboardLiveSessionAdapter.validateAction(
+        "participant",
+        { type: "delete" },
+        state
+      ).success
     ).toBe(false);
+    expect(
+      whiteboardLiveSessionAdapter.validateAction(
+        "participant",
+        { type: "whiteboard/delete", id: "locked" },
+        {
+          ...state,
+          objects: [{ ...action.object, id: "locked", locked: true }],
+        }
+      ).success
+    ).toBe(false);
+    expect(
+      whiteboardLiveSessionAdapter.validateAction(
+        "participant",
+        { type: "whiteboard/replace", state },
+        state
+      ).success
+    ).toBe(false);
+    expect(
+      whiteboardLiveSessionAdapter.validateAction(
+        "participant",
+        {
+          ...action,
+          object: {
+            ...action.object,
+            kind: "rectangle",
+            fillColor: "transparent",
+            strokeColor: "#112233",
+            strokeWidth: 4,
+            width: 20,
+            height: 20,
+          },
+        },
+        {
+          ...state,
+          session: { participantPermission: "draw-only", participantPreset: "young" },
+        }
+      ).success
+    ).toBe(false);
+    expect(
+      whiteboardLiveSessionAdapter.validateAction(
+        "participant",
+        {
+          type: "whiteboard/session-settings",
+          session: { participantPermission: "draw-only", participantPreset: "older" },
+        },
+        state
+      ).success
+    ).toBe(false);
+  });
+
+  it("keeps tools and colors local while synchronizing host participant settings", () => {
+    const state = projectWhiteboardForLiveSession(board([]), {
+      participantPermission: "draw-only",
+      participantPreset: "older",
+    });
+    expect(state).toEqual(
+      expect.objectContaining({
+        session: {
+          participantPermission: "draw-only",
+          participantPreset: "older",
+        },
+      })
+    );
+    expect(state).not.toHaveProperty("tool");
+    expect(state).not.toHaveProperty("strokeColor");
   });
 
   it("rejects malformed or local-media snapshots", () => {

@@ -409,6 +409,93 @@
   flex-basis: 100%;
 }
 
+.whiteboard-session-settings,
+.whiteboard-session-controls {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-2);
+}
+
+.whiteboard-session-settings label {
+  align-items: center;
+  display: flex;
+  font-size: var(--meta-size);
+  font-weight: 700;
+  gap: var(--space-1);
+}
+
+.whiteboard-session-settings select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-height: 2.25rem;
+  padding-inline: var(--space-1);
+}
+
+.whiteboard-page--session-view {
+  gap: var(--space-2);
+  max-width: none;
+  min-height: 100vh;
+  padding: var(--space-2);
+}
+
+.whiteboard-page--session-view .whiteboard-workspace {
+  flex: 1;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.whiteboard-page--session-view .whiteboard-canvas {
+  max-height: none;
+  min-height: 0;
+  height: calc(100vh - 11rem);
+}
+
+.app-shell:has(.whiteboard-page--session-view) .sidebar,
+.app-shell:has(.whiteboard-page--session-view) .shell-toolbar {
+  display: none;
+}
+
+.app-shell:has(.whiteboard-page--session-view) .shell-workspace,
+.app-shell:has(.whiteboard-page--session-view) .main-content {
+  min-height: 100vh;
+  padding: 0;
+}
+
+.live-session-participant-page .whiteboard-page--session-view {
+  padding: 0;
+}
+
+.live-session-participant-page .whiteboard-header {
+  padding: var(--space-2);
+}
+
+.live-session-participant-page .whiteboard-workspace {
+  border: 0;
+  border-radius: 0;
+  min-height: calc(100vh - 4.5rem);
+  padding: var(--space-1);
+}
+
+.live-session-participant-page .whiteboard-canvas {
+  height: calc(100vh - 11rem);
+  max-height: none;
+  min-height: 0;
+}
+
+.live-session-participant-page .whiteboard-toolbar {
+  box-shadow: none;
+}
+
+.live-session-participant-page .whiteboard-toolbar button {
+  min-height: 3rem;
+  min-width: 3rem;
+}
+
 @media (max-width: 60rem) {
   .session-canvas-start__grid {
     grid-template-columns: 1fr;
@@ -433,6 +520,12 @@
   }
   .whiteboard-canvas {
     min-height: 28rem;
+  }
+
+  .whiteboard-page--session-view .whiteboard-canvas,
+  .live-session-participant-page .whiteboard-canvas {
+    height: calc(100vh - 10rem);
+    min-height: 0;
   }
 }
 
@@ -465,5 +558,15 @@
   }
   .whiteboard-clear {
     bottom: 4rem;
+  }
+
+  .live-session-participant-page .whiteboard-toolbar {
+    justify-content: center;
+    overflow: visible;
+  }
+
+  .live-session-participant-page .whiteboard-toolbar button {
+    flex: 1 0 2.8rem;
+    max-width: 4.75rem;
   }
 }

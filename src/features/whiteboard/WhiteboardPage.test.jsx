@@ -301,7 +301,7 @@ describe("WhiteboardPage", () => {
   it("does not render therapist-private Resource Memory in the canvas", () => {
     renderPage();
     expect(screen.queryByText(/private notes|resource memory/i)).toBeNull();
-    expect(screen.getByText(/Internet collaboration is not enabled/i)).toBeVisible();
+    expect(screen.getByText(/Same-browser tab sharing is available/i)).toBeVisible();
   });
 
   it("opens an image as a locked activity and resets only added marks", async () => {

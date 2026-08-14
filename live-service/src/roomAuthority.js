@@ -121,16 +121,25 @@ export function createRoomAuthority({
         role: credential.role,
         ttl: room.ttl,
       });
-      return { replaced, snapshot: snapshot(room) };
+      return { replaced, room, snapshot: snapshot(room) };
     },
     async action({ connectionId, message }) {
       const connection = await store.getConnection(connectionId);
       const room = connection && (await load(connection.roomId));
       if (!connection || !room || room.status === "ended" || room.status === "expired")
         throw new Error("forbidden");
-      if (!hasSafeActionSize(message) || message.baseRevision !== room.revision)
+      if (!hasSafeActionSize(message))
         return { accepted: false, snapshot: snapshot(room), code: "stale" };
-      const validated = adapter.validateAction(connection.role, message.action);
+      if (
+        message.baseRevision !== room.revision &&
+        !adapter.isRebasableAction?.(connection.role, message.action, room.state)
+      )
+        return { accepted: false, snapshot: snapshot(room), code: "stale" };
+      const validated = adapter.validateAction(
+        connection.role,
+        message.action,
+        room.state
+      );
       if (!validated.success) throw new Error("invalid");
       room.state = adapter.applyAction(room.state, validated.data);
       room.revision += 1;
@@ -153,7 +162,20 @@ export function createRoomAuthority({
       return { room, message: { type: "ended", version: LIVE_SESSION_PROTOCOL_VERSION } };
     },
     async disconnect(connectionId) {
+      const connection = await store.getConnection(connectionId);
+      const room = connection && (await load(connection.roomId));
       await store.deleteConnection(connectionId);
+      if (!room) return null;
+      if (connection.role === "host" && room.hostConnectionId === connectionId)
+        room.hostConnectionId = undefined;
+      if (
+        connection.role === "participant" &&
+        room.participantConnectionId === connectionId
+      )
+        room.participantConnectionId = undefined;
+      if (room.status !== "ended") room.status = "waiting";
+      await store.putRoom(room);
+      return { room, snapshot: snapshot(room) };
     },
     log(event, details) {
       return sanitizeLiveLog(event, details);

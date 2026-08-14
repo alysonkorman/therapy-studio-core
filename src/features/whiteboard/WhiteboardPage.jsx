@@ -103,6 +103,11 @@ export default function WhiteboardPage({
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [hostLiveSession, setHostLiveSession] = useState(null);
+  const [liveSettings, setLiveSettings] = useState({
+    participantPermission: "everything",
+    participantPreset: "young",
+  });
+  const [sessionView, setSessionView] = useState(false);
   const adapterRef = useRef(null);
   const createLiveSessionRef = useRef(null);
   const participantId = useRef(createId());
@@ -133,21 +138,29 @@ export default function WhiteboardPage({
         objects: sharedState.objects,
       })
     );
+    setLiveSettings(sharedState.session);
   }, []);
+
+  // A transport factory is an effect dependency inside useLiveSession. Keep it
+  // stable across Whiteboard document updates so completing a stroke does not
+  // disconnect and replace the active production WebSocket.
+  const productionTransportFactory = useMemo(() => {
+    const credential = activeLiveSession?.credential;
+    if (!credential) return undefined;
+    return (options) =>
+      createProductionWebSocketTransport({
+        ...options,
+        credential,
+      });
+  }, [activeLiveSession?.credential]);
 
   const live = useLiveSession({
     adapter: whiteboardLiveSessionAdapter,
     onRemoteState: applyRemoteSharedState,
     role: activeLiveSession?.role,
     sessionId: activeLiveSession?.sessionId,
-    sharedState: projectWhiteboardForLiveSession(document),
-    transportFactory: activeLiveSession?.credential
-      ? (options) =>
-          createProductionWebSocketTransport({
-            ...options,
-            credential: activeLiveSession.credential,
-          })
-      : undefined,
+    sharedState: projectWhiteboardForLiveSession(document, liveSettings),
+    transportFactory: productionTransportFactory,
   });
 
   const liveEnded = Boolean(activeLiveSession && live.status === "ended");
@@ -169,7 +182,8 @@ export default function WhiteboardPage({
   function commit(next) {
     if (liveEnded) return;
     setHistory((current) => commitHistory(current, next));
-    if (activeLiveSession) live.publishState(projectWhiteboardForLiveSession(next));
+    if (activeLiveSession)
+      live.publishState(projectWhiteboardForLiveSession(next, liveSettings));
     else adapterRef.current?.publish(next);
   }
 
@@ -301,7 +315,7 @@ export default function WhiteboardPage({
           future: [],
         };
         if (activeLiveSession)
-          live.publishState(projectWhiteboardForLiveSession(next.present));
+          live.publishState(projectWhiteboardForLiveSession(next.present, liveSettings));
         else adapterRef.current?.publish(next.present);
         return next;
       });
@@ -310,7 +324,7 @@ export default function WhiteboardPage({
   }
 
   function objectPointerDown(event, object) {
-    if (liveEnded) return;
+    if (liveEnded || object.locked) return;
     if (tool === "erase") {
       event.stopPropagation();
       commit(deleteWhiteboardObject(document, object.id));
@@ -403,7 +417,7 @@ export default function WhiteboardPage({
   }
 
   function setImageAsBackground() {
-    if (selected?.kind !== "image") return;
+    if (selected?.kind !== "image" || !canEditSelected) return;
     const image = {
       ...selected,
       ...fitActivity(selected),
@@ -453,7 +467,7 @@ export default function WhiteboardPage({
   }
 
   function updateSelected(changes) {
-    if (!selected) return;
+    if (!selected || !canEditSelected) return;
     commit(updateWhiteboardObject(document, selected.id, changes));
   }
 
@@ -465,13 +479,12 @@ export default function WhiteboardPage({
         if (login) {
           rememberPendingLiveSessionInvite();
           window.location.assign(login);
-        }
-        else setMessage("Sign in to use Live Sessions.");
+        } else setMessage("Sign in to use Live Sessions.");
         return;
       }
       try {
         const created = await createRemoteLiveSession({
-          state: projectWhiteboardForLiveSession(document),
+          state: projectWhiteboardForLiveSession(document, liveSettings),
           token,
         });
         const credential = await getHostRoomCredential({ sessionId: created.id, token });
@@ -509,7 +522,7 @@ export default function WhiteboardPage({
     });
     setShowStarters(false);
     setMessage("Local Live Session ready. Open the participant link in another tab.");
-  }, [createId, document]);
+  }, [createId, document, liveSettings]);
 
   useEffect(() => {
     createLiveSessionRef.current = createLocalLiveSession;
@@ -554,12 +567,23 @@ export default function WhiteboardPage({
   }
 
   const selectedStyleKind = selected?.kind;
+  const participantPreset = liveSettings.participantPreset;
+  const canEditSelected =
+    !participantMode ||
+    (!selected?.locked && liveSettings.participantPermission !== "draw-only");
+
+  function updateLiveSettings(changes) {
+    if (participantMode || !activeLiveSession) return;
+    const next = { ...liveSettings, ...changes };
+    setLiveSettings(next);
+    live.publishState(projectWhiteboardForLiveSession(document, next));
+  }
   const styleVisible =
     ["draw", "rectangle", "ellipse", "arrow", "text"].includes(tool) || selected;
 
   useEffect(() => {
     function deleteSelected(event) {
-      if (!selected || selected.locked || !["Backspace", "Delete"].includes(event.key)) {
+      if (!selected || !canEditSelected || !["Backspace", "Delete"].includes(event.key)) {
         return;
       }
       const target = event.target;
@@ -578,7 +602,9 @@ export default function WhiteboardPage({
   });
 
   return (
-    <main className="whiteboard-page">
+    <main
+      className={`whiteboard-page ${sessionView || participantMode ? "whiteboard-page--session-view" : ""}`}
+    >
       <header className="whiteboard-header">
         <div>
           <p className="eyebrow">
@@ -594,6 +620,24 @@ export default function WhiteboardPage({
                 ? "Connected"
                 : "Connecting to session…"}
           </p>
+        ) : sessionView ? (
+          <div className="whiteboard-session-controls">
+            <span aria-live="polite">
+              {live.participantState === "connected"
+                ? "Child connected"
+                : "Waiting for child"}
+            </span>
+            <button onClick={() => setSessionView(false)} type="button">
+              Exit Session View
+            </button>
+            <button
+              className="whiteboard-delete"
+              onClick={endLocalLiveSession}
+              type="button"
+            >
+              End Session
+            </button>
+          </div>
         ) : (
           <div className="whiteboard-document-controls">
             <label>
@@ -651,6 +695,7 @@ export default function WhiteboardPage({
           onCopy={() => void copyParticipantLink()}
           onCreate={createLocalLiveSession}
           onEnd={endLocalLiveSession}
+          onEnterSessionView={() => setSessionView(true)}
           participantState={live.participantState}
           session={hostLiveSession}
         />
@@ -675,13 +720,67 @@ export default function WhiteboardPage({
 
       <section className="whiteboard-workspace">
         <WhiteboardToolbar
+          canRedo={Boolean(history.future.length)}
+          canUndo={Boolean(history.past.length)}
           disabled={liveEnded}
           onShowActivity={() => setShowActivityImport(true)}
           onShowIcons={() => setShowIcons(true)}
           onToolChange={setTool}
+          onUndo={() => {
+            const next = undoHistory(history);
+            setHistory(next);
+            if (activeLiveSession)
+              live.publishState(
+                projectWhiteboardForLiveSession(next.present, liveSettings)
+              );
+          }}
+          onRedo={() => {
+            const next = redoHistory(history);
+            setHistory(next);
+            if (activeLiveSession)
+              live.publishState(
+                projectWhiteboardForLiveSession(next.present, liveSettings)
+              );
+          }}
           participantMode={participantMode}
+          participantPermission={liveSettings.participantPermission}
+          participantPreset={participantPreset}
           tool={tool}
         />
+        {activeLiveSession && !participantMode && !sessionView ? (
+          <aside
+            aria-label="Participant session controls"
+            className="whiteboard-session-settings"
+          >
+            <label>
+              Child interface
+              <select
+                aria-label="Child interface"
+                onChange={(event) =>
+                  updateLiveSettings({ participantPreset: event.target.value })
+                }
+                value={participantPreset}
+              >
+                <option value="young">Young Child</option>
+                <option value="older">Older Kid</option>
+              </select>
+            </label>
+            <label>
+              Child editing
+              <select
+                aria-label="Child editing permission"
+                onChange={(event) =>
+                  updateLiveSettings({ participantPermission: event.target.value })
+                }
+                value={liveSettings.participantPermission}
+              >
+                <option value="everything">Everything</option>
+                <option value="unlocked-items-only">Unlocked Items Only</option>
+                <option value="draw-only">Draw Only</option>
+              </select>
+            </label>
+          </aside>
+        ) : null}
         {styleVisible ? (
           <aside aria-label="Style controls" className="whiteboard-style-panel">
             <span>{selected ? "Selected" : "Style"}</span>
@@ -827,7 +926,17 @@ export default function WhiteboardPage({
             ) : null}
             {selected ? (
               <button
+                disabled={!canEditSelected}
+                onClick={() => updateSelected({ locked: !selected.locked })}
+                type="button"
+              >
+                {selected.locked ? "Unlock" : "Lock"}
+              </button>
+            ) : null}
+            {selected ? (
+              <button
                 className="whiteboard-delete"
+                disabled={!canEditSelected}
                 onClick={() => {
                   commit(deleteWhiteboardObject(document, selected.id));
                   setSelectedId(null);
@@ -903,14 +1012,15 @@ export default function WhiteboardPage({
             onPointerMove={pointerMove}
             onPointerUp={pointerUp}
             onResizePointerDown={(event, object) => {
-              if (liveEnded) return;
+              if (liveEnded || object.locked || (participantMode && !canEditSelected))
+                return;
               event.stopPropagation();
               setGesture({ type: "resize", document, object, start: point(event) });
             }}
-            onStrokeErase={(event, objectId) => {
-              if (tool !== "erase") return;
+            onStrokeErase={(event, object) => {
+              if (tool !== "erase" || object.locked) return;
               event.stopPropagation();
-              commit(deleteWhiteboardObject(document, objectId));
+              commit(deleteWhiteboardObject(document, object.id));
             }}
             pan={pan}
             selectedId={selectedId}
@@ -930,7 +1040,9 @@ export default function WhiteboardPage({
                   const next = undoHistory(history);
                   setHistory(next);
                   if (activeLiveSession)
-                    live.publishState(projectWhiteboardForLiveSession(next.present));
+                    live.publishState(
+                      projectWhiteboardForLiveSession(next.present, liveSettings)
+                    );
                   else adapterRef.current?.publish(next.present);
                 }}
                 type="button"
@@ -944,7 +1056,9 @@ export default function WhiteboardPage({
                   const next = redoHistory(history);
                   setHistory(next);
                   if (activeLiveSession)
-                    live.publishState(projectWhiteboardForLiveSession(next.present));
+                    live.publishState(
+                      projectWhiteboardForLiveSession(next.present, liveSettings)
+                    );
                   else adapterRef.current?.publish(next.present);
                 }}
                 type="button"
@@ -983,8 +1097,9 @@ export default function WhiteboardPage({
         </div>
       </section>
       <p className="whiteboard-sharing-note">
-        Safe for screen sharing. Same-browser tab sharing is available; internet
-        collaboration is not enabled.
+        {hasConfiguredLiveSessionBackend()
+          ? "Safe for screen sharing. Invite a child to collaborate in this non-PHI development session."
+          : "Safe for screen sharing. Same-browser tab sharing is available."}
       </p>
     </main>
   );

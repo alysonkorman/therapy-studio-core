@@ -3,6 +3,7 @@ import { z } from "zod";
 const pointSchema = z.object({ x: z.number().finite(), y: z.number().finite() }).strict();
 const colorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 const fillSchema = z.union([colorSchema, z.literal("transparent")]);
+const lockable = { locked: z.boolean().default(false) };
 
 export const whiteboardStrokeSchema = z
   .object({
@@ -11,6 +12,7 @@ export const whiteboardStrokeSchema = z
     points: z.array(pointSchema).min(2),
     color: colorSchema,
     width: z.number().min(1).max(40),
+    ...lockable,
   })
   .strict();
 
@@ -23,6 +25,7 @@ export const whiteboardTextSchema = z
     y: z.number().finite(),
     color: colorSchema,
     size: z.number().min(12).max(96),
+    ...lockable,
   })
   .strict();
 
@@ -35,6 +38,7 @@ export const whiteboardVisualSchema = z
     y: z.number().finite(),
     width: z.number().min(32).max(600),
     height: z.number().min(32).max(600),
+    ...lockable,
   })
   .strict();
 
@@ -64,6 +68,7 @@ export const whiteboardShapeSchema = z
     strokeColor: colorSchema,
     fillColor: fillSchema,
     strokeWidth: z.number().min(1).max(40),
+    ...lockable,
   })
   .strict();
 
@@ -78,6 +83,7 @@ export const whiteboardArrowSchema = z
     strokeColor: colorSchema,
     strokeWidth: z.number().min(1).max(40),
     label: z.string().trim().max(160).optional(),
+    ...lockable,
   })
   .strict();
 

@@ -3,6 +3,7 @@ import { Copy, Link2, X } from "lucide-react";
 export default function LiveSessionPanel({
   onCreate,
   onEnd,
+  onEnterSessionView,
   onCopy,
   participantState,
   session,
@@ -24,6 +25,9 @@ export default function LiveSessionPanel({
       <code>{session.participantUrl}</code>
       <button onClick={onCopy} type="button">
         <Copy aria-hidden="true" size={16} /> Copy Link
+      </button>
+      <button onClick={onEnterSessionView} type="button">
+        Enter Session View
       </button>
       <button
         className="whiteboard-live-session-panel__end"

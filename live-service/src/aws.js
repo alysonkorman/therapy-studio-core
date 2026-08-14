@@ -114,11 +114,12 @@ export async function handler(event) {
         connectionId: event.requestContext.connectionId,
         credential,
       });
-      await send(event, event.requestContext.connectionId, connected.snapshot);
+      await broadcast(event, connected.room, connected.snapshot);
       return { statusCode: 200 };
     }
     if (route === "$disconnect") {
-      await authority.disconnect(event.requestContext.connectionId);
+      const disconnected = await authority.disconnect(event.requestContext.connectionId);
+      if (disconnected) await broadcast(event, disconnected.room, disconnected.snapshot);
       return { statusCode: 200 };
     }
     if (route === "$default") {

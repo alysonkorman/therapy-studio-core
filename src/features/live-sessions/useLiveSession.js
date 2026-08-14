@@ -12,7 +12,8 @@ export function useLiveSession({
   sharedState,
   transportFactory = createLocalBroadcastTransport,
 }) {
-  const stateRef = useRef(sharedState);
+  const initialState = adapter.validateSnapshot(sharedState);
+  const stateRef = useRef(initialState.success ? initialState.data : sharedState);
   const revisionRef = useRef(0);
   const transportRef = useRef(null);
   const participantIdRef = useRef(nanoid());
@@ -20,8 +21,9 @@ export function useLiveSession({
   const [participantState, setParticipantState] = useState("waiting");
 
   useEffect(() => {
-    stateRef.current = sharedState;
-  }, [sharedState]);
+    const parsed = adapter.validateSnapshot(sharedState);
+    if (parsed.success) stateRef.current = parsed.data;
+  }, [adapter, sharedState]);
 
   useEffect(() => {
     revisionRef.current = 0;
@@ -48,7 +50,8 @@ export function useLiveSession({
         }
         const validatedAction = adapter.validateAction(
           parsed.data.role,
-          parsed.data.action
+          parsed.data.action,
+          stateRef.current
         );
         if (!validatedAction.success) return;
         const nextState = adapter.applyAction(stateRef.current, validatedAction.data);
@@ -77,13 +80,15 @@ export function useLiveSession({
         setStatus("ended");
       },
       onSnapshot({ snapshot }) {
-        if (role !== "participant") return;
         const parsed = adapter.validateSnapshot(snapshot?.state);
         if (!parsed.success || !Number.isInteger(snapshot?.revision)) return;
         if (snapshot.revision < revisionRef.current) return;
         revisionRef.current = snapshot.revision;
         stateRef.current = parsed.data;
         onRemoteState(parsed.data);
+        if (role === "host") {
+          setParticipantState(snapshot.presence?.participant ? "connected" : "waiting");
+        }
         setStatus("connected");
       },
     });
@@ -99,21 +104,24 @@ export function useLiveSession({
       if (!sessionId || !role || status === "ended") return;
       const snapshot = adapter.validateSnapshot(nextState);
       if (!snapshot.success) return;
-      stateRef.current = snapshot.data;
+      const previous = adapter.validateSnapshot(stateRef.current);
+      if (!previous.success) return;
+      const previousState = previous.data;
       const transport = transportRef.current;
       if (!transport?.available) return;
-      if (role === "host") {
+      if (!transport.authoritative && role === "host") {
         revisionRef.current += 1;
         transport.sendSnapshot({ revision: revisionRef.current, state: snapshot.data });
         return;
       }
-      const action = adapter.createAction(snapshot.data);
-      const validatedAction = adapter.validateAction("participant", action);
+      const action = adapter.createAction(previousState, snapshot.data);
+      const validatedAction = adapter.validateAction(role, action, previousState);
       if (!validatedAction.success) return;
+      stateRef.current = snapshot.data;
       transport.sendAction({
         action: validatedAction.data,
         revision: revisionRef.current,
-        role: "participant",
+        role,
         sessionId,
       });
     },

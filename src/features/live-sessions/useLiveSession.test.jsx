@@ -72,7 +72,19 @@ describe("Live Session controller", () => {
     act(() =>
       handlers.onAction({
         envelope: {
-          action: { type: "whiteboard/replace", state: { version: 1, objects: [] } },
+          action: {
+            type: "whiteboard/add",
+            object: {
+              id: "stroke-1",
+              kind: "stroke",
+              points: [
+                { x: 1, y: 1 },
+                { x: 2, y: 2 },
+              ],
+              color: "#112233",
+              width: 4,
+            },
+          },
           revision: 0,
           role: "participant",
           sessionId: "local-session",
@@ -87,7 +99,19 @@ describe("Live Session controller", () => {
     act(() =>
       handlers.onAction({
         envelope: {
-          action: { type: "whiteboard/replace", state: { version: 1, objects: [] } },
+          action: {
+            type: "whiteboard/add",
+            object: {
+              id: "stroke-2",
+              kind: "stroke",
+              points: [
+                { x: 1, y: 1 },
+                { x: 2, y: 2 },
+              ],
+              color: "#112233",
+              width: 4,
+            },
+          },
           revision: 0,
           role: "participant",
           sessionId: "local-session",
@@ -98,5 +122,81 @@ describe("Live Session controller", () => {
     expect(transport.sendSnapshot).toHaveBeenLastCalledWith(
       expect.objectContaining({ revision: 1 })
     );
+  });
+
+  it("sends an object-level action for an authoritative transport", () => {
+    const { factory, transport } = createTransport();
+    transport.authoritative = true;
+    const { result } = renderHook(() =>
+      useLiveSession({
+        adapter: whiteboardLiveSessionAdapter,
+        onRemoteState: vi.fn(),
+        role: "host",
+        sessionId: "remote-session",
+        sharedState: { version: 1, objects: [] },
+        transportFactory: factory,
+      })
+    );
+    const nextState = {
+      version: 1,
+      objects: [
+        {
+          id: "stroke-1",
+          kind: "stroke",
+          points: [
+            { x: 1, y: 1 },
+            { x: 2, y: 2 },
+          ],
+          color: "#112233",
+          width: 4,
+        },
+      ],
+    };
+
+    act(() => result.current.publishState(nextState));
+
+    expect(transport.sendAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: expect.objectContaining({ type: "whiteboard/add" }),
+        revision: 0,
+      })
+    );
+  });
+
+  it("keeps an active transport connected when the local shared state changes", () => {
+    const { factory, transport } = createTransport();
+    const initialProps = {
+      adapter: whiteboardLiveSessionAdapter,
+      onRemoteState: vi.fn(),
+      role: "host",
+      sessionId: "remote-session",
+      sharedState: { version: 1, objects: [] },
+      transportFactory: factory,
+    };
+    const { rerender } = renderHook((props) => useLiveSession(props), {
+      initialProps,
+    });
+
+    rerender({
+      ...initialProps,
+      sharedState: {
+        version: 1,
+        objects: [
+          {
+            id: "stroke-1",
+            kind: "stroke",
+            points: [
+              { x: 1, y: 1 },
+              { x: 2, y: 2 },
+            ],
+            color: "#112233",
+            width: 4,
+          },
+        ],
+      },
+    });
+
+    expect(factory).toHaveBeenCalledOnce();
+    expect(transport.disconnect).not.toHaveBeenCalled();
   });
 });
