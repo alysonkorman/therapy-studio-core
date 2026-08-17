@@ -193,10 +193,86 @@
   flex-direction: column;
   min-height: 330px;
   overflow: hidden;
+  position: relative;
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease,
     transform 160ms ease;
+}
+
+.prompt-deck-card--selected {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.prompt-deck-card__quick-delete,
+.prompt-deck-card__select {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  display: inline-flex;
+  font-size: 0.8rem;
+  font-weight: 700;
+  gap: 5px;
+  padding: 7px 9px;
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 2;
+}
+
+.prompt-deck-card__quick-delete {
+  color: #a52828;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease;
+}
+
+.prompt-deck-card:hover .prompt-deck-card__quick-delete,
+.prompt-deck-card:focus-within .prompt-deck-card__quick-delete {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.prompt-deck-card__select {
+  cursor: pointer;
+}
+
+.prompt-deck-card__select input {
+  accent-color: var(--accent);
+}
+
+.prompt-library-actions,
+.prompt-bulk-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.prompt-bulk-actions {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+}
+
+.prompt-bulk-actions button,
+.prompt-library-actions button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  padding: 8px 10px;
+}
+
+@media (hover: none) {
+  .prompt-deck-card__quick-delete {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .prompt-deck-card:hover {
@@ -542,6 +618,11 @@
 /* -------------------------------------------------------------------------- */
 
 @media (max-width: 760px) {
+  .prompt-bulk-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .prompt-filters__primary,
   .prompt-filters__secondary {
     grid-template-columns: 1fr;

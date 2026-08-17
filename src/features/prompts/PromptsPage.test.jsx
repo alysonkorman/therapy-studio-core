@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -54,11 +54,12 @@ function memoryRepository(entries = []) {
 
 function authoringRepositories({
   createFailure,
+  initialDecks = promptDecks,
   seedFailure,
   seedDeferred,
   initiallySeeded = false,
 } = {}) {
-  let storedDecks = initiallySeeded ? promptDecks : [];
+  let storedDecks = initiallySeeded ? initialDecks : [];
   let storedCategories = [];
   return {
     decks: {
@@ -83,6 +84,10 @@ function authoringRepositories({
         };
         storedDecks = [...storedDecks, deck];
         return { ...deck, archived: false };
+      }),
+      deletePromptDecks: vi.fn(async (ids) => {
+        storedDecks = storedDecks.filter((deck) => !ids.includes(deck.id));
+        return { deletedIds: ids, hiddenBuiltInIds: [] };
       }),
     },
     categories: {
@@ -200,6 +205,74 @@ describe("PromptsPage", () => {
     expect(await screen.findByText(/manage prompt library/i)).toBeVisible();
     expect(screen.queryByRole("button", { name: /set up prompt authoring/i })).toBeNull();
     expect(repositories.decks.seedImportedPromptDecks).not.toHaveBeenCalled();
+  });
+
+  it("confirms an individual card delete without opening the deck", async () => {
+    const user = userEvent.setup();
+    const repositories = authoringRepositories({ initiallySeeded: true });
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderWithRouter(<PromptsPage repositories={repositories} />, {
+      initialEntries: ["/prompts"],
+    });
+
+    await user.click(
+      await screen
+        .findAllByRole("button", { name: /^hide feelings check-in$/i })
+        .then((buttons) => buttons[0])
+    );
+
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining(promptDecks[0].title));
+    expect(repositories.decks.deletePromptDecks).toHaveBeenCalledWith([
+      promptDecks[0].id,
+    ]);
+    expect(screen.queryByRole("button", { name: /start session/i })).toBeNull();
+    await waitFor(() =>
+      expect(screen.queryByRole("heading", { name: promptDecks[0].title })).toBeNull()
+    );
+  });
+
+  it("selects only filtered results and preserves the category after bulk delete", async () => {
+    const user = userEvent.setup();
+    const repositories = authoringRepositories({
+      initialDecks: testDecks,
+      initiallySeeded: true,
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    await user.selectOptions(
+      await screen.findByRole("combobox", { name: /category/i }),
+      "Strengths"
+    );
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
+    await user.click(screen.getByRole("button", { name: /select decks/i }));
+    await user.click(screen.getByRole("button", { name: /select all results/i }));
+
+    expect(screen.getByText("1 selected")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: /delete selected/i }));
+
+    expect(repositories.decks.deletePromptDecks).toHaveBeenCalledWith(["strengths"]);
+    expect(screen.getByRole("combobox", { name: /category/i })).toHaveValue("Strengths");
+    expect(screen.getByText("Showing 0 of 1 decks")).toBeVisible();
+  });
+
+  it("supports individual multi-select and clearing the selection", async () => {
+    const user = userEvent.setup();
+    const repositories = authoringRepositories({
+      initialDecks: testDecks,
+      initiallySeeded: true,
+    });
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
+    await user.click(await screen.findByRole("button", { name: /select decks/i }));
+    await user.click(screen.getByRole("checkbox", { name: /select feelings check-in/i }));
+    await user.click(
+      screen.getByRole("checkbox", { name: /select everyday superpowers/i })
+    );
+    expect(screen.getByText("2 selected")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: /deselect all/i }));
+    expect(screen.getByText("0 selected")).toBeVisible();
   });
 
   it("creates a minimum valid deck and makes it immediately visible in the Library", async () => {

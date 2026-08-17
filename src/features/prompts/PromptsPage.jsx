@@ -11,6 +11,9 @@ import formatPromptDisplayLabel from "./formatPromptDisplayLabel";
 import { usePromptAuthoring } from "./usePromptAuthoring";
 import "./PromptsPage.css";
 import { resourceMemoryRepository } from "../../lib/data";
+import { promptDecks } from "../../data/resources/promptDecks";
+
+const builtInPromptDeckIds = new Set(promptDecks.map(({ id }) => id));
 
 export default function PromptsPage({
   decks: suppliedDecks,
@@ -20,6 +23,8 @@ export default function PromptsPage({
   const authoring = usePromptAuthoring({ enabled: !suppliedDecks, repositories });
   const [showArchived, setShowArchived] = useState(false);
   const [reorderMode, setReorderMode] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedDeckIds, setSelectedDeckIds] = useState(() => new Set());
   const [toolsOpen, setToolsOpen] = useState(false);
   const decks = suppliedDecks ?? authoring.decks;
   const visibleDecks = decks.filter((deck) => showArchived || !deck.archived);
@@ -28,7 +33,16 @@ export default function PromptsPage({
   const [memoryFilter, setMemoryFilter] = useState("");
   const [memorySort, setMemorySort] = useState("");
   const [memoryMap, setMemoryMap] = useState(new Map());
-  const categories = useMemo(() => getPromptDeckCategories(visibleDecks), [visibleDecks]);
+  const categoryOptions = useMemo(
+    () =>
+      [
+        ...new Set([
+          ...getPromptDeckCategories(visibleDecks),
+          ...(category ? [category] : []),
+        ]),
+      ].sort((left, right) => left.localeCompare(right)),
+    [category, visibleDecks]
+  );
   useEffect(() => {
     void memoryRepository
       .getResourceMemoryMap(decks.map(({ id }) => id))
@@ -83,6 +97,32 @@ export default function PromptsPage({
     await authoring.run(() =>
       authoring.repositories.decks.reorderPromptDecks([...ordered, ...archivedIds])
     );
+  }
+
+  const isBuiltInDeck = (deck) => builtInPromptDeckIds.has(deck.id);
+
+  async function removeDecks(decksToRemove) {
+    if (!decksToRemove.length) return;
+    const builtInCount = decksToRemove.filter(isBuiltInDeck).length;
+    const message =
+      decksToRemove.length === 1
+        ? isBuiltInDeck(decksToRemove[0])
+          ? `Hide “${decksToRemove[0].title}” from this library? You can restore it later.`
+          : `Delete “${decksToRemove[0].title}”? This permanently removes the deck and its prompts.`
+        : `Remove ${decksToRemove.length} selected decks? ${builtInCount ? `${builtInCount} built-in deck${builtInCount === 1 ? " will" : "s will"} be hidden and can be restored later. ` : ""}Therapist-created and imported decks are permanently deleted.`;
+    if (!window.confirm(message)) return;
+    const ids = decksToRemove.map(({ id }) => id);
+    await authoring.run(() => authoring.repositories.decks.deletePromptDecks(ids));
+    setSelectedDeckIds(new Set());
+  }
+
+  function toggleSelection(id) {
+    setSelectedDeckIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   }
 
   function clearResults() {
@@ -158,7 +198,7 @@ export default function PromptsPage({
               value={category}
             >
               <option value="">All categories</option>
-              {categories.map((categoryName) => (
+              {categoryOptions.map((categoryName) => (
                 <option key={categoryName} value={categoryName}>
                   {formatPromptDisplayLabel(categoryName)}
                 </option>
@@ -200,13 +240,25 @@ export default function PromptsPage({
               showArchived={showArchived}
             />
             {authoring.seeded ? (
-              <button
-                className="reorder-toggle"
-                onClick={() => setReorderMode((value) => !value)}
-                type="button"
-              >
-                {reorderMode ? "Finish reordering" : "Reorder decks"}
-              </button>
+              <div className="prompt-library-actions">
+                <button
+                  className="reorder-toggle"
+                  onClick={() => setReorderMode((value) => !value)}
+                  type="button"
+                >
+                  {reorderMode ? "Finish reordering" : "Reorder decks"}
+                </button>
+                <button
+                  className="reorder-toggle"
+                  onClick={() => {
+                    setSelectMode((value) => !value);
+                    setSelectedDeckIds(new Set());
+                  }}
+                  type="button"
+                >
+                  {selectMode ? "Done selecting" : "Select decks"}
+                </button>
+              </div>
             ) : null}
             {authoring.error && authoring.seeded ? (
               <p className="authoring-error" role="alert">
@@ -215,6 +267,31 @@ export default function PromptsPage({
             ) : null}
           </div>
         </details>
+      ) : null}
+
+      {selectMode ? (
+        <section aria-label="Bulk deck actions" className="prompt-bulk-actions">
+          <strong>{selectedDeckIds.size} selected</strong>
+          <button
+            onClick={() => setSelectedDeckIds(new Set(matchingDecks.map(({ id }) => id)))}
+            type="button"
+          >
+            Select all results
+          </button>
+          <button onClick={() => setSelectedDeckIds(new Set())} type="button">
+            Deselect all
+          </button>
+          <button
+            className="button-destructive"
+            disabled={!selectedDeckIds.size}
+            onClick={() =>
+              void removeDecks(matchingDecks.filter(({ id }) => selectedDeckIds.has(id)))
+            }
+            type="button"
+          >
+            Delete selected
+          </button>
+        </section>
       ) : null}
 
       {matchingDecks.length ? (
@@ -243,6 +320,15 @@ export default function PromptsPage({
               key={deck.id}
               memoryRepository={memoryRepository}
               onMemoryChange={refreshMemory}
+              onDelete={
+                !suppliedDecks && authoring.seeded
+                  ? (deck) => void removeDecks([deck])
+                  : undefined
+              }
+              onSelect={toggleSelection}
+              selectMode={selectMode}
+              selected={selectedDeckIds.has(deck.id)}
+              builtIn={isBuiltInDeck(deck)}
               total={visibleDecks.length}
             />
           ))}

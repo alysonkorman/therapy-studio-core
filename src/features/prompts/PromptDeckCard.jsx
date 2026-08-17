@@ -1,4 +1,4 @@
-import { Archive, ArrowDown, ArrowRight, ArrowUp, Copy } from "lucide-react";
+import { Archive, ArrowDown, ArrowRight, ArrowUp, Copy, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { IconRenderer } from "../icons";
@@ -13,10 +13,44 @@ export default function PromptDeckCard({
   index,
   memoryRepository,
   onMemoryChange,
+  onDelete,
+  onSelect,
+  selectMode = false,
+  selected = false,
   total,
+  builtIn = false,
 }) {
   return (
-    <article className="prompt-deck-card" style={promptAccentStyle(deck.color)}>
+    <article
+      className={`prompt-deck-card${selected ? " prompt-deck-card--selected" : ""}`}
+      style={promptAccentStyle(deck.color)}
+    >
+      {selectMode ? (
+        <label className="prompt-deck-card__select">
+          <input
+            aria-label={`Select ${deck.title}`}
+            checked={selected}
+            onChange={() => onSelect(deck.id)}
+            type="checkbox"
+          />
+          <span>Select</span>
+        </label>
+      ) : null}
+      {onDelete ? (
+        <button
+          aria-label={`${builtIn ? "Hide" : "Delete"} ${deck.title}`}
+          className="prompt-deck-card__quick-delete"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onDelete(deck);
+          }}
+          type="button"
+        >
+          <Trash2 aria-hidden="true" size={16} />
+          <span>{builtIn ? "Hide" : "Delete"}</span>
+        </button>
+      ) : null}
       <div className="prompt-deck-card__band">
         <span className="prompt-identity-icon-tile">
           <IconRenderer iconId={deck.iconId} size={38} />

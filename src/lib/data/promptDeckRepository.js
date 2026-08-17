@@ -1,5 +1,6 @@
 import { nanoid } from "nanoid";
 
+import { promptDecks } from "../../data/resources/promptDecks";
 import { createResourceRepository } from "./resourceRepository";
 import { getTherapyStudioDatabase } from "./database";
 import {
@@ -24,12 +25,83 @@ import {
   recordToDeck,
 } from "./promptDeckRepositorySupport";
 
+const builtInPromptDeckIds = new Set(promptDecks.map(({ id }) => id));
+
 export function createPromptDeckRepository({
   database = getTherapyStudioDatabase(),
   now = () => new Date().toISOString(),
   createId = () => nanoid(),
 } = {}) {
   const resourceRepository = createResourceRepository({ database, now });
+
+  async function deletePromptDeck(id) {
+    const result = await deletePromptDecks([id]);
+    return result.hiddenBuiltInIds.includes(id) ? { id, hidden: true } : { id };
+  }
+
+  async function deletePromptDecks(ids) {
+    await ensureAuthoringDatabaseOpen(database);
+    assertUniqueIds(ids, ids);
+    try {
+      return await database.transaction(
+        "rw",
+        [
+          database.table("resources"),
+          database.table("playlists"),
+          database.table("resourceMemory"),
+        ],
+        async () => {
+          const resources = database.table("resources");
+          const records = await Promise.all(ids.map((id) => resources.get(id)));
+          for (const [index, record] of records.entries()) {
+            if (!record || record.type !== "prompt-deck") {
+              throw authoringError(
+                authoringErrorCodes.notFound,
+                `Prompt Deck not found: ${ids[index]}`
+              );
+            }
+          }
+
+          const hiddenBuiltInIds = [];
+          const deletedIds = [];
+          for (const [index, record] of records.entries()) {
+            const id = ids[index];
+            if (builtInPromptDeckIds.has(id)) {
+              const deck = recordToDeck(record);
+              await resources.put(deckToRecord({ ...deck, updatedAt: now() }, true));
+              hiddenBuiltInIds.push(id);
+            } else {
+              await resources.delete(id);
+              await database.table("resourceMemory").delete(id);
+              deletedIds.push(id);
+            }
+          }
+
+          const deletedIdSet = new Set(deletedIds);
+          const playlists = database.table("playlists");
+          for (const playlist of await playlists.toArray()) {
+            const retained = playlist.items.filter(
+              (item) => !deletedIdSet.has(item.deckId)
+            );
+            if (retained.length === playlist.items.length) continue;
+            await playlists.put({
+              ...playlist,
+              items: retained.map((item, sortOrder) => ({ ...item, sortOrder })),
+              updatedAt: now(),
+            });
+          }
+
+          return { deletedIds, hiddenBuiltInIds };
+        }
+      );
+    } catch (error) {
+      rethrowAuthoringError(
+        error,
+        authoringErrorCodes.transactionFailed,
+        "Prompt Decks could not be removed."
+      );
+    }
+  }
 
   async function getAllPromptDecks({ includeArchived = false } = {}) {
     const resources = await resourceRepository.getAllResources({ includeArchived: true });
@@ -381,6 +453,8 @@ export function createPromptDeckRepository({
     createPromptDeck,
     updatePromptDeck,
     duplicatePromptDeck,
+    deletePromptDeck,
+    deletePromptDecks,
     archivePromptDeck,
     restorePromptDeck,
     reorderPromptDecks,

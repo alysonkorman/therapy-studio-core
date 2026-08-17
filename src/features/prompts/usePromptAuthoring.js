@@ -66,16 +66,21 @@ export function usePromptAuthoring({ enabled = true, repositories = {} } = {}) {
         categoriesRepository.getAllCategories({ includeArchived: true }),
         playlistsRepository.getAllPlaylists({ includeArchived: true }),
       ]);
-      setState({
-        decks: decks.length ? decks : importedPromptDecks,
-        categories,
-        playlists,
-        seeded: decks.length > 0,
-        loading: false,
-        initializing: false,
-        error: "",
+      const hasStoredAuthoringData =
+        decks.length > 0 || categories.length > 0 || playlists.length > 0;
+      setState((current) => {
+        const seeded = current.seeded || hasStoredAuthoringData;
+        return {
+          decks: seeded ? decks : importedPromptDecks,
+          categories,
+          playlists,
+          seeded,
+          loading: false,
+          initializing: false,
+          error: "",
+        };
       });
-      return decks.length > 0;
+      return hasStoredAuthoringData;
     } catch (error) {
       setState((current) => ({
         ...current,

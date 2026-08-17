@@ -4,6 +4,8 @@ import { promptDecks } from "../../data/resources/promptDecks";
 import { IDBKeyRange, indexedDB } from "../../test/indexedDb";
 import { createTherapyStudioDatabase } from "./database";
 import { createPromptDeckRepository } from "./promptDeckRepository";
+import { createPlaylistRepository } from "./playlistRepository";
+import { createResourceMemoryRepository } from "./resourceMemoryRepository";
 
 const databases = [];
 const times = ["2026-08-03T12:00:00.000Z", "2026-08-03T12:01:00.000Z"];
@@ -80,6 +82,44 @@ describe("promptDeckRepository", () => {
       all.map(({ id }) => id).reverse()
     );
     expect(reordered[0].id).not.toBe(second.id);
+  });
+
+  it("permanently deletes a deck, its local memory, and playlist references", async () => {
+    const { database, repository } = setup();
+    const playlists = createPlaylistRepository({ database, now: () => times[0] });
+    const memory = createResourceMemoryRepository({ database, now: () => times[0] });
+    const deck = await repository.createPromptDeck({ title: "Delete me" });
+    const playlist = await playlists.createPlaylist({ title: "My playlist" });
+    await playlists.addPlaylistItem(playlist.id, {
+      deckId: deck.id,
+      type: "prompt-deck",
+    });
+    await memory.upsertResourceMemory(deck.id, { favorite: true });
+
+    await expect(repository.deletePromptDeck(deck.id)).resolves.toEqual({ id: deck.id });
+    await expect(repository.getPromptDeckById(deck.id)).rejects.toMatchObject({
+      code: "resource-not-found",
+    });
+    expect(await database.table("resourceMemory").get(deck.id)).toBeUndefined();
+    expect((await playlists.getPlaylistById(playlist.id)).items).toEqual([]);
+  });
+
+  it("hides a built-in deck instead of destroying its seeded record", async () => {
+    const { database, repository } = setup();
+    const starter = promptDecks[0];
+    await repository.seedImportedPromptDecks([starter]);
+
+    await expect(repository.deletePromptDeck(starter.id)).resolves.toEqual({
+      id: starter.id,
+      hidden: true,
+    });
+    expect(await database.table("resources").get(starter.id)).toMatchObject({
+      id: starter.id,
+      archived: true,
+      updatedAt: times[0],
+    });
+    expect(await repository.getAllPromptDecks()).toEqual([]);
+    expect(await repository.getAllPromptDecks({ includeArchived: true })).toHaveLength(1);
   });
 
   it("creates a minimum valid deck without changing existing decks and reopens it", async () => {
