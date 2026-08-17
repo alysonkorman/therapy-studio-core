@@ -120,7 +120,6 @@ export default function PromptManageView({
               ) : null}
             </div>
             <PromptColorPicker
-              key={deck.color}
               label="Deck Color"
               onSave={(color) =>
                 run(() => repositories.decks.updatePromptDeck(deck.id, { color }))

@@ -29,7 +29,6 @@ export default function CategoryManager({ categories, repository, run }) {
               value={category.name}
             />
             <PromptColorPicker
-              key={category.color}
               label={`${formatPromptDisplayLabel(category.name)} Category Color`}
               onSave={(color) =>
                 run(() => repository.updateCategory(category.id, { color }))

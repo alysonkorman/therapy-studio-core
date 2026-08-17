@@ -87,6 +87,20 @@ describe("Prompt authoring interactions", () => {
     expect(save).toHaveBeenLastCalledWith("#6C46C3");
   });
 
+  it("keeps the color control mounted when a saved color update arrives", async () => {
+    const save = vi.fn().mockResolvedValue(undefined);
+    const view = render(
+      <PromptColorPicker label="Deck color" onSave={save} value="#6C46C3" />
+    );
+    const nativePicker = screen.getByLabelText(/deck color full color picker/i);
+
+    fireEvent.change(nativePicker, { target: { value: "#3267a8" } });
+    view.rerender(<PromptColorPicker label="Deck color" onSave={save} value="#3267A8" />);
+
+    expect(screen.getByLabelText(/deck color full color picker/i)).toBe(nativePicker);
+    expect(nativePicker).toHaveValue("#3267a8");
+  });
+
   it("rejects malformed colors without losing the draft", async () => {
     const user = userEvent.setup();
     const save = vi.fn();
