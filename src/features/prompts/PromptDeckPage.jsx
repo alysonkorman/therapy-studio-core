@@ -40,6 +40,15 @@ export default function PromptDeckPage({
     if (mode === "manage") manageViewRef.current?.focus();
   }, [mode]);
 
+  if (!suppliedDecks && authoring.loading) {
+    return (
+      <section aria-live="polite" className="prompt-route-message" role="status">
+        <p className="eyebrow">Loading prompt deck</p>
+        <h1>Opening your prompt deck…</h1>
+      </section>
+    );
+  }
+
   if (!deck) {
     return (
       <section className="prompt-route-message">

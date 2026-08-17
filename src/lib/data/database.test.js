@@ -16,6 +16,7 @@ import {
   THERAPY_STUDIO_VERSION_7_SCHEMA,
   THERAPY_STUDIO_VERSION_8_SCHEMA,
   THERAPY_STUDIO_VERSION_9_SCHEMA,
+  THERAPY_STUDIO_VERSION_10_SCHEMA,
 } from "./database";
 
 const databases = [];
@@ -44,7 +45,7 @@ describe("Therapy Studio database", () => {
     expect(THERAPY_STUDIO_DATABASE_NAME).toBe("therapy-studio");
     expect(THERAPY_STUDIO_DATABASE_VERSION).toBe(1);
     expect(THERAPY_STUDIO_VERSION_1_SCHEMA).toEqual({ resources: "id" });
-    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(9);
+    expect(THERAPY_STUDIO_DATABASE_LATEST_VERSION).toBe(10);
     expect(THERAPY_STUDIO_VERSION_2_SCHEMA).toEqual({
       resources: "id",
       categories: "id",
@@ -64,14 +65,22 @@ describe("Therapy Studio database", () => {
     expect(THERAPY_STUDIO_VERSION_7_SCHEMA.interventionGuidance).toBe("resourceId");
     expect(THERAPY_STUDIO_VERSION_8_SCHEMA.whiteboardDocuments).toBe("id, updatedAt");
     expect(THERAPY_STUDIO_VERSION_9_SCHEMA.localMediaAssets).toBe("id, createdAt");
+    expect(THERAPY_STUDIO_VERSION_10_SCHEMA.accountDataCache).toBe(
+      "entityKey, accountId, entityType, [accountId+entityType], cloudRevision, updatedAt, deletedAt"
+    );
+    expect(THERAPY_STUDIO_VERSION_10_SCHEMA.accountDataSyncQueue).toBe(
+      "id, entityKey, accountId, status, createdAt"
+    );
   });
 
-  it("initializes version 9 with additive local media assets", async () => {
+  it("initializes version 10 with additive account-data cache and queue tables", async () => {
     const database = createTestDatabase();
     await database.open();
 
-    expect(database.verno).toBe(9);
+    expect(database.verno).toBe(10);
     expect(database.tables.map((table) => table.name).sort()).toEqual([
+      "accountDataCache",
+      "accountDataSyncQueue",
       "categories",
       "interventionGuidance",
       "localMediaAssets",
@@ -85,6 +94,24 @@ describe("Therapy Studio database", () => {
     ]);
     expect(database.table("resources").schema.primKey.name).toBe("id");
     expect(database.table("resources").schema.indexes).toEqual([]);
+  });
+
+  it("preserves version-9 local data during the account-data migration", async () => {
+    const name = `therapy-studio-test-${crypto.randomUUID()}`;
+    const versionNine = new Dexie(name, { indexedDB, IDBKeyRange });
+    versionNine.version(9).stores(THERAPY_STUDIO_VERSION_9_SCHEMA);
+    await versionNine.table("resources").put({ id: "resource", title: "Kept" });
+    await versionNine
+      .table("localMediaAssets")
+      .put({ id: "media", createdAt: "2026-01-01T00:00:00.000Z" });
+    versionNine.close();
+    const migrated = createTherapyStudioDatabase({ name, indexedDB, IDBKeyRange });
+    databases.push(migrated);
+    await migrated.open();
+    expect(await migrated.table("resources").get("resource")).toBeTruthy();
+    expect(await migrated.table("localMediaAssets").get("media")).toBeTruthy();
+    expect(await migrated.table("accountDataCache").count()).toBe(0);
+    expect(await migrated.table("accountDataSyncQueue").count()).toBe(0);
   });
 
   it("preserves version-8 Whiteboards during the local-media migration", async () => {

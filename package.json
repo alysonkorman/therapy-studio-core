@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "build:live-service": "node live-service/build-room-handler.mjs",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",

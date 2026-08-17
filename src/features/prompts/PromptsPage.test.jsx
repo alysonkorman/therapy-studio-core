@@ -63,6 +63,9 @@ function authoringRepositories({
   let storedCategories = [];
   return {
     decks: {
+      reconcileAccountData: vi.fn(async () => ({ status: "local-only" })),
+      getPromptAuthoringAcknowledgment: vi.fn(async () => null),
+      savePromptAuthoringAcknowledgment: vi.fn(async () => ({ tracked: false })),
       getAllPromptDecks: vi.fn(async () => storedDecks),
       seedImportedPromptDecks: vi.fn(async (decks) => {
         if (seedDeferred) await seedDeferred.promise;
@@ -164,6 +167,9 @@ describe("PromptsPage", () => {
     resolveSeed();
     expect(await screen.findByText(/manage prompt library/i)).toBeVisible();
     expect(repositories.decks.seedImportedPromptDecks).toHaveBeenCalledTimes(1);
+    expect(repositories.decks.savePromptAuthoringAcknowledgment).toHaveBeenCalledWith(
+      "1"
+    );
     expect(
       screen.queryByRole("heading", { name: /set up prompt authoring/i })
     ).toBeNull();

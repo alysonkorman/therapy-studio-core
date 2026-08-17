@@ -231,6 +231,29 @@ describe("PromptDeckPage", () => {
     );
   });
 
+  it("waits for account reconciliation before treating a routed cloud deck as missing", async () => {
+    let completeReconciliation;
+    const reconciliation = new Promise((resolve) => {
+      completeReconciliation = resolve;
+    });
+    const remoteDeck = { ...decks[0], id: "cloud-check-in", title: "Cloud Check In" };
+    const repositories = seededRepositories([remoteDeck]);
+    repositories.decks.reconcileAccountData = vi.fn(() => reconciliation);
+
+    renderSeededDeckPage("/prompts/cloud-check-in", repositories);
+
+    expect(screen.getByRole("status")).toHaveTextContent("Opening your prompt deck");
+    expect(
+      screen.queryByRole("heading", { name: /couldn’t find that prompt deck/i })
+    ).toBeNull();
+
+    completeReconciliation();
+
+    expect(
+      (await screen.findAllByRole("heading", { name: "Cloud Check In" }))[0]
+    ).toBeVisible();
+  });
+
   it("handles an empty deck safely", () => {
     render(renderDeckPage("/prompts/empty"));
 

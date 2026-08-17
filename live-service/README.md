@@ -32,10 +32,15 @@ been approved by this project. Do not treat this development stack as a clinical
 From the repository root, use your chosen unique stack and Cognito domain names:
 
 ```sh
+npm run build:live-service
 sam validate --template-file live-service/template.yaml
 sam build --template-file live-service/template.yaml
 sam deploy --guided --template-file live-service/template.yaml --stack-name therapy-studio-live-dev
 ```
+
+Run `npm run build:live-service` again whenever Live Session server or shared protocol
+code changes. It creates an ignored, deployable Lambda artifact containing the handler,
+its shared validation closure, and no Therapy Studio frontend assets or test files.
 
 During the guided prompts:
 
@@ -65,6 +70,7 @@ and client configuration only. Set:
 
 ```dotenv
 VITE_LIVE_SESSION_ORIGIN=<HttpApiOrigin>
+VITE_ACCOUNT_DATA_ORIGIN=<HttpApiOrigin>
 VITE_LIVE_SESSION_WS_ORIGIN=<WebSocketOrigin>
 VITE_COGNITO_LOGIN_URL=<CognitoHostedUiBase>/login?client_id=<UserPoolClientId>&response_type=token&scope=openid+email&redirect_uri=http%3A%2F%2F127.0.0.1%3A5173
 ```
@@ -72,6 +78,16 @@ VITE_COGNITO_LOGIN_URL=<CognitoHostedUiBase>/login?client_id=<UserPoolClientId>&
 Restart Vite after editing `.env.local`. `VITE_LIVE_SESSION_WS_ORIGIN` is required because
 HTTP and WebSocket APIs have different API IDs. Never put AWS credentials, the token
 signing secret, participant capabilities, or room credentials in any `VITE_*` variable.
+
+The Account Data proof is fake-data-only. It syncs only Prompt decks created after the
+account connection is configured and authenticated; it does not scan or upload an
+existing local Prompt Library. Test title, color, icon, prompt edits, archive/delete, and
+the Prompt Authoring acknowledgment in two browsers signed into the same host account.
+
+`TherapistData` is retained if this stack is deleted or the table is ever replaced. That
+protects therapist-authored content, but the retained table must be deliberately removed
+manually if it is no longer needed.
+Existing local content remains local until a separate migration-review milestone.
 
 ## Manual two-device test — fake content only
 

@@ -27,6 +27,7 @@ export default function PromptAuthoringPanel({
     run,
     seed,
     seeded,
+    accountSyncStatus,
   } = authoring;
 
   async function createDeck(event) {
@@ -98,6 +99,12 @@ export default function PromptAuthoringPanel({
 
   return (
     <section className="prompt-authoring-tools">
+      {accountSyncStatus === "conflict" ? (
+        <p className="authoring-error" role="alert">
+          This account has a newer Prompt Library change. Your local draft is safe and was
+          not uploaded. Conflict review is required before syncing can continue.
+        </p>
+      ) : null}
       <div className="prompt-authoring-actions" aria-label="Prompt Library authoring">
         <button onClick={() => setCreating("deck")} type="button">
           + New Deck

@@ -7,6 +7,7 @@ import {
   promptDeckRepository,
 } from "../../lib/data";
 import { promptCategoryIdForName } from "../../models/promptAuthoring";
+import { PROMPT_AUTHORING_ACKNOWLEDGMENT_VERSION } from "../../lib/data/promptAccountDataAdapter";
 
 function importedCategories(decks) {
   const seen = new Set();
@@ -56,15 +57,19 @@ export function usePromptAuthoring({ enabled = true, repositories = {} } = {}) {
     loading: enabled,
     initializing: false,
     error: "",
+    accountSyncStatus: "local-only",
+    promptAuthoringAcknowledgmentVersion: null,
   });
 
   const refresh = useCallback(async () => {
     if (!enabled) return;
     try {
-      const [decks, categories, playlists] = await Promise.all([
+      const syncResult = await deckRepository.reconcileAccountData?.();
+      const [decks, categories, playlists, acknowledgmentVersion] = await Promise.all([
         deckRepository.getAllPromptDecks({ includeArchived: true }),
         categoriesRepository.getAllCategories({ includeArchived: true }),
         playlistsRepository.getAllPlaylists({ includeArchived: true }),
+        deckRepository.getPromptAuthoringAcknowledgment?.() ?? null,
       ]);
       const hasStoredAuthoringData =
         decks.length > 0 || categories.length > 0 || playlists.length > 0;
@@ -78,6 +83,8 @@ export function usePromptAuthoring({ enabled = true, repositories = {} } = {}) {
           loading: false,
           initializing: false,
           error: "",
+          accountSyncStatus: syncResult?.status ?? "local-only",
+          promptAuthoringAcknowledgmentVersion: acknowledgmentVersion,
         };
       });
       return hasStoredAuthoringData;
@@ -114,6 +121,9 @@ export function usePromptAuthoring({ enabled = true, repositories = {} } = {}) {
         await deckRepository.seedImportedPromptDecks(importedPromptDecks);
       const categoryResult = await categoriesRepository.seedCategories(
         importedCategories(importedPromptDecks)
+      );
+      await deckRepository.savePromptAuthoringAcknowledgment?.(
+        PROMPT_AUTHORING_ACKNOWLEDGMENT_VERSION
       );
       const ready = await refresh();
       return ready ? { decks: deckResult, categories: categoryResult } : null;

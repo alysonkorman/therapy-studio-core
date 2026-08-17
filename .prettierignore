@@ -2,4 +2,6 @@ dist
 node_modules
 coverage
 .vite
+live-service/.aws-sam-room-handler
+.aws-sam
 src/assets/icons/flaticon/Curated_Redux_Resorted_Standardized/

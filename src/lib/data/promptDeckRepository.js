@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 
 import { promptDecks } from "../../data/resources/promptDecks";
+import { promptAccountDataAdapter } from "./promptAccountDataAdapter";
 import { createResourceRepository } from "./resourceRepository";
 import { getTherapyStudioDatabase } from "./database";
 import {
@@ -31,6 +32,7 @@ export function createPromptDeckRepository({
   database = getTherapyStudioDatabase(),
   now = () => new Date().toISOString(),
   createId = () => nanoid(),
+  accountData = promptAccountDataAdapter,
 } = {}) {
   const resourceRepository = createResourceRepository({ database, now });
 
@@ -43,7 +45,7 @@ export function createPromptDeckRepository({
     await ensureAuthoringDatabaseOpen(database);
     assertUniqueIds(ids, ids);
     try {
-      return await database.transaction(
+      const result = await database.transaction(
         "rw",
         [
           database.table("resources"),
@@ -94,6 +96,11 @@ export function createPromptDeckRepository({
           return { deletedIds, hiddenBuiltInIds };
         }
       );
+      for (const id of result.hiddenBuiltInIds) {
+        await accountData.saveTracked(await getPromptDeckById(id));
+      }
+      for (const id of result.deletedIds) await accountData.tombstoneTracked(id);
+      return result;
     } catch (error) {
       rethrowAuthoringError(
         error,
@@ -107,6 +114,11 @@ export function createPromptDeckRepository({
     const resources = await resourceRepository.getAllResources({ includeArchived: true });
     return promptDecksFromResources(resources, includeArchived);
   }
+
+  const reconcileAccountData = () => accountData.reconcile();
+  const getPromptAuthoringAcknowledgment = () => accountData.getAuthoringAcknowledgment();
+  const savePromptAuthoringAcknowledgment = (version) =>
+    accountData.saveAuthoringAcknowledgment(version);
 
   async function getPromptDeckById(id) {
     return assertPromptDeckResource(await resourceRepository.getResourceById(id), id);
@@ -134,7 +146,9 @@ export function createPromptDeckRepository({
       createdAt: timestamp,
       updatedAt: timestamp,
     });
-    return resourceRepository.createResourceRecord(deck);
+    const created = await resourceRepository.createResourceRecord(deck);
+    await accountData.trackCreated(created);
+    return created;
   }
 
   async function updatePromptDeck(id, changes) {
@@ -144,7 +158,9 @@ export function createPromptDeckRepository({
       if (field in normalized)
         normalized[field] = normalizeMetadataValues(normalized[field]);
     }
-    return resourceRepository.updateResourceRecord(id, normalized);
+    const updated = await resourceRepository.updateResourceRecord(id, normalized);
+    await accountData.saveTracked(updated);
+    return updated;
   }
 
   async function duplicatePromptDeck(id) {
@@ -166,11 +182,22 @@ export function createPromptDeckRepository({
       createdAt: timestamp,
       updatedAt: timestamp,
     });
-    return resourceRepository.createResourceRecord(duplicate);
+    const created = await resourceRepository.createResourceRecord(duplicate);
+    await accountData.trackCreated(created);
+    return created;
   }
 
-  const archivePromptDeck = (id) => resourceRepository.archiveResource(id);
-  const restorePromptDeck = (id) => resourceRepository.restoreResource(id);
+  async function archivePromptDeck(id) {
+    const archived = await resourceRepository.archiveResource(id);
+    await accountData.saveTracked(archived);
+    return archived;
+  }
+
+  async function restorePromptDeck(id) {
+    const restored = await resourceRepository.restoreResource(id);
+    await accountData.saveTracked(restored);
+    return restored;
+  }
 
   async function reorderPromptDecks(orderedIds) {
     await ensureAuthoringDatabaseOpen(database);
@@ -203,20 +230,26 @@ export function createPromptDeckRepository({
   async function mutateDeck(id, mutation, message) {
     await ensureAuthoringDatabaseOpen(database);
     try {
-      return await database.transaction("rw", database.table("resources"), async () => {
-        const table = database.table("resources");
-        const record = await table.get(id);
-        if (!record || record.type !== "prompt-deck") {
-          throw authoringError(
-            authoringErrorCodes.notFound,
-            `Prompt Deck not found: ${id}`
-          );
+      const result = await database.transaction(
+        "rw",
+        database.table("resources"),
+        async () => {
+          const table = database.table("resources");
+          const record = await table.get(id);
+          if (!record || record.type !== "prompt-deck") {
+            throw authoringError(
+              authoringErrorCodes.notFound,
+              `Prompt Deck not found: ${id}`
+            );
+          }
+          const current = recordToDeck(record);
+          const changed = parseDeck({ ...mutation(current), updatedAt: now() });
+          await table.put(deckToRecord(changed, record.archived));
+          return { ...changed, archived: record.archived };
         }
-        const current = recordToDeck(record);
-        const changed = parseDeck({ ...mutation(current), updatedAt: now() });
-        await table.put(deckToRecord(changed, record.archived));
-        return { ...changed, archived: record.archived };
-      });
+      );
+      await accountData.saveTracked(result);
+      return result;
     } catch (error) {
       rethrowAuthoringError(error, authoringErrorCodes.transactionFailed, message);
     }
@@ -448,6 +481,9 @@ export function createPromptDeckRepository({
   }
 
   return {
+    reconcileAccountData,
+    getPromptAuthoringAcknowledgment,
+    savePromptAuthoringAcknowledgment,
     getAllPromptDecks,
     getPromptDeckById,
     createPromptDeck,

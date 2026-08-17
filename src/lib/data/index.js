@@ -13,6 +13,7 @@ export {
   THERAPY_STUDIO_VERSION_7_SCHEMA,
   THERAPY_STUDIO_VERSION_8_SCHEMA,
   THERAPY_STUDIO_VERSION_9_SCHEMA,
+  THERAPY_STUDIO_VERSION_10_SCHEMA,
 } from "./database";
 export { createLocalMediaRepository, localMediaRepository } from "./localMediaRepository";
 export { createWhiteboardRepository, whiteboardRepository } from "./whiteboardRepository";

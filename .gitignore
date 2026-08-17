@@ -13,6 +13,9 @@ dist-ssr
 *.local
 *.zip
 /Zip/
+/live-service/.aws-sam-room-handler/
+/live-service/.aws-sam-account-data-handler/
+/.aws-sam/
 /src/features/prompts/PromptsPage.css.backup
 
 # Editor directories and files
