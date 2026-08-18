@@ -112,8 +112,15 @@ export default function PromptsPage({
         : `Remove ${decksToRemove.length} selected decks? ${builtInCount ? `${builtInCount} built-in deck${builtInCount === 1 ? " will" : "s will"} be hidden and can be restored later. ` : ""}Therapist-created and imported decks are permanently deleted.`;
     if (!window.confirm(message)) return;
     const ids = decksToRemove.map(({ id }) => id);
-    await authoring.run(() => authoring.repositories.decks.deletePromptDecks(ids));
-    setSelectedDeckIds(new Set());
+    try {
+      await authoring.run(() => authoring.repositories.decks.deletePromptDecks(ids));
+    } catch {
+      // The local transaction may have completed before an account-sync follow-up
+      // reports an error. Refresh so the visible library always reflects local truth.
+      await authoring.refresh();
+    } finally {
+      setSelectedDeckIds(new Set());
+    }
   }
 
   function toggleSelection(id) {
@@ -321,7 +328,7 @@ export default function PromptsPage({
               memoryRepository={memoryRepository}
               onMemoryChange={refreshMemory}
               onDelete={
-                !suppliedDecks && authoring.seeded
+                !selectMode && !suppliedDecks && authoring.seeded
                   ? (deck) => void removeDecks([deck])
                   : undefined
               }

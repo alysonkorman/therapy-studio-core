@@ -204,8 +204,7 @@
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-.prompt-deck-card__quick-delete,
-.prompt-deck-card__select {
+.prompt-deck-card__quick-delete {
   align-items: center;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -235,8 +234,27 @@
   pointer-events: auto;
 }
 
+.prompt-deck-card__selection-row {
+  align-items: center;
+  background: color-mix(
+    in srgb,
+    var(--prompt-identity-soft, var(--accent-soft)) 54%,
+    white
+  );
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--prompt-identity-color) 16%, var(--border));
+  display: flex;
+  min-height: 42px;
+  padding: 7px 14px;
+}
+
 .prompt-deck-card__select {
+  align-items: center;
   cursor: pointer;
+  display: inline-flex;
+  font-size: 0.8rem;
+  font-weight: 750;
+  gap: 7px;
 }
 
 .prompt-deck-card__select input {

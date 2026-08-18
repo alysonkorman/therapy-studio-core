@@ -26,15 +26,17 @@ export default function PromptDeckCard({
       style={promptAccentStyle(deck.color)}
     >
       {selectMode ? (
-        <label className="prompt-deck-card__select">
-          <input
-            aria-label={`Select ${deck.title}`}
-            checked={selected}
-            onChange={() => onSelect(deck.id)}
-            type="checkbox"
-          />
-          <span>Select</span>
-        </label>
+        <div className="prompt-deck-card__selection-row">
+          <label className="prompt-deck-card__select">
+            <input
+              aria-label={`Select ${deck.title}`}
+              checked={selected}
+              onChange={() => onSelect(deck.id)}
+              type="checkbox"
+            />
+            <span>Select deck</span>
+          </label>
+        </div>
       ) : null}
       {onDelete ? (
         <button

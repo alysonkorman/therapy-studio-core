@@ -54,6 +54,7 @@ function memoryRepository(entries = []) {
 
 function authoringRepositories({
   createFailure,
+  deleteFailureAfterMutation,
   initialDecks = promptDecks,
   seedFailure,
   seedDeferred,
@@ -89,8 +90,19 @@ function authoringRepositories({
         return { ...deck, archived: false };
       }),
       deletePromptDecks: vi.fn(async (ids) => {
-        storedDecks = storedDecks.filter((deck) => !ids.includes(deck.id));
-        return { deletedIds: ids, hiddenBuiltInIds: [] };
+        const hiddenBuiltInIds = [];
+        const deletedIds = [];
+        storedDecks = storedDecks.flatMap((deck) => {
+          if (!ids.includes(deck.id)) return [deck];
+          if (promptDecks.some(({ id }) => id === deck.id)) {
+            hiddenBuiltInIds.push(deck.id);
+            return [{ ...deck, archived: true }];
+          }
+          deletedIds.push(deck.id);
+          return [];
+        });
+        if (deleteFailureAfterMutation) throw deleteFailureAfterMutation;
+        return { deletedIds, hiddenBuiltInIds };
       }),
     },
     categories: {
@@ -232,6 +244,100 @@ describe("PromptsPage", () => {
       promptDecks[0].id,
     ]);
     expect(screen.queryByRole("button", { name: /start session/i })).toBeNull();
+    await waitFor(() =>
+      expect(screen.queryByRole("heading", { name: promptDecks[0].title })).toBeNull()
+    );
+  });
+
+  it("keeps selection controls separate from contextual Hide/Delete actions", async () => {
+    const user = userEvent.setup();
+    const repositories = authoringRepositories({ initiallySeeded: true });
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
+    await user.click(screen.getByRole("button", { name: /select decks/i }));
+
+    expect(
+      screen.getByRole("checkbox", { name: /select feelings check-in/i })
+    ).toBeVisible();
+    expect(screen.queryByRole("button", { name: /hide feelings check-in/i })).toBeNull();
+    expect(
+      screen.getByRole("checkbox", { name: /select feelings check-in/i }).closest("label")
+    ).toHaveTextContent("Select deck");
+  });
+
+  it("removes mixed built-in and custom selections while retaining the active filter", async () => {
+    const user = userEvent.setup();
+    const custom = {
+      ...testDecks[1],
+      id: "custom-deck",
+      category: promptDecks[0].category,
+    };
+    const repositories = authoringRepositories({
+      initialDecks: [promptDecks[0], custom],
+      initiallySeeded: true,
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: /category/i }),
+      promptDecks[0].category
+    );
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
+    await user.click(screen.getByRole("button", { name: /select decks/i }));
+    await user.click(screen.getByRole("checkbox", { name: /select feelings check-in/i }));
+    await user.click(
+      screen.getByRole("checkbox", { name: /select everyday superpowers/i })
+    );
+    await user.click(screen.getByRole("button", { name: /delete selected/i }));
+
+    expect(repositories.decks.deletePromptDecks).toHaveBeenCalledWith([
+      promptDecks[0].id,
+      "custom-deck",
+    ]);
+    expect(screen.getByRole("combobox", { name: /category/i })).toHaveValue(
+      promptDecks[0].category
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole("heading", { name: custom.title })).toBeNull()
+    );
+    expect(screen.getByText("0 selected")).toBeVisible();
+  });
+
+  it("clears selections when leaving Select mode", async () => {
+    const user = userEvent.setup();
+    const repositories = authoringRepositories({ initiallySeeded: true });
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    await user.click(screen.getByText("Library Tools", { selector: "summary" }));
+    await user.click(screen.getByRole("button", { name: /select decks/i }));
+    await user.click(screen.getByRole("checkbox", { name: /select feelings check-in/i }));
+    expect(screen.getByText("1 selected")).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: /done selecting/i }));
+    expect(screen.queryByText("1 selected")).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: /select decks/i }));
+    expect(screen.getByText("0 selected")).toBeVisible();
+  });
+
+  it("refreshes the active library after a post-mutation account-sync failure", async () => {
+    const user = userEvent.setup();
+    const repositories = authoringRepositories({
+      deleteFailureAfterMutation: new Error("Account sync is temporarily unavailable."),
+      initialDecks: [promptDecks[0]],
+      initiallySeeded: true,
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    await user.click(
+      await screen
+        .findAllByRole("button", { name: /^hide feelings check-in$/i })
+        .then((buttons) => buttons[0])
+    );
+
     await waitFor(() =>
       expect(screen.queryByRole("heading", { name: promptDecks[0].title })).toBeNull()
     );

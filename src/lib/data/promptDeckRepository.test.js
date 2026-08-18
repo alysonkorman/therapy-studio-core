@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { promptDecks } from "../../data/resources/promptDecks";
 import { IDBKeyRange, indexedDB } from "../../test/indexedDb";
@@ -120,6 +120,40 @@ describe("promptDeckRepository", () => {
     });
     expect(await repository.getAllPromptDecks()).toEqual([]);
     expect(await repository.getAllPromptDecks({ includeArchived: true })).toHaveLength(1);
+  });
+
+  it("archives built-ins and tombstones account-owned decks in one mixed operation", async () => {
+    const database = createTherapyStudioDatabase({
+      name: `prompt-deck-delete-mixed-${crypto.randomUUID()}`,
+      indexedDB,
+      IDBKeyRange,
+    });
+    databases.push(database);
+    const accountData = {
+      saveTracked: vi.fn(async () => ({ tracked: true })),
+      tombstoneTracked: vi.fn(async () => ({ tracked: true })),
+      trackCreated: vi.fn(async () => ({ tracked: true })),
+    };
+    const repository = createPromptDeckRepository({
+      accountData,
+      createId: () => "account-deck",
+      database,
+      now: () => times[0],
+    });
+    const starter = promptDecks[0];
+    await repository.seedImportedPromptDecks([starter]);
+    const accountDeck = await repository.createPromptDeck({ title: "Account-owned" });
+
+    await repository.deletePromptDecks([starter.id, accountDeck.id]);
+
+    expect(await database.table("resources").get(starter.id)).toMatchObject({
+      archived: true,
+    });
+    expect(await database.table("resources").get(accountDeck.id)).toBeUndefined();
+    expect(accountData.saveTracked).toHaveBeenCalledWith(
+      expect.objectContaining({ id: starter.id, archived: true })
+    );
+    expect(accountData.tombstoneTracked).toHaveBeenCalledWith(accountDeck.id);
   });
 
   it("creates a minimum valid deck without changing existing decks and reopens it", async () => {
