@@ -33,13 +33,11 @@ static aggregate performs the same check. `getResourceKey(resource)` produces a
 type-aware UI key such as `prompt-deck:123` without changing persisted IDs or Resource
 Memory records.
 
-## Imported Prompt Decks
+## Prompt Decks
 
-A prompt deck is a Resource with type `prompt-deck`. The imported Therapy Toolkit JSON
-remains the neutral source artifact under `imports/`; application code accesses it
-through `src/data/resources/promptDecks.js`. That module delegates validation and
-deterministic transformation to `src/engines/prompts/importPromptDecks.js`. Pages must
-not read or transform the raw JSON directly.
+A prompt deck is a Resource with type `prompt-deck`. Prompt Library content is stored
+as Prompt Deck Resources; the application has no bundled Prompt starter-library
+fallback or automatic import path.
 
 `promptDeckSchema` inherits shared tags and extends `resourceSchema` with:
 

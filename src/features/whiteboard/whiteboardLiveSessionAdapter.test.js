@@ -84,6 +84,24 @@ describe("Whiteboard Live Session adapter", () => {
     expect(
       whiteboardLiveSessionAdapter.validateAction(
         "participant",
+        { type: "whiteboard/delete", id: "stroke" },
+        { ...state, objects: [action.object] }
+      ).success
+    ).toBe(true);
+    expect(
+      whiteboardLiveSessionAdapter.validateAction(
+        "participant",
+        { type: "whiteboard/delete", id: "stroke" },
+        {
+          ...state,
+          objects: [action.object],
+          session: { participantPermission: "draw-only", participantPreset: "young" },
+        }
+      ).success
+    ).toBe(false);
+    expect(
+      whiteboardLiveSessionAdapter.validateAction(
+        "participant",
         { type: "whiteboard/delete", id: "locked" },
         {
           ...state,
@@ -129,6 +147,73 @@ describe("Whiteboard Live Session adapter", () => {
         state
       ).success
     ).toBe(false);
+    const visualAction = {
+      type: "whiteboard/add",
+      object: {
+        id: "sticker",
+        kind: "visual",
+        iconId: "animals-dog01",
+        x: 40,
+        y: 40,
+        width: 120,
+        height: 120,
+      },
+    };
+    expect(
+      whiteboardLiveSessionAdapter.validateAction("participant", visualAction, state)
+        .success
+    ).toBe(true);
+    expect(
+      whiteboardLiveSessionAdapter.validateAction("participant", visualAction, {
+        ...state,
+        session: { participantPermission: "draw-only", participantPreset: "young" },
+      }).success
+    ).toBe(false);
+    expect(
+      whiteboardLiveSessionAdapter.validateAction(
+        "participant",
+        { type: "whiteboard/erase", points: [{ x: 1, y: 1 }], radius: 18 },
+        {
+          ...state,
+          objects: [action.object],
+          session: { participantPermission: "draw-only", participantPreset: "young" },
+        }
+      ).success
+    ).toBe(false);
+    expect(
+      whiteboardLiveSessionAdapter.validateAction(
+        "participant",
+        { type: "whiteboard/clear" },
+        state
+      ).success
+    ).toBe(false);
+    expect(
+      whiteboardLiveSessionAdapter.validateAction(
+        "host",
+        { type: "whiteboard/clear" },
+        state
+      ).success
+    ).toBe(true);
+  });
+
+  it("accepts normal curated visual objects as shared participant additions", () => {
+    const result = whiteboardLiveSessionAdapter.validateAction(
+      "participant",
+      {
+        type: "whiteboard/add",
+        object: {
+          id: "sticker",
+          kind: "visual",
+          iconId: "calm",
+          x: 100,
+          y: 100,
+          width: 140,
+          height: 140,
+        },
+      },
+      { version: 1, objects: [], session: { participantPermission: "everything" } }
+    );
+    expect(result.success).toBe(true);
   });
 
   it("keeps tools and colors local while synchronizing host participant settings", () => {

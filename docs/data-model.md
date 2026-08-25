@@ -64,10 +64,8 @@ Resources through `promptDeckSchema`. Prompt Decks retain their nested prompt or
 stable deck and prompt IDs, repaired UUIDs, `legacyId` values, legacy metadata,
 attribution, and provenance.
 
-The immutable prompt export under `imports/` remains the imported source. An explicit
-user action seeds it idempotently. Once seeded, Prompt Library authoring reads and
-writes the database; an edited imported record is reported as a conflict and is never
-silently replaced.
+Prompt Library authoring reads and writes Prompt Deck Resources in the database. There
+is no bundled Prompt starter library or automatic Prompt Library seeding path.
 
 Categories store `id`, `name`, validated six-digit `color`, `iconId`, `sortOrder`,
 `archived`, `createdAt`, and `updatedAt`. Playlists store the same lifecycle/order

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createTherapyStudioDatabase, createWorksheetRepository } from "../../lib/data";
 import { createWorksheetResource } from "../../models";
-import { generalKnowledgeTrivia } from "../../data/resources";
+import { generalKnowledgeTrivia, pictureWordBingo } from "../../data/resources";
 import { useCurrentSessionStore } from "../../stores/currentSessionStore";
 import { IDBKeyRange, indexedDB } from "../../test/indexedDb";
 import { renderWithRouter } from "../../test/test-utils";
@@ -233,6 +233,19 @@ describe("ResourceSearch", () => {
     expect(within(result).getByRole("link", { name: "Play Trivia" })).toHaveAttribute(
       "href",
       "/games/saved-space-trivia"
+    );
+  });
+
+  it("finds Bingo by item text and links to its playable route", async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<ResourceSearch resources={[pictureWordBingo]} />);
+    await user.type(screen.getByRole("searchbox"), "Sandcastle{Enter}");
+    const result = await screen.findByRole("region", {
+      name: `Search result: ${pictureWordBingo.title}`,
+    });
+    expect(within(result).getByRole("link", { name: "Play Bingo" })).toHaveAttribute(
+      "href",
+      `/games/${pictureWordBingo.id}`
     );
   });
 

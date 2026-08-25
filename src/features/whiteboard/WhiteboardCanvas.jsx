@@ -31,9 +31,9 @@ export default function WhiteboardCanvas({
   onCanvasPointerDown,
   onObjectPointerDown,
   onPointerMove,
+  onPointerCancel,
   onPointerUp,
   onResizePointerDown,
-  onStrokeErase,
   pan,
   selectedId,
   tool,
@@ -51,25 +51,23 @@ export default function WhiteboardCanvas({
           };
     if (object.kind === "stroke")
       return (
-        <polyline
-          aria-label="Drawing stroke"
-          className="whiteboard-stroke"
-          fill="none"
-          key={object.id}
-          onPointerDown={
-            draft || object.locked
-              ? undefined
-              : (event) => {
-                  if (tool === "erase") onStrokeErase(event, object);
-                  else onObjectPointerDown(event, object);
-                }
-          }
-          points={pointsValue(object.points)}
-          stroke={object.color}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={object.width}
-        />
+        <g key={object.id}>
+          <polyline
+            aria-label="Drawing stroke"
+            className="whiteboard-stroke"
+            fill="none"
+            onPointerDown={
+              draft || object.locked || tool === "erase"
+                ? undefined
+                : (event) => onObjectPointerDown(event, object)
+            }
+            points={pointsValue(object.points)}
+            stroke={object.color}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={object.width}
+          />
+        </g>
       );
     if (object.kind === "rectangle")
       return (
@@ -145,7 +143,7 @@ export default function WhiteboardCanvas({
     if (object.kind === "visual")
       return (
         <foreignObject
-          aria-label={`Visual object: ${object.iconId}`}
+          aria-label="Visual object"
           height={object.height}
           key={object.id}
           width={object.width}
@@ -192,6 +190,7 @@ export default function WhiteboardCanvas({
       aria-label="Whiteboard canvas"
       className={`whiteboard-canvas whiteboard-canvas--${tool}`}
       onPointerDown={onCanvasPointerDown}
+      onPointerCancel={onPointerCancel}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       role="img"

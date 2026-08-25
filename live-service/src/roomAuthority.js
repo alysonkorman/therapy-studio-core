@@ -13,12 +13,64 @@ const opaque = (bytes = 32) => randomBytes(bytes).toString("base64url");
 
 export function createRoomAuthority({
   adapter,
+  adapters,
   clock = () => new Date(),
   store,
   tokenIssuer,
 }) {
+  const activityAdapters = adapters ?? { [adapter.activityKind]: adapter };
+  const adapterFor = (activityKind) => activityAdapters[activityKind];
   const now = () => clock().toISOString();
   const expiry = () => new Date(clock().getTime() + 90 * 60 * 1000).toISOString();
+  const sameObject = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+  const patchFor = (before, after) => {
+    const beforeById = new Map(before.objects.map((object) => [object.id, object]));
+    const afterById = new Map(after.objects.map((object) => [object.id, object]));
+    const previous = before.objects.filter(
+      (object) =>
+        !afterById.has(object.id) || !sameObject(object, afterById.get(object.id))
+    );
+    const next = after.objects.filter(
+      (object) =>
+        !beforeById.has(object.id) || !sameObject(object, beforeById.get(object.id))
+    );
+    return previous.length || next.length ? { after: next, before: previous } : null;
+  };
+  const canUndoPatch = (room, patch) => {
+    const currentById = new Map(room.state.objects.map((object) => [object.id, object]));
+    const afterIds = new Set(patch.after.map(({ id }) => id));
+    return (
+      patch.after.every((object) => sameObject(currentById.get(object.id), object)) &&
+      patch.before
+        .filter(({ id }) => !afterIds.has(id))
+        .every(({ id }) => !currentById.has(id))
+    );
+  };
+  const nextHostUndoPatch = (room) =>
+    [...(room.hostUndo ?? [])].reverse().find((patch) => canUndoPatch(room, patch)) ??
+    null;
+  const takeHostUndoPatch = (room) => {
+    while (room.hostUndo?.length) {
+      const patch = room.hostUndo.pop();
+      if (canUndoPatch(room, patch)) return patch;
+    }
+    return null;
+  };
+  const undoPatch = (state, patch) => {
+    const afterIds = new Set(patch.after.map(({ id }) => id));
+    return {
+      ...state,
+      objects: [...state.objects.filter(({ id }) => !afterIds.has(id)), ...patch.before],
+    };
+  };
+  const participantUndoObject = (room) =>
+    room.participantUndo &&
+    room.state.objects.find(
+      (object) =>
+        object.id === room.participantUndo.id &&
+        !object.locked &&
+        JSON.stringify(object) === JSON.stringify(room.participantUndo.object)
+    );
   const snapshot = (room) => ({
     type: "snapshot",
     version: LIVE_SESSION_PROTOCOL_VERSION,
@@ -26,7 +78,17 @@ export function createRoomAuthority({
     activityKind: room.activityKind,
     status: room.status,
     revision: room.revision,
-    state: room.state,
+    state:
+      room.activityKind === "whiteboard"
+        ? {
+            ...room.state,
+            session: {
+              ...room.state.session,
+              hostUndoAvailable: Boolean(nextHostUndoPatch(room)),
+              participantUndoAvailable: Boolean(participantUndoObject(room)),
+            },
+          }
+        : room.state,
     presence: {
       host: Boolean(room.hostConnectionId),
       participant: Boolean(room.participantConnectionId),
@@ -44,8 +106,9 @@ export function createRoomAuthority({
   };
   return {
     async createRoom({ activityKind = "whiteboard", hostSubject, state }) {
-      if (activityKind !== adapter.activityKind) throw new Error("invalid");
-      const validated = adapter.validateSnapshot(state);
+      const activityAdapter = adapterFor(activityKind);
+      if (!activityAdapter) throw new Error("invalid");
+      const validated = activityAdapter.validateSnapshot(state);
       if (!validated.success) throw new Error("invalid");
       const capability = opaque();
       const room = {
@@ -81,9 +144,7 @@ export function createRoomAuthority({
         capabilityHash(capability) !== room.participantCapabilityHash
       )
         throw new Error("forbidden");
-      const expiresAt = new Date(
-        Math.min(new Date(room.expiresAt).getTime(), clock().getTime() + 5 * 60 * 1000)
-      ).toISOString();
+      const expiresAt = room.expiresAt;
       return {
         ...tokenIssuer({ expiresAt, role: "participant", sessionId }),
         activityKind: room.activityKind,
@@ -99,7 +160,7 @@ export function createRoomAuthority({
       )
         throw new Error("forbidden");
       return tokenIssuer({
-        expiresAt: new Date(clock().getTime() + 5 * 60 * 1000).toISOString(),
+        expiresAt: room.expiresAt,
         role: "host",
         sessionId,
       });
@@ -128,20 +189,62 @@ export function createRoomAuthority({
       const room = connection && (await load(connection.roomId));
       if (!connection || !room || room.status === "ended" || room.status === "expired")
         throw new Error("forbidden");
+      const activityAdapter = adapterFor(room.activityKind);
+      if (!activityAdapter) throw new Error("invalid");
       if (!hasSafeActionSize(message))
-        return { accepted: false, snapshot: snapshot(room), code: "stale" };
+        return { accepted: false, room, snapshot: snapshot(room), code: "stale" };
       if (
         message.baseRevision !== room.revision &&
-        !adapter.isRebasableAction?.(connection.role, message.action, room.state)
+        !activityAdapter.isRebasableAction?.(connection.role, message.action, room.state)
       )
-        return { accepted: false, snapshot: snapshot(room), code: "stale" };
-      const validated = adapter.validateAction(
+        return { accepted: false, room, snapshot: snapshot(room), code: "stale" };
+      const validated = activityAdapter.validateAction(
         connection.role,
         message.action,
         room.state
       );
       if (!validated.success) throw new Error("invalid");
-      room.state = adapter.applyAction(room.state, validated.data);
+      if (room.activityKind === "whiteboard" && validated.data.type === "whiteboard/undo-participant") {
+        const object = participantUndoObject(room);
+        if (!object)
+          return { accepted: false, room, snapshot: snapshot(room), code: "empty" };
+        room.state = activityAdapter.applyAction(room.state, {
+          type: "whiteboard/delete",
+          id: object.id,
+        });
+        room.participantUndo = undefined;
+        room.revision += 1;
+        await store.putRoom(room);
+        return { accepted: true, room, snapshot: snapshot(room) };
+      }
+      if (room.activityKind === "whiteboard" && validated.data.type === "whiteboard/undo-host") {
+        const patch = takeHostUndoPatch(room);
+        if (!patch)
+          return { accepted: false, room, snapshot: snapshot(room), code: "empty" };
+        room.state = undoPatch(room.state, patch);
+        room.revision += 1;
+        await store.putRoom(room);
+        return { accepted: true, room, snapshot: snapshot(room) };
+      }
+      const before = room.state;
+      room.state = activityAdapter.applyAction(before, validated.data);
+      if (room.activityKind === "whiteboard" && connection.role === "host") {
+        const patch = patchFor(before, room.state);
+        if (patch) room.hostUndo = [...(room.hostUndo ?? []), patch].slice(-40);
+      }
+      if (room.activityKind === "whiteboard" && connection.role === "participant" && validated.data.type === "whiteboard/add")
+        room.participantUndo = {
+          id: validated.data.object.id,
+          object: validated.data.object,
+        };
+      else if (
+        room.activityKind === "whiteboard" && room.participantUndo &&
+        (validated.data.type === "whiteboard/delete" ||
+          validated.data.type === "whiteboard/update") &&
+        (validated.data.id === room.participantUndo.id ||
+          validated.data.object?.id === room.participantUndo.id)
+      )
+        room.participantUndo = undefined;
       room.revision += 1;
       await store.putRoom(room);
       return { accepted: true, room, snapshot: snapshot(room) };

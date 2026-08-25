@@ -163,6 +163,30 @@ describe("Live Session controller", () => {
     );
   });
 
+  it("sends a participant-only undo request without replacing shared state", () => {
+    const { factory, transport } = createTransport();
+    transport.authoritative = true;
+    const { result } = renderHook(() =>
+      useLiveSession({
+        adapter: whiteboardLiveSessionAdapter,
+        onRemoteState: vi.fn(),
+        role: "participant",
+        sessionId: "remote-session",
+        sharedState: { version: 1, objects: [] },
+        transportFactory: factory,
+      })
+    );
+
+    act(() => result.current.requestAction({ type: "whiteboard/undo-participant" }));
+
+    expect(transport.sendAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: { type: "whiteboard/undo-participant" },
+        revision: 0,
+      })
+    );
+  });
+
   it("keeps an active transport connected when the local shared state changes", () => {
     const { factory, transport } = createTransport();
     const initialProps = {

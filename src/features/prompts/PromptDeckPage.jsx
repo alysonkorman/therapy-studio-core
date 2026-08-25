@@ -1,6 +1,6 @@
 import { ArrowLeft, Settings } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { IconRenderer } from "../icons";
 import ResourceMemoryControls from "../resource-memory/ResourceMemoryControls";
@@ -24,6 +24,11 @@ export default function PromptDeckPage({
   const sessionUseReported = useRef(false);
   const decks = suppliedDecks ?? authoring.decks;
   const { deckId } = useParams();
+  const [searchParams] = useSearchParams();
+  const returnCategory = searchParams.get("category");
+  const promptLibraryPath = returnCategory
+    ? `/prompts?category=${encodeURIComponent(returnCategory)}`
+    : "/prompts";
   const deck = decks.find((candidate) => candidate.id === deckId);
 
   const reportSessionUse = useCallback(() => {
@@ -55,7 +60,7 @@ export default function PromptDeckPage({
         <p className="eyebrow">Deck not found</p>
         <h1>We couldn’t find that prompt deck.</h1>
         <p>It may have moved, or the link may be incorrect.</p>
-        <Link className="prompt-back-link" to="/prompts">
+        <Link className="prompt-back-link" to={promptLibraryPath}>
           <ArrowLeft aria-hidden="true" size={18} />
           Back to Prompt Library
         </Link>
@@ -65,7 +70,7 @@ export default function PromptDeckPage({
 
   return (
     <div className="prompt-deck-page">
-      <Link className="prompt-back-link" to="/prompts">
+      <Link className="prompt-back-link" to={promptLibraryPath}>
         <ArrowLeft aria-hidden="true" size={18} />
         Back to Prompt Library
       </Link>
@@ -114,7 +119,7 @@ export default function PromptDeckPage({
             Your deck is ready to use now. Set up Prompt Authoring from the library when
             you want to edit decks and prompts.
           </p>
-          <Link className="prompt-back-link" to="/prompts">
+          <Link className="prompt-back-link" to={promptLibraryPath}>
             Set up in Prompt Library
           </Link>
         </section>

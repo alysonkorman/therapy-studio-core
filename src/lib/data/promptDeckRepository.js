@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 
-import { promptDecks } from "../../data/resources/promptDecks";
+import { createPromptLibraryRecoverySnapshot as buildRecoverySnapshot } from "../../engines/prompts/promptLibraryRecovery";
+import { createPromptLibraryStoredRecordsExport as buildStoredRecordsExport } from "../../engines/prompts/promptLibraryStoredRecordsExport";
 import { promptAccountDataAdapter } from "./promptAccountDataAdapter";
 import { createResourceRepository } from "./resourceRepository";
 import { getTherapyStudioDatabase } from "./database";
@@ -25,8 +26,6 @@ import {
   promptFields,
   recordToDeck,
 } from "./promptDeckRepositorySupport";
-
-const builtInPromptDeckIds = new Set(promptDecks.map(({ id }) => id));
 
 export function createPromptDeckRepository({
   database = getTherapyStudioDatabase(),
@@ -64,19 +63,12 @@ export function createPromptDeckRepository({
             }
           }
 
-          const hiddenBuiltInIds = [];
           const deletedIds = [];
           for (const [index, record] of records.entries()) {
             const id = ids[index];
-            if (builtInPromptDeckIds.has(id)) {
-              const deck = recordToDeck(record);
-              await resources.put(deckToRecord({ ...deck, updatedAt: now() }, true));
-              hiddenBuiltInIds.push(id);
-            } else {
-              await resources.delete(id);
-              await database.table("resourceMemory").delete(id);
-              deletedIds.push(id);
-            }
+            await resources.delete(id);
+            await database.table("resourceMemory").delete(id);
+            deletedIds.push(id);
           }
 
           const deletedIdSet = new Set(deletedIds);
@@ -93,12 +85,9 @@ export function createPromptDeckRepository({
             });
           }
 
-          return { deletedIds, hiddenBuiltInIds };
+          return { deletedIds, hiddenBuiltInIds: [] };
         }
       );
-      for (const id of result.hiddenBuiltInIds) {
-        await accountData.saveTracked(await getPromptDeckById(id));
-      }
       for (const id of result.deletedIds) await accountData.tombstoneTracked(id);
       return result;
     } catch (error) {
@@ -116,9 +105,156 @@ export function createPromptDeckRepository({
   }
 
   const reconcileAccountData = () => accountData.reconcile();
+  const getPromptDeckSyncRecords = () => accountData.getDeckSyncRecords?.() ?? new Map();
   const getPromptAuthoringAcknowledgment = () => accountData.getAuthoringAcknowledgment();
+  const getPromptLibraryReset = (options) =>
+    accountData.getPromptLibraryReset?.(options) ?? null;
   const savePromptAuthoringAcknowledgment = (version) =>
     accountData.saveAuthoringAcknowledgment(version);
+
+  async function previewPromptLibraryReset() {
+    await ensureAuthoringDatabaseOpen(database);
+    const syncResult = await accountData.reconcile?.();
+    const decks = await getAllPromptDecks({ includeArchived: true });
+    const categories = await database.table("categories").toArray();
+    const records = (await accountData.getDeckSyncRecords?.()) ?? new Map();
+    const accountOwnedIds = new Set(records.keys());
+    const conflictCount = [...records.values()].filter(
+      (record) => record.status === "conflict"
+    ).length;
+    const unsyncedCount = [...records.values()].filter(
+      (record) => record.status !== "saved" && record.status !== "conflict"
+    ).length;
+    return {
+      activeDeckCount: decks.filter((deck) => !deck.archived).length,
+      accountOwnedDeckCount: decks.filter((deck) => accountOwnedIds.has(deck.id)).length,
+      archivedDeckCount: decks.filter((deck) => deck.archived).length,
+      activeCategoryCount: categories.filter((category) => !category.archived).length,
+      archivedCategoryCount: categories.filter((category) => category.archived).length,
+      builtInDeckCount: 0,
+      bundledStarterCount: 0,
+      conflictCount,
+      localOnlyDeckCount: decks.filter((deck) => !accountOwnedIds.has(deck.id)).length,
+      syncStatus: syncResult?.status ?? "local-only",
+      therapistDeckCount: decks.length,
+      totalDeckCount: decks.length,
+      unsyncedCount,
+    };
+  }
+
+  async function createPromptLibraryRecoverySnapshot() {
+    await ensureAuthoringDatabaseOpen(database);
+    return buildRecoverySnapshot({
+      decks: await getAllPromptDecks({ includeArchived: true }),
+      categories: await database.table("categories").toArray(),
+      exportedAt: now(),
+      playlists: await database.table("playlists").toArray(),
+    });
+  }
+
+  async function createPromptLibraryStoredRecordsExport({ visibleDeckIds = [] } = {}) {
+    await ensureAuthoringDatabaseOpen(database);
+    const [resources, categories, playlists] = await Promise.all([
+      database.table("resources").toArray(),
+      database.table("categories").toArray(),
+      database.table("playlists").toArray(),
+    ]);
+    return buildStoredRecordsExport({
+      categories,
+      exportedAt: now(),
+      playlists,
+      resources,
+      visibleDeckIds,
+    });
+  }
+
+  async function resetPromptLibrary() {
+    await ensureAuthoringDatabaseOpen(database);
+    if (!accountData.isAvailable?.()) {
+      throw authoringError(
+        authoringErrorCodes.transactionFailed,
+        "Sign in and reconnect to Account Data before resetting the Prompt Library."
+      );
+    }
+    const reconciliation = await accountData.reconcile?.();
+    if (reconciliation?.status !== "saved" || reconciliation?.collisions?.length) {
+      throw authoringError(
+        authoringErrorCodes.transactionFailed,
+        "Prompt Library reset needs a healthy Account Data connection with no conflicts."
+      );
+    }
+    const existingReset = await getPromptLibraryReset({ completedOnly: false });
+    const resetAt = existingReset?.resetAt ?? now();
+    const decks = await getAllPromptDecks({ includeArchived: true });
+    const records = (await accountData.getDeckSyncRecords?.()) ?? new Map();
+    const activeRecordIds = [...records.values()]
+      .filter((record) => !record.deletedAt)
+      .map((record) => record.id);
+    const retiredDeckIds = decks.map((deck) => deck.id);
+    if (existingReset?.phase !== "complete") {
+      const marker = await accountData.savePromptLibraryReset({
+        phase: "pending",
+        resetAt,
+        retiredStarterIds: retiredDeckIds,
+      });
+      if (marker.status !== "saved") {
+        throw authoringError(
+          authoringErrorCodes.transactionFailed,
+          "Prompt Library retirement could not be confirmed. Your library is unchanged."
+        );
+      }
+      const tombstones = await accountData.tombstoneDecks(activeRecordIds);
+      if (tombstones.status !== "saved") {
+        throw authoringError(
+          authoringErrorCodes.transactionFailed,
+          "Prompt deck deletion is waiting for cloud sync. Your library is unchanged."
+        );
+      }
+      const completedMarker = await accountData.savePromptLibraryReset({
+        phase: "complete",
+        resetAt,
+        retiredStarterIds: retiredDeckIds,
+      });
+      if (completedMarker.status !== "saved") {
+        throw authoringError(
+          authoringErrorCodes.transactionFailed,
+          "Prompt Library reset could not be finalized. Your library is unchanged."
+        );
+      }
+    }
+    const result = await database.transaction(
+      "rw",
+      [
+        database.table("resources"),
+        database.table("playlists"),
+        database.table("resourceMemory"),
+      ],
+      async () => {
+        const resources = database.table("resources");
+        const decks = (await resources.toArray()).filter(
+          (record) => record.type === "prompt-deck"
+        );
+        const ids = decks.map(({ id }) => id);
+        for (const id of ids) {
+          await resources.delete(id);
+          await database.table("resourceMemory").delete(id);
+        }
+        const idSet = new Set(ids);
+        const playlists = database.table("playlists");
+        for (const playlist of await playlists.toArray()) {
+          const items = playlist.items.filter((item) => !idSet.has(item.deckId));
+          if (items.length === playlist.items.length) continue;
+          await playlists.put({
+            ...playlist,
+            items: items.map((item, sortOrder) => ({ ...item, sortOrder })),
+            updatedAt: resetAt,
+          });
+        }
+        return { removedDeckIds: ids };
+      }
+    );
+    return { ...result, resetAt };
+  }
 
   async function getPromptDeckById(id) {
     return assertPromptDeckResource(await resourceRepository.getResourceById(id), id);
@@ -444,45 +580,11 @@ export function createPromptDeckRepository({
     transferPrompt(sourceDeckId, promptId, targetDeckId, targetIndex, false);
   const copyPrompt = (sourceDeckId, promptId, targetDeckId, targetIndex) =>
     transferPrompt(sourceDeckId, promptId, targetDeckId, targetIndex, true);
-  async function seedImportedPromptDecks(decks) {
-    await ensureAuthoringDatabaseOpen(database);
-    const validated = decks.map(parseDeck);
-    try {
-      return await database.transaction("rw", database.table("resources"), async () => {
-        let created = 0;
-        let unchanged = 0;
-        const conflicts = [];
-        for (const deck of validated) {
-          const existing = await database.table("resources").get(deck.id);
-          if (!existing) {
-            await database.table("resources").add(deckToRecord(deck));
-            created += 1;
-          } else {
-            const existingDeck = recordToDeck(existing);
-            if (
-              JSON.stringify(existingDeck) === JSON.stringify(deck) &&
-              !existing.archived
-            ) {
-              unchanged += 1;
-            } else {
-              conflicts.push(deck.id);
-            }
-          }
-        }
-        return { created, unchanged, conflicts, total: validated.length };
-      });
-    } catch (error) {
-      rethrowAuthoringError(
-        error,
-        authoringErrorCodes.transactionFailed,
-        "Prompt Decks could not be seeded."
-      );
-    }
-  }
-
   return {
     reconcileAccountData,
+    getPromptDeckSyncRecords,
     getPromptAuthoringAcknowledgment,
+    getPromptLibraryReset,
     savePromptAuthoringAcknowledgment,
     getAllPromptDecks,
     getPromptDeckById,
@@ -494,6 +596,10 @@ export function createPromptDeckRepository({
     archivePromptDeck,
     restorePromptDeck,
     reorderPromptDecks,
+    createPromptLibraryRecoverySnapshot,
+    createPromptLibraryStoredRecordsExport,
+    previewPromptLibraryReset,
+    resetPromptLibrary,
     addPrompt,
     bulkAddPrompts,
     updatePrompt,
@@ -502,7 +608,6 @@ export function createPromptDeckRepository({
     reorderPrompts,
     movePrompt,
     copyPrompt,
-    seedImportedPromptDecks,
   };
 }
 

@@ -7,6 +7,10 @@ import {
   whiteboardTextSchema,
   whiteboardVisualSchema,
 } from "../../models";
+import {
+  clearWhiteboardObjects,
+  eraseWhiteboardObjects,
+} from "../../engines/whiteboard/whiteboardErase";
 import { createLiveSessionAdapter } from "../live-sessions/liveSessionAdapter";
 
 const sharedObjectSchema = z.discriminatedUnion("kind", [
@@ -26,8 +30,10 @@ export const whiteboardParticipantPermissionSchema = z.enum([
 
 const sessionSettingsSchema = z
   .object({
+    hostUndoAvailable: z.boolean().optional(),
     participantPermission: whiteboardParticipantPermissionSchema.default("everything"),
     participantPreset: whiteboardParticipantPresetSchema.default("young"),
+    participantUndoAvailable: z.boolean().optional(),
   })
   .strict();
 
@@ -48,6 +54,19 @@ export const whiteboardLiveActionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("whiteboard/delete"), id: z.string().min(1) }).strict(),
   z
     .object({
+      type: z.literal("whiteboard/erase"),
+      points: z
+        .array(z.object({ x: z.number().finite(), y: z.number().finite() }).strict())
+        .min(1)
+        .max(160),
+      radius: z.number().min(8).max(80),
+    })
+    .strict(),
+  z.object({ type: z.literal("whiteboard/clear") }).strict(),
+  z.object({ type: z.literal("whiteboard/undo-host") }).strict(),
+  z.object({ type: z.literal("whiteboard/undo-participant") }).strict(),
+  z
+    .object({
       type: z.literal("whiteboard/replace"),
       state: whiteboardLiveSharedStateSchema,
     })
@@ -64,7 +83,10 @@ export function projectWhiteboardForLiveSession(document, session = {}) {
   return whiteboardLiveSharedStateSchema.parse({
     version: 1,
     objects: document.objects.filter(({ kind }) => kind !== "image"),
-    session,
+    session: {
+      participantPermission: session.participantPermission ?? "everything",
+      participantPreset: session.participantPreset ?? "young",
+    },
   });
 }
 
@@ -77,6 +99,7 @@ function canParticipantChange(action, state) {
   if (action.type === "whiteboard/add")
     return permission !== "draw-only" || action.object.kind === "stroke";
   if (permission === "draw-only") return false;
+  if (action.type === "whiteboard/erase") return true;
   const id = action.type === "whiteboard/delete" ? action.id : action.object.id;
   return Boolean(state.objects.find((object) => object.id === id && !object.locked));
 }
@@ -95,6 +118,14 @@ export const whiteboardLiveSessionAdapter = createLiveSessionAdapter({
       };
     if (action.type === "whiteboard/delete")
       return { ...state, objects: state.objects.filter(({ id }) => id !== action.id) };
+    if (action.type === "whiteboard/erase") {
+      const erased = eraseWhiteboardObjects(state.objects, action.points, action.radius);
+      return { ...state, objects: erased.objects };
+    }
+    if (action.type === "whiteboard/clear") {
+      const cleared = clearWhiteboardObjects(state.objects);
+      return { ...state, objects: cleared.objects };
+    }
     if (action.type === "whiteboard/session-settings")
       return { ...state, session: action.session };
     return action.state;
@@ -134,6 +165,13 @@ export const whiteboardLiveSessionAdapter = createLiveSessionAdapter({
       state?.objects?.some(({ id }) => id === parsed.data.object.id)
     )
       return { success: false };
+    if (parsed.data.type === "whiteboard/undo-participant")
+      return role === "participant" ? parsed : { success: false };
+    if (
+      parsed.data.type === "whiteboard/undo-host" ||
+      parsed.data.type === "whiteboard/clear"
+    )
+      return role === "host" ? parsed : { success: false };
     if (role === "host") return parsed;
     if (
       parsed.data.type === "whiteboard/replace" ||

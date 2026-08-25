@@ -135,10 +135,29 @@ export function useLiveSession({
     setParticipantState("disconnected");
   }, [role]);
 
+  const requestAction = useCallback(
+    (action) => {
+      if (!sessionId || !role || status === "ended") return false;
+      const validated = adapter.validateAction(role, action, stateRef.current);
+      const transport = transportRef.current;
+      if (!validated.success || !transport?.available || !transport.authoritative)
+        return false;
+      transport.sendAction({
+        action: validated.data,
+        revision: revisionRef.current,
+        role,
+        sessionId,
+      });
+      return true;
+    },
+    [adapter, role, sessionId, status]
+  );
+
   return {
     endSession,
     participantState,
     publishState,
+    requestAction,
     status,
   };
 }

@@ -1,6 +1,6 @@
 import Dexie from "dexie";
 
-import { triviaGameSchema } from "../../models/game";
+import { gameResourceSchema } from "../../models/game";
 import { promptDeckSchema } from "../../models/prompt";
 import { resourceSchema } from "../../models/resource";
 import { worksheetSchema } from "../../models/worksheet";
@@ -16,7 +16,6 @@ export const resourceRepositoryErrorCodes = Object.freeze({
   databaseOpenFailed: "database-open-failed",
   transactionFailed: "transaction-failed",
   writeFailed: "write-failed",
-  seedFailed: "seed-failed",
 });
 
 export class ResourceRepositoryError extends Error {
@@ -35,7 +34,7 @@ function repositoryError(code, message, options) {
 function schemaFor(resource) {
   if (resource?.type === "prompt-deck") return promptDeckSchema;
   if (resource?.type === "worksheet") return worksheetSchema;
-  if (resource?.type === "game") return triviaGameSchema;
+  if (resource?.type === "game") return gameResourceSchema;
   return resourceSchema;
 }
 
@@ -119,10 +118,6 @@ async function ensureDatabaseOpen(database) {
 function rethrowRepositoryError(error, code, message) {
   if (error instanceof ResourceRepositoryError) throw error;
   throw repositoryError(code, message, { cause: error });
-}
-
-function resourcesEqual(first, second) {
-  return JSON.stringify(first) === JSON.stringify(second);
 }
 
 export function createResourceRepository({
@@ -357,64 +352,6 @@ export function createResourceRepository({
     }
   }
 
-  async function seedResources(inputs) {
-    let seed;
-    try {
-      seed = inputs.map((resource) => parseResource(resource));
-      const ids = new Set();
-      for (const resource of seed) {
-        if (ids.has(resource.id)) {
-          throw repositoryError(
-            resourceRepositoryErrorCodes.seedFailed,
-            `Seed contains duplicate Resource ID: ${resource.id}`,
-            { details: { id: resource.id } }
-          );
-        }
-        ids.add(resource.id);
-      }
-    } catch (error) {
-      if (error?.code === resourceRepositoryErrorCodes.seedFailed) throw error;
-      throw repositoryError(
-        resourceRepositoryErrorCodes.seedFailed,
-        "Resource seed validation failed.",
-        { cause: error }
-      );
-    }
-
-    await ensureDatabaseOpen(database);
-    try {
-      return await database.transaction("rw", database.table("resources"), async () => {
-        const table = database.table("resources");
-        let created = 0;
-        let unchanged = 0;
-        for (const resource of seed) {
-          const existing = await table.get(resource.id);
-          if (!existing) {
-            await table.add(storedRecord(resource));
-            created += 1;
-            continue;
-          }
-          const current = parseStoredRecord(existing);
-          if (!resourcesEqual(current.resource, resource)) {
-            throw repositoryError(
-              resourceRepositoryErrorCodes.seedFailed,
-              `Seed conflicts with stored Resource: ${resource.id}`,
-              { details: { id: resource.id } }
-            );
-          }
-          unchanged += 1;
-        }
-        return { created, unchanged, total: seed.length };
-      });
-    } catch (error) {
-      rethrowRepositoryError(
-        error,
-        resourceRepositoryErrorCodes.seedFailed,
-        "Resource seed transaction failed."
-      );
-    }
-  }
-
   async function clearResourceDatabaseForTests() {
     if (!database.name.startsWith("therapy-studio-test-")) {
       throw repositoryError(
@@ -443,7 +380,6 @@ export function createResourceRepository({
     archiveResource,
     restoreResource,
     deleteResourcePermanently,
-    seedResources,
     clearResourceDatabaseForTests,
   };
 }
@@ -467,7 +403,6 @@ export const updateResourceRecord = defaultOperation("updateResourceRecord");
 export const archiveResource = defaultOperation("archiveResource");
 export const restoreResource = defaultOperation("restoreResource");
 export const deleteResourcePermanently = defaultOperation("deleteResourcePermanently");
-export const seedResources = defaultOperation("seedResources");
 export const clearResourceDatabaseForTests = defaultOperation(
   "clearResourceDatabaseForTests"
 );

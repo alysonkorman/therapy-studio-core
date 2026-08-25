@@ -7,6 +7,15 @@
   padding: var(--space-3);
 }
 
+.live-session-participant-page:has(.whiteboard-page--session-view) {
+  background: #fff;
+  display: block;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+  padding: 0;
+}
+
 .live-session-participant-brand {
   align-items: baseline;
   display: flex;

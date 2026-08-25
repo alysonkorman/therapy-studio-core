@@ -2,14 +2,17 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { generalKnowledgeTrivia } from "../../data/resources";
+import { generalKnowledgeTrivia, pictureWordBingo } from "../../data/resources";
 import { renderWithRouter } from "../../test/test-utils";
 import GamesPage from "./GamesPage";
 
 describe("Games Library", () => {
   it("offers the real Whiteboard tool without treating it as Trivia", async () => {
     renderWithRouter(
-      <GamesPage repository={{ getAllTriviaSets: vi.fn(async () => []) }} />
+      <GamesPage
+        bingoDataRepository={{ getAllBingoSets: vi.fn(async () => []) }}
+        repository={{ getAllTriviaSets: vi.fn(async () => []) }}
+      />
     );
     expect(await screen.findByRole("heading", { name: "Whiteboard" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Open Whiteboard" })).toHaveAttribute(
@@ -22,6 +25,7 @@ describe("Games Library", () => {
     const saved = { ...generalKnowledgeTrivia, id: "saved-trivia", title: "My Trivia" };
     renderWithRouter(
       <GamesPage
+        bingoDataRepository={{ getAllBingoSets: vi.fn(async () => []) }}
         repository={{
           getAllTriviaSets: vi.fn(async () => [
             { ...generalKnowledgeTrivia, starter: true },
@@ -49,6 +53,7 @@ describe("Games Library", () => {
     const onExport = vi.fn();
     renderWithRouter(
       <GamesPage
+        bingoDataRepository={{ getAllBingoSets: vi.fn(async () => []) }}
         onExport={onExport}
         repository={{
           getAllTriviaSets: vi.fn(async () => [
@@ -65,5 +70,27 @@ describe("Games Library", () => {
     expect(onExport).toHaveBeenCalledWith(expect.objectContaining({ id: saved.id }));
     await user.click(screen.getByRole("button", { name: "Import Trivia" }));
     expect(screen.getByRole("heading", { name: "Import Trivia" })).toBeVisible();
+  });
+
+  it("renders Bingo as a distinct playable Game", async () => {
+    renderWithRouter(
+      <GamesPage
+        bingoDataRepository={{
+          getAllBingoSets: vi.fn(async () => [{ ...pictureWordBingo, starter: true }]),
+        }}
+        repository={{ getAllTriviaSets: vi.fn(async () => []) }}
+      />
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: pictureWordBingo.title })
+    ).toBeVisible();
+    expect(screen.getByText("Bingo")).toBeVisible();
+    expect(screen.getByText("32")).toBeVisible();
+    expect(screen.getByRole("link", { name: "Play Bingo" })).toHaveAttribute(
+      "href",
+      `/games/${pictureWordBingo.id}`
+    );
+    expect(screen.queryByRole("link", { name: "Manage" })).toBeNull();
   });
 });

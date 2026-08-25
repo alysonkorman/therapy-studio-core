@@ -29,18 +29,32 @@ export {
 } from "./resourceMemory";
 export { createSessionProfile, sessionProfileSchema } from "./sessionProfile";
 export { interventionGuidanceSchema } from "./intervention";
-export { triviaDifficultySchema, triviaGameSchema, triviaQuestionSchema } from "./game";
+export {
+  bingoGameSchema,
+  bingoItemSchema,
+  gameResourceSchema,
+  triviaDifficultySchema,
+  triviaGameSchema,
+  triviaQuestionSchema,
+} from "./game";
 export { promptColorSchema, promptDeckSchema, promptItemSchema } from "./prompt";
 export {
   createBlankWhiteboardDocument,
   whiteboardArrowSchema,
   whiteboardDocumentSchema,
+  whiteboardImageSchema,
   whiteboardObjectSchema,
   whiteboardShapeSchema,
   whiteboardStrokeSchema,
   whiteboardTextSchema,
   whiteboardVisualSchema,
 } from "./whiteboard";
+export {
+  LOCAL_MEDIA_MAX_BYTES,
+  localMediaAssetMetadataSchema,
+  localMediaBackupAssetSchema,
+  localMediaMimeTypes,
+} from "./localMediaAsset";
 export {
   playlistItemSchema,
   promptCategoryIdForName,

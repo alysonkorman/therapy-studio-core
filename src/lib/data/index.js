@@ -43,7 +43,6 @@ export {
   resourceRepositoryErrorCodes,
   ResourceRepositoryError,
   restoreResource,
-  seedResources,
   updateResourceRecord,
 } from "./resourceRepository";
 export {
@@ -52,6 +51,7 @@ export {
   triviaRepositoryErrorCodes,
   TriviaRepositoryError,
 } from "./triviaRepository";
+export { bingoRepository, createBingoRepository } from "./bingoRepository";
 export {
   createSessionProfileRepository,
   sessionProfileErrorCodes,

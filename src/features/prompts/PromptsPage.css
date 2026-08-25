@@ -28,6 +28,98 @@
   line-height: 1.55;
 }
 
+.prompt-library-home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.prompt-library-home-actions button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  padding: 10px 14px;
+}
+
+.prompt-library-home-actions .button-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.prompt-category-browser {
+  margin: 28px 0;
+}
+
+.prompt-category-browser h2 {
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
+  letter-spacing: -0.03em;
+  margin: 6px 0 18px;
+}
+
+.prompt-category-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.prompt-category-tile {
+  background-color: #32516b;
+  background-position: center;
+  background-size: cover;
+  border: 0;
+  border-radius: 18px;
+  box-shadow: 0 10px 26px rgb(29 31 43 / 12%);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 176px;
+  overflow: hidden;
+  padding: 20px;
+  position: relative;
+  text-align: left;
+}
+
+.prompt-category-tile::before {
+  background: linear-gradient(180deg, rgb(13 22 32 / 7%), rgb(13 22 32 / 76%));
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.prompt-category-tile > * {
+  position: relative;
+}
+
+.prompt-category-tile span {
+  font-size: 1.35rem;
+  font-weight: 780;
+  line-height: 1.14;
+}
+
+.prompt-category-tile small {
+  margin-top: 6px;
+  opacity: 0.9;
+}
+
+.prompt-category-tile:hover {
+  box-shadow: 0 15px 34px rgb(29 31 43 / 20%);
+  transform: translateY(-2px);
+}
+
+.prompt-category-tile:focus-visible,
+.prompt-library-home-actions button:focus-visible {
+  outline: 3px solid var(--accent-soft);
+  outline-offset: 3px;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Filters                                                                     */
 /* -------------------------------------------------------------------------- */
@@ -355,6 +447,36 @@
   border: 0;
   border-radius: 0;
   padding: 0;
+}
+
+.prompt-deck-card__meta .prompt-deck-persistence-status {
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  padding: 2px 6px;
+}
+
+.prompt-deck-persistence-status--saved {
+  color: #236844;
+}
+
+.prompt-deck-persistence-status--saving {
+  color: #7b5614;
+}
+
+.prompt-deck-persistence-status--offline-saved-locally,
+.prompt-deck-persistence-status--local-only {
+  color: #5d5a64;
+}
+
+.prompt-deck-persistence-status--conflict {
+  color: #9a3f28;
+}
+
+.prompt-sync-summary {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin: -6px 0 16px;
 }
 
 .prompt-deck-card__body {

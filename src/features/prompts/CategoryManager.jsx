@@ -5,12 +5,28 @@ import InlineEdit from "./InlineEdit";
 import formatPromptDisplayLabel from "./formatPromptDisplayLabel";
 import PromptColorPicker from "./PromptColorPicker";
 
-export default function CategoryManager({ categories, repository, run }) {
+export default function CategoryManager({
+  categories,
+  repository,
+  run,
+  showArchived = false,
+}) {
+  const visibleCategories = categories.filter(
+    (category) => showArchived || !category.archived
+  );
+
   async function move(index, offset) {
-    const ids = categories.map(({ id }) => id);
     const target = index + offset;
-    if (target < 0 || target >= ids.length) return;
-    [ids[index], ids[target]] = [ids[target], ids[index]];
+    if (target < 0 || target >= visibleCategories.length) return;
+    const ids = categories.map(({ id }) => id);
+    const categoryId = visibleCategories[index].id;
+    const targetId = visibleCategories[target].id;
+    const sourcePosition = ids.indexOf(categoryId);
+    const targetPosition = ids.indexOf(targetId);
+    [ids[sourcePosition], ids[targetPosition]] = [
+      ids[targetPosition],
+      ids[sourcePosition],
+    ];
     await run(() => repository.reorderCategories(ids));
   }
 
@@ -18,7 +34,7 @@ export default function CategoryManager({ categories, repository, run }) {
     <section className="authoring-manager">
       <h2>Categories</h2>
       <ol className="authoring-list">
-        {categories.map((category, index) => (
+        {visibleCategories.map((category, index) => (
           <li key={category.id}>
             <InlineEdit
               label="category name"
@@ -52,7 +68,7 @@ export default function CategoryManager({ categories, repository, run }) {
                 Move Up
               </button>
               <button
-                disabled={index === categories.length - 1}
+                disabled={index === visibleCategories.length - 1}
                 onClick={() => void move(index, 1)}
                 type="button"
               >
@@ -75,6 +91,9 @@ export default function CategoryManager({ categories, repository, run }) {
           </li>
         ))}
       </ol>
+      {visibleCategories.length === 0 ? (
+        <p>No active categories. Create a category when you are ready.</p>
+      ) : null}
     </section>
   );
 }

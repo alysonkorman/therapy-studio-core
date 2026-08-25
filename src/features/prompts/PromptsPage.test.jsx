@@ -54,17 +54,20 @@ function memoryRepository(entries = []) {
 
 function authoringRepositories({
   createFailure,
+  deckSyncRecords = new Map(),
   deleteFailureAfterMutation,
+  initialCategories = [],
   initialDecks = promptDecks,
   seedFailure,
   seedDeferred,
   initiallySeeded = false,
 } = {}) {
   let storedDecks = initiallySeeded ? initialDecks : [];
-  let storedCategories = [];
+  let storedCategories = initialCategories;
   return {
     decks: {
       reconcileAccountData: vi.fn(async () => ({ status: "local-only" })),
+      getPromptDeckSyncRecords: vi.fn(async () => deckSyncRecords),
       getPromptAuthoringAcknowledgment: vi.fn(async () => null),
       savePromptAuthoringAcknowledgment: vi.fn(async () => ({ tracked: false })),
       getAllPromptDecks: vi.fn(async () => storedDecks),
@@ -107,10 +110,6 @@ function authoringRepositories({
     },
     categories: {
       getAllCategories: vi.fn(async () => storedCategories),
-      seedCategories: vi.fn(async (categories) => {
-        storedCategories = categories;
-        return { inserted: categories.length, unchanged: 0, conflicts: [] };
-      }),
     },
     playlists: {
       getAllPlaylists: vi.fn(async () => []),
@@ -119,6 +118,31 @@ function authoringRepositories({
 }
 
 describe("PromptsPage", () => {
+  it("shows a compact, truthful account-persistence status for each deck", async () => {
+    const repositories = authoringRepositories({
+      initiallySeeded: true,
+      initialDecks: testDecks,
+      deckSyncRecords: new Map([
+        ["feelings", { id: "feelings", status: "saved" }],
+        ["strengths", { id: "strengths", status: "offline-saved-locally" }],
+      ]),
+    });
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    expect(await screen.findByText(/0 built-in/i)).toBeVisible();
+    expect(screen.getByText(/1 account-owned synced/i)).toBeVisible();
+    expect(
+      within(
+        screen.getByRole("heading", { name: "Feelings Check-In" }).closest("article")
+      ).getByLabelText("Persistence status: Synced")
+    ).toBeVisible();
+    expect(
+      within(
+        screen.getByRole("heading", { name: "Everyday Superpowers" }).closest("article")
+      ).getByLabelText("Persistence status: Offline — saved locally")
+    ).toBeVisible();
+  });
+
   it("renders saved deck color and curated identity on library cards", async () => {
     renderWithRouter(<PromptsPage decks={testDecks} />);
     const card = screen
@@ -585,6 +609,31 @@ describe("PromptsPage", () => {
     expect(category).toHaveValue("cbt");
     expect(screen.getByRole("heading", { name: "CBT Skills" })).toBeVisible();
     expect(screen.queryByRole("heading", { name: "Planning Practice" })).toBeNull();
+  });
+
+  it("does not show unused categories in the library filter", async () => {
+    const repositories = authoringRepositories({
+      initialCategories: [
+        {
+          archived: false,
+          color: "#6C46C3",
+          createdAt: "2026-08-19T12:00:00.000Z",
+          iconId: "prompt-default",
+          id: "new-category",
+          name: "New Session Category",
+          sortOrder: 0,
+          updatedAt: "2026-08-19T12:00:00.000Z",
+        },
+      ],
+      initiallySeeded: true,
+      initialDecks: [],
+    });
+    renderWithRouter(<PromptsPage repositories={repositories} />);
+
+    await screen.findByRole("heading", { name: /no prompt decks match/i });
+    expect(
+      screen.queryByRole("option", { name: "New Session Category" })
+    ).not.toBeInTheDocument();
   });
 
   it("shows a clear empty state when nothing matches", async () => {

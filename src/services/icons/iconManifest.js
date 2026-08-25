@@ -1,5 +1,3 @@
-import compatibility from "./iconCompatibility.generated.json";
-
 const CURATED_ROOT = "../../assets/icons/flaticon/Curated_Redux_Resorted_Standardized/";
 
 const assetLoaders = import.meta.glob(
@@ -7,31 +5,38 @@ const assetLoaders = import.meta.glob(
   { import: "default", query: "?url" }
 );
 
-const featuredIds = [
-  "calm",
-  "connection",
-  "creative",
-  "ideas",
-  "movement",
-  "nature",
-  "playful",
-  "reading",
-];
+const groupLabels = Object.freeze({
+  "activities and play 2": "Activities & Play",
+  "animals and creatures": "Animals & Creatures",
+  "emotions and therapy": "Emotions & Therapy",
+  "emotions and therapy sorted": "Emotions & Therapy",
+  "fantasy and imagination": "Fantasy & Imagination",
+  "food and kitchen": "Food & Kitchen",
+  "home and daily life sorted": "Home & Daily Life",
+  "nature and weather": "Nature & Weather",
+  "objects and tools sorted": "Objects & Tools",
+  "people and relationships sorted": "People & Relationships",
+  "places and scenes": "Places & Scenes",
+  "school and work sorted": "School & Work",
+  "symbols and ui": "Symbols & Communication",
+  "transportation and travel": "Transportation & Travel",
+});
 
-const featuredIdsByPath = new Map(
-  featuredIds.map((id) => [compatibility.aliases[id], id]).filter(([path]) => path)
-);
-
-const labelOverrides = {
-  calm: "Calm",
-  connection: "Family Connection",
-  creative: "Creative",
-  ideas: "Ideas",
-  movement: "Movement",
-  nature: "Nature",
-  playful: "Playful",
-  reading: "Reading",
-};
+const rootTagGroups = Object.freeze([
+  [/(?:animal|bird|bug|fish|pet|reptile)/, "Animals & Creatures"],
+  [/(?:activity|game|play|sport|toy)/, "Activities & Play"],
+  [/(?:body|emotion|face|feeling|health|therapy)/, "Emotions & Therapy"],
+  [/(?:fantasy|magic|myth|story)/, "Fantasy & Imagination"],
+  [/(?:food|kitchen|drink)/, "Food & Kitchen"],
+  [/(?:clothing|home|house|daily)/, "Home & Daily Life"],
+  [/(?:nature|outdoor|plant|weather)/, "Nature & Weather"],
+  [/(?:building|environment|place|scene)/, "Places & Scenes"],
+  [/(?:school|study|work)/, "School & Work"],
+  [/(?:communication|symbol|ui)/, "Symbols & Communication"],
+  [/(?:car|travel|transport)/, "Transportation & Travel"],
+  [/(?:culture|holiday)/, "Culture & Holidays"],
+  [/(?:person|people|relationship|love)/, "People & Relationships"],
+]);
 
 export function normalizeIconText(value) {
   return String(value ?? "")
@@ -59,25 +64,39 @@ function stablePathHash(value) {
 function readableLabel(filename) {
   return filename
     .replace(/\.svg$/i, "")
+    .replace(/\[[^\]]*]/g, " ")
     .replace(/^\d+[\s_-]*/, "")
     .replace(/[\s_-]+/g, " ")
     .trim()
     .replace(/\b\p{L}/gu, (letter) => letter.toLocaleUpperCase());
 }
 
+function groupFor(relativePath, filename) {
+  const segments = relativePath.split("/");
+  if (segments.length > 1) {
+    const normalizedRoot = normalizeIconText(segments[0]);
+    return groupLabels[normalizedRoot] ?? segments[0].replaceAll("_", " ");
+  }
+
+  const tags = normalizeIconText(
+    filename.match(/\[([^\]]+)]/)?.[1] ?? filename.replace(/\.svg$/i, "")
+  );
+  return rootTagGroups.find(([pattern]) => pattern.test(tags))?.[1] ?? "Imported Icons";
+}
+
 function createEntry([modulePath, load]) {
-  const relativePath = modulePath.slice(CURATED_ROOT.length);
+  const relativePath = modulePath.startsWith(CURATED_ROOT)
+    ? modulePath.slice(CURATED_ROOT.length)
+    : modulePath;
   const segments = relativePath.split("/");
   const filename = segments.pop();
-  const group = segments.join(" / ").trim();
-  const featuredId = featuredIdsByPath.get(relativePath);
-  const baseId =
-    featuredId ?? `curated-${slugify(group)}-${slugify(filename.replace(/\.svg$/i, ""))}`;
-  const label = labelOverrides[featuredId] ?? readableLabel(filename);
+  const group = groupFor(relativePath, filename);
+  const baseId = `curated-${slugify(group)}-${slugify(filename.replace(/\.svg$/i, ""))}`;
+  const label = readableLabel(filename);
 
   return {
     baseId,
-    featured: Boolean(featuredId),
+    featured: false,
     filename,
     group,
     label,

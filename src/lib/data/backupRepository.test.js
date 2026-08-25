@@ -13,7 +13,6 @@ import {
   whiteboardDocumentSchema,
 } from "../../models";
 import { interventions } from "../../data/resources/interventions";
-import { promptDecks } from "../../data/resources/promptDecks";
 import { worksheetStarters } from "../../data/resources/worksheetStarters";
 import {
   createTherapyStudioDatabase,
@@ -437,7 +436,6 @@ describe("backup repository", () => {
 
     await createBackupRepository({ database }).restoreBackup(emptyBackup);
 
-    expect(promptDecks.length).toBeGreaterThan(0);
     expect(interventions.length).toBeGreaterThan(0);
     expect(await createWorksheetRepository({ database }).getAllWorksheets()).toHaveLength(
       worksheetStarters.length

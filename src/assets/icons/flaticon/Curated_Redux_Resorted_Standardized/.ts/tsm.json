@@ -1,0 +1,45 @@
+{
+  "id": "adbc6e0399374249882ef57c1c8a2886",
+  "perspective": "grid",
+  "perspectiveSettings": {
+    "grid": {
+      "settingsKey": "tsPerspectiveGrid",
+      "orderBy": true,
+      "sortBy": "byName",
+      "layoutType": "grid",
+      "singleClickAction": "openInternal",
+      "entrySize": "small",
+      "thumbnailMode": "contain",
+      "showDirectories": true,
+      "showDetails": true,
+      "showDescription": false,
+      "showEntriesDescription": true,
+      "showTags": true,
+      "gridPageLimit": 100,
+      "maxVisibleTags": 4,
+      "maxDescriptionPreviewLength": 100
+    }
+  },
+  "customOrder": {
+    "folders": [
+      {
+        "uuid": "6ed553696d534751b4ff9459b8e3462f",
+        "name": "1058501-back-to-school"
+      },
+      {
+        "uuid": "61c2ea8a224b429ca4f99f844a86fec5",
+        "name": "1067706-magic"
+      },
+      {
+        "uuid": "4cfced9ad2df4e2090398389cd8c4a24",
+        "name": "1074417-halloween-costume-party"
+      }
+    ]
+  },
+  "tags": [
+    {
+      "title": "accessories",
+      "type": "plain"
+    }
+  ]
+}

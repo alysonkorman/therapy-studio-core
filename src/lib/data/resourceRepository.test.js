@@ -1,8 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { interventions } from "../../data/resources/interventions";
-import { promptDecks } from "../../data/resources/promptDecks";
-import { resources } from "../../data/resources/resources";
 import { IDBKeyRange, indexedDB } from "../../test/indexedDb";
 import { createTherapyStudioDatabase } from "./database";
 import {
@@ -51,15 +49,6 @@ describe("Resource repository", () => {
       ...resource,
       archived: false,
     });
-  });
-
-  it("creates and reads a valid Prompt Deck Resource", async () => {
-    const deck = promptDecks[0];
-    await repository.createResourceRecord(deck);
-
-    const stored = await repository.getResourceById(deck.id);
-    expect(stored.prompts).toEqual(deck.prompts);
-    expect(stored.legacyMetadata).toEqual(deck.legacyMetadata);
   });
 
   it("rejects invalid Resources and unknown fields", async () => {
@@ -161,105 +150,6 @@ describe("Resource repository", () => {
       repository.deleteResourcePermanently(resource.id),
       resourceRepositoryErrorCodes.resourceNotFound
     );
-  });
-
-  it("seeds idempotently without altering identical records", async () => {
-    const seed = [ordinaryResource({ id: "seed-a" }), ordinaryResource({ id: "seed-b" })];
-    await expect(repository.seedResources(seed)).resolves.toEqual({
-      created: 2,
-      unchanged: 0,
-      total: 2,
-    });
-    await expect(repository.seedResources(seed)).resolves.toEqual({
-      created: 0,
-      unchanged: 2,
-      total: 2,
-    });
-    expect(await repository.getAllResources()).toHaveLength(2);
-  });
-
-  it("reports conflicting seeds without changing stored content", async () => {
-    const resource = ordinaryResource({ id: "seed-conflict" });
-    await repository.seedResources([resource]);
-
-    await expectCode(
-      repository.seedResources([{ ...resource, title: "Conflicting title" }]),
-      resourceRepositoryErrorCodes.seedFailed
-    );
-    expect((await repository.getResourceById(resource.id)).title).toBe(resource.title);
-  });
-
-  it("rejects duplicate IDs within one seed before writing", async () => {
-    const duplicate = ordinaryResource({ id: "duplicate-seed" });
-    await expectCode(
-      repository.seedResources([duplicate, duplicate]),
-      resourceRepositoryErrorCodes.seedFailed
-    );
-    expect(await repository.getAllResources()).toEqual([]);
-  });
-
-  it("validates an entire seed before starting its transaction", async () => {
-    await expectCode(
-      repository.seedResources([
-        ordinaryResource({ id: "valid-before-invalid" }),
-        ordinaryResource({ id: "invalid", title: "" }),
-      ]),
-      resourceRepositoryErrorCodes.seedFailed
-    );
-    expect(await repository.getAllResources()).toEqual([]);
-  });
-
-  it("rolls back the full seed when a transactional write fails", async () => {
-    let writes = 0;
-    const failSecondWrite = () => {
-      writes += 1;
-      if (writes === 2) throw new Error("simulated seed write failure");
-    };
-    database.table("resources").hook("creating", failSecondWrite);
-
-    await expectCode(
-      repository.seedResources([
-        ordinaryResource({ id: "transaction-a" }),
-        ordinaryResource({ id: "transaction-b" }),
-      ]),
-      resourceRepositoryErrorCodes.seedFailed
-    );
-    expect(await database.table("resources").count()).toBe(0);
-  });
-
-  it("preserves the complete imported Prompt Deck collection", async () => {
-    const result = await repository.seedResources(resources);
-    const stored = await repository.getAllResources({ includeArchived: true });
-    const storedDecks = stored.filter(({ type }) => type === "prompt-deck");
-    const promptCount = storedDecks.reduce(
-      (total, deck) => total + deck.prompts.length,
-      0
-    );
-
-    expect(result).toEqual({
-      created: resources.length,
-      unchanged: 0,
-      total: resources.length,
-    });
-    expect(storedDecks).toHaveLength(137);
-    expect(promptCount).toBe(8679);
-    expect(storedDecks.map(({ id }) => id).sort()).toEqual(
-      promptDecks.map(({ id }) => id).sort()
-    );
-
-    const sourceDeck = promptDecks.find((deck) =>
-      deck.prompts.some((prompt) => prompt.legacyId !== undefined)
-    );
-    const storedDeck = await repository.getResourceById(sourceDeck.id);
-    expect(storedDeck.prompts).toEqual(sourceDeck.prompts);
-    expect(storedDeck.legacyMetadata).toEqual(sourceDeck.legacyMetadata);
-
-    const repairedPrompt = sourceDeck.prompts.find(
-      (prompt) => prompt.legacyId !== undefined
-    );
-    const storedPrompt = storedDeck.prompts.find(({ id }) => id === repairedPrompt.id);
-    expect(storedPrompt.id).toBe(repairedPrompt.id);
-    expect(storedPrompt.legacyId).toBe(repairedPrompt.legacyId);
   });
 
   it("rejects malformed records found in storage", async () => {

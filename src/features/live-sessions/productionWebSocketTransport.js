@@ -17,6 +17,8 @@ export function createProductionWebSocketTransport({
   let socket;
   let handlers = {};
   let closed = false;
+  let reconnectTimer;
+  let reconnectAttempts = 0;
   const unavailable = !origin || !credential?.token || !WebSocketImpl;
   const send = (message) => {
     if (socket?.readyState === WebSocketImpl.OPEN) socket.send(JSON.stringify(message));
@@ -33,11 +35,16 @@ export function createProductionWebSocketTransport({
       // The token must be query-string scoped because browser WebSocket cannot set
       // Authorization headers. It expires quickly and API Gateway access logs must
       // redact query strings (documented in live-service/README.md).
-      socket = new WebSocketImpl(
-        `${websocketOrigin(origin)}/?credential=${encodeURIComponent(credential.token)}`
-      );
-      socket.onopen = () => handlers.onConnectionChange?.({ state: "connected" });
-      socket.onmessage = ({ data }) => {
+      const open = () => {
+        if (closed) return;
+        socket = new WebSocketImpl(
+          `${websocketOrigin(origin)}/?credential=${encodeURIComponent(credential.token)}`
+        );
+        socket.onopen = () => {
+          reconnectAttempts = 0;
+          handlers.onConnectionChange?.({ state: "connected" });
+        };
+        socket.onmessage = ({ data }) => {
         let message;
         try {
           message = liveSessionServerMessageSchema.safeParse(JSON.parse(data));
@@ -51,14 +58,21 @@ export function createProductionWebSocketTransport({
           handlers.onPresence?.({ role, state: "connected", ...message.data });
         if (message.data.type === "ended") handlers.onSessionEnded?.();
         if (message.data.type === "error") handlers.onConnectionError?.(message.data);
+        };
+        socket.onclose = () => {
+          if (closed) return;
+          handlers.onConnectionChange?.({ state: "reconnecting" });
+          const delay = Math.min(1000 * 2 ** reconnectAttempts, 10000);
+          reconnectAttempts += 1;
+          reconnectTimer = setTimeout(open, delay);
+        };
+        socket.onerror = () => socket.close();
       };
-      socket.onclose = () => {
-        if (!closed) handlers.onConnectionChange?.({ state: "reconnecting" });
-      };
-      socket.onerror = () => handlers.onConnectionChange?.({ state: "reconnecting" });
+      open();
     },
     disconnect() {
       closed = true;
+      clearTimeout(reconnectTimer);
       socket?.close();
     },
     endSession() {

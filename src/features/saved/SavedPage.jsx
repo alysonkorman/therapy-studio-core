@@ -18,7 +18,7 @@ const sections = [
 function MemoryResource({ item, onChange, repository }) {
   const destinationByType = {
     game: {
-      label: "Play Trivia",
+      label: item.resource.gameKind === "bingo" ? "Play Bingo" : "Play Trivia",
       path: `/games/${encodeURIComponent(item.resource.id)}`,
     },
     intervention: {

@@ -1,12 +1,12 @@
 import { interventions } from "./interventions";
-import { promptDecks } from "./promptDecks";
+import { bingoSets } from "./bingoSets";
 import { triviaSets } from "./triviaSets";
 import { worksheetStarters } from "./worksheetStarters";
 import { assertUniqueResourceIds } from "../../models";
 
 export const resources = assertUniqueResourceIds([
-  ...promptDecks,
   ...interventions,
+  ...bingoSets,
   ...triviaSets,
   ...worksheetStarters,
 ]);

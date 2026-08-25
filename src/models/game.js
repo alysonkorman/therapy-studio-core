@@ -64,3 +64,52 @@ export const triviaGameSchema = resourceSchema
   }));
 
 export { triviaDifficultySchema };
+
+export const bingoItemSchema = z
+  .object({
+    id: z.string().trim().min(1),
+    text: z.string().trim().min(1),
+    iconId: z.string().trim().min(1).nullable().optional(),
+    category: z.string().trim().optional(),
+    sortOrder: z.number().int().nonnegative(),
+  })
+  .strict();
+
+export const bingoGameSchema = resourceSchema
+  .extend({
+    type: z.literal("game"),
+    gameKind: z.literal("bingo"),
+    category: z.string().default(""),
+    iconId: z.string().trim().min(1).nullable().default(null),
+    color: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/, "Color must be a six-digit hex value")
+      .default("#3F7C72"),
+    boardSize: z.union([z.literal(3), z.literal(4), z.literal(5)]),
+    useFreeSpace: z.boolean().default(true),
+    contentVersion: z.literal(1),
+    items: z.array(bingoItemSchema).min(1),
+  })
+  .strict()
+  .superRefine((game, context) => {
+    const ids = new Set();
+    for (const item of game.items) {
+      if (ids.has(item.id)) {
+        context.addIssue({
+          code: "custom",
+          message: `Duplicate Bingo item ID: ${item.id}`,
+          path: ["items"],
+        });
+      }
+      ids.add(item.id);
+    }
+  })
+  .transform((game) => ({
+    ...game,
+    items: [...game.items].sort(
+      (first, second) =>
+        first.sortOrder - second.sortOrder || first.id.localeCompare(second.id)
+    ),
+  }));
+
+export const gameResourceSchema = z.union([triviaGameSchema, bingoGameSchema]);

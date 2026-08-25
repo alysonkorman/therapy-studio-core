@@ -6,6 +6,7 @@ import ResourceCompatibilityIndicators from "../clients/ResourceCompatibilityInd
 import ResourceMemoryControls from "../resource-memory/ResourceMemoryControls";
 import { promptAccentStyle } from "./promptAppearance";
 import formatPromptDisplayLabel from "./formatPromptDisplayLabel";
+import PromptDeckSyncBadge from "./PromptDeckSyncBadge";
 
 export default function PromptDeckCard({
   deck,
@@ -19,6 +20,8 @@ export default function PromptDeckCard({
   selected = false,
   total,
   builtIn = false,
+  syncRecord,
+  returnTo,
 }) {
   return (
     <article
@@ -62,12 +65,16 @@ export default function PromptDeckCard({
           <span>
             {deck.prompts.length} {deck.prompts.length === 1 ? "prompt" : "prompts"}
           </span>
+          <PromptDeckSyncBadge builtIn={builtIn} deck={deck} record={syncRecord} />
         </div>
       </div>
       <div className="prompt-deck-card__body">
         <h2>{deck.title}</h2>
         {deck.description ? <p>{deck.description}</p> : null}
-        <Link className="prompt-deck-card__link" to={`/prompts/${deck.id}`}>
+        <Link
+          className="prompt-deck-card__link"
+          to={`/prompts/${deck.id}${returnTo ? `?category=${encodeURIComponent(returnTo)}` : ""}`}
+        >
           Open deck
           <ArrowRight aria-hidden="true" size={18} />
         </Link>

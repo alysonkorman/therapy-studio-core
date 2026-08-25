@@ -1,6 +1,6 @@
 import { getResourceKey } from "../../models/resource";
 import { resourceSchema } from "../../models/resource";
-import { triviaGameSchema } from "../../models/game";
+import { gameResourceSchema } from "../../models/game";
 import { worksheetSchema } from "../../models/worksheet";
 
 function validPersistedWorksheets(records) {
@@ -29,7 +29,7 @@ function validPersistedGames(records) {
     if (!record || record.archived || record.type !== "game") return [];
     const { archived, ...resource } = record;
     void archived;
-    const result = triviaGameSchema.safeParse(resource);
+    const result = gameResourceSchema.safeParse(resource);
     return result.success ? [result.data] : [];
   });
 }

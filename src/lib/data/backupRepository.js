@@ -7,7 +7,7 @@ import {
   promptPlaylistSchema,
   resourceMemorySchema,
   resourceSchema,
-  triviaGameSchema,
+  gameResourceSchema,
   sessionProfileSchema,
   therapyStudioBackupEnvelopeSchema,
   THERAPY_STUDIO_BACKUP_FORMAT,
@@ -75,7 +75,7 @@ function backupError(code, message, options) {
 function schemaForResource(resource) {
   if (resource?.type === "prompt-deck") return promptDeckSchema;
   if (resource?.type === "worksheet") return worksheetSchema;
-  if (resource?.type === "game") return triviaGameSchema;
+  if (resource?.type === "game") return gameResourceSchema;
   return resourceSchema;
 }
 

@@ -92,6 +92,11 @@
   gap: 8px;
 }
 
+/* The reset panel is a grid, so explicitly preserve native disclosure behavior. */
+.prompt-authoring-panel:not([open]) > :not(summary) {
+  display: none;
+}
+
 .seed-callout,
 .create-deck,
 .authoring-actions,
@@ -749,6 +754,28 @@
 .authoring-error {
   color: #9a2f2f;
   font-weight: 700;
+}
+
+.prompt-library-reset {
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+}
+
+.prompt-library-reset h3,
+.prompt-library-reset p {
+  margin: 0;
+}
+
+.prompt-library-reset__confirmation {
+  background: color-mix(in srgb, #fff 92%, #a33 8%);
+  border: 1px solid color-mix(in srgb, #a33 35%, var(--border));
+  border-radius: 10px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
 }
 
 .manage-mode-toggle,

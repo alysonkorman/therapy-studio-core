@@ -1,5 +1,6 @@
 const hostTokenKey = "therapy-studio-live-session-host-token";
 const pendingInviteKey = "therapy-studio-live-session-pending-invite";
+const postLoginPathKey = "therapy-studio-post-login-path";
 
 // Cognito Hosted UI returns this short-lived token in the fragment. It is held only
 // for the browser session and immediately removed from the visible URL.
@@ -28,6 +29,14 @@ export function consumePendingLiveSessionInvite() {
   const pending = hasPendingLiveSessionInvite();
   sessionStorage.removeItem(pendingInviteKey);
   return pending;
+}
+export function rememberPostLoginPath(pathname) {
+  sessionStorage.setItem(postLoginPathKey, pathname);
+}
+export function consumePostLoginPath() {
+  const pathname = sessionStorage.getItem(postLoginPathKey);
+  sessionStorage.removeItem(postLoginPathKey);
+  return pathname;
 }
 export function liveSessionLoginUrl() {
   return import.meta.env.VITE_COGNITO_LOGIN_URL || null;

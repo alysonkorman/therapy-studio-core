@@ -26,9 +26,11 @@ export default function LiveSessionPanel({
       <button onClick={onCopy} type="button">
         <Copy aria-hidden="true" size={16} /> Copy Link
       </button>
-      <button onClick={onEnterSessionView} type="button">
-        Enter Session View
-      </button>
+      {onEnterSessionView ? (
+        <button onClick={onEnterSessionView} type="button">
+          Enter Session View
+        </button>
+      ) : null}
       <button
         className="whiteboard-live-session-panel__end"
         onClick={onEnd}

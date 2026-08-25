@@ -4,11 +4,16 @@ import ClientsPage from "../features/clients/ClientsPage";
 import LiveSessionParticipantPage from "../features/live-sessions/LiveSessionParticipantPage";
 import DashboardPage from "../features/dashboard/DashboardPage";
 import GamesPage from "../features/games/GamesPage";
-import TriviaGamePage from "../features/games/TriviaGamePage";
+import GamePage from "../features/games/GamePage";
 import TriviaEditorPage from "../features/games/TriviaEditorPage";
+import BingoEditorPage from "../features/games/BingoEditorPage";
+import PromptSpinnerPage from "../features/games/PromptSpinnerPage";
+import VisualGamesPage from "../features/games/VisualGamesPage";
+import VisualGameCanvasPage from "../features/games/VisualGameCanvasPage";
+import SpotItPage from "../features/games/SpotItPage";
 import InterventionsPage from "../features/interventions/InterventionsPage";
-import InterventionEditorPage from "../features/interventions/InterventionEditorPage";
 import InterventionDetailPage from "../features/interventions/InterventionDetailPage";
+import InterventionEditorPage from "../features/interventions/InterventionEditorPage";
 import NotFoundPage from "../features/not-found/NotFoundPage";
 import PromptDeckPage from "../features/prompts/PromptDeckPage";
 import PromptsPage from "../features/prompts/PromptsPage";
@@ -77,8 +82,25 @@ export function createAppRoutes({ enableWorkspaceLab = import.meta.env.DEV } = {
           element: <GamesPage />,
         },
         {
+          path: "games/prompt-spinner",
+          element: <PromptSpinnerPage />,
+        },
+        {
+          path: "games/visual",
+          element: <VisualGamesPage />,
+        },
+        {
+          path: "games/visual/:imageId",
+          element: <VisualGameCanvasPage />,
+        },
+        { path: "games/spot-it", element: <SpotItPage /> },
+        {
           path: "games/:gameId",
-          element: <TriviaGamePage />,
+          element: <GamePage />,
+        },
+        {
+          path: "games/:gameId/bingo-edit",
+          element: <BingoEditorPage />,
         },
         {
           path: "games/:gameId/edit",

@@ -1,5 +1,5 @@
 export { interventions } from "./interventions";
-export { promptDecks } from "./promptDecks";
+export { bingoSets, pictureWordBingo } from "./bingoSets";
 export { generalKnowledgeTrivia, triviaSets } from "./triviaSets";
 export { resources } from "./resources";
 export {

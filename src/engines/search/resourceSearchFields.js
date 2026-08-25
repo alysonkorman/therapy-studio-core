@@ -80,15 +80,16 @@ export const resourceSearchFields = [
   },
   {
     key: "triviaQuestionText",
-    label: "Trivia question or answer",
+    label: "game content",
     weight: 10,
     values: (resource) =>
-      arrayValues(resource.questions)
-        .flatMap((question) => [
+      [
+        ...arrayValues(resource.questions).flatMap((question) => [
           question.question,
           question.answer,
           ...arrayValues(question.choices),
-        ])
-        .filter(Boolean),
+        ]),
+        ...arrayValues(resource.items).flatMap((item) => [item.text, item.category]),
+      ].filter(Boolean),
   },
 ];

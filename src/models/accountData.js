@@ -37,6 +37,19 @@ const cloudResourceFields = [
   "updatedAt",
 ];
 
+const cloudPromptDeckResourceFields = [
+  ...cloudResourceFields,
+  "worksWellWhen",
+  "useWith",
+  "kidsWhoLike",
+  "diagnoses",
+  "myNotes",
+  "rating",
+  "favorite",
+  "usageCount",
+  "lastUsedAt",
+];
+
 const cloudPromptItemFields = [
   "id",
   "text",
@@ -46,6 +59,7 @@ const cloudPromptItemFields = [
   "tags",
   "ageRanges",
   "goals",
+  "diagnoses",
   "settings",
   "depth",
   "sortOrder",
@@ -81,7 +95,7 @@ function projectPromptDeck(input) {
   return {
     archived,
     resource: {
-      ...pick(resource, cloudResourceFields),
+      ...pick(resource, cloudPromptDeckResourceFields),
       category: resource.category,
       categoryId: resource.categoryId,
       color: resource.color,
@@ -146,8 +160,23 @@ export const promptAuthoringPreferenceSchema = z
   })
   .strict();
 
+export const promptLibraryResetPreferenceSchema = z
+  .object({
+    kind: z.literal("prompt-library-reset"),
+    phase: z.enum(["pending", "complete"]),
+    resetAt: z.string().datetime(),
+    retiredStarterIds: z.array(z.string().trim().min(1)).min(1),
+    version: z.literal(1),
+  })
+  .strict();
+
+export const promptPreferenceSchema = z.union([
+  promptAuthoringPreferenceSchema,
+  promptLibraryResetPreferenceSchema,
+]);
+
 function projectPreference(input) {
-  return promptAuthoringPreferenceSchema.parse(input);
+  return promptPreferenceSchema.parse(input);
 }
 
 export function projectAccountDataContent(entityType, input) {
@@ -179,6 +208,8 @@ export function accountDataContentId(entityType, content) {
     case "playlist":
       return content.id;
     case "preference":
-      return "prompt-authoring";
+      return content.kind === "prompt-library-reset"
+        ? "prompt-library-reset"
+        : "prompt-authoring";
   }
 }

@@ -635,6 +635,59 @@
   font-size: 0.85rem;
   margin: 0;
 }
+.worksheet-table-composer {
+  display: grid;
+  gap: 10px;
+}
+.worksheet-table-composer__presets,
+.worksheet-table-composer__controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.worksheet-table-composer__presets span {
+  color: var(--text-muted, #666);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.worksheet-table-composer__grid-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.worksheet-table-composer__grid {
+  border-collapse: collapse;
+  min-width: 440px;
+  table-layout: fixed;
+  width: 100%;
+}
+.worksheet-table-composer__grid th,
+.worksheet-table-composer__grid td {
+  border: 1px solid var(--border);
+  padding: 4px;
+}
+.worksheet-table-composer__grid th {
+  background: var(--surface-soft);
+}
+.worksheet-settings .worksheet-table-composer__grid input {
+  border: 0;
+  border-radius: 4px;
+  min-width: 0;
+  padding: 7px;
+  width: 100%;
+}
+.worksheet-table-composer__grid th:last-child,
+.worksheet-table-composer__row-action {
+  background: var(--surface);
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  width: 74px;
+}
+.worksheet-table-composer__row-action button {
+  font-size: 0.75rem;
+  padding: 6px;
+}
 .worksheet-table-wrap {
   max-width: 100%;
   overflow-x: auto;
@@ -865,4 +918,32 @@
   .worksheet-detail-preview {
     padding: var(--space-2);
   }
+}
+.worksheets-page > .studio-page__header {
+  background-image:
+    linear-gradient(90deg, rgb(18 68 82 / 88%), rgb(30 112 131 / 28%)),
+    url("../../assets/prompt-category-backgrounds/category-blue.jpg");
+  background-position: center;
+  background-size: cover;
+  border-radius: calc(var(--radius-lg) + 4px);
+  box-shadow: 0 18px 42px rgb(25 97 115 / 15%);
+  color: #fff;
+  margin-bottom: var(--space-5);
+  overflow: hidden;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.worksheets-page > .studio-page__header .studio-page__heading p {
+  color: rgb(255 255 255 / 84%);
+}
+
+.worksheets-page > .studio-page__header .studio-page__actions {
+  background: rgb(255 255 255 / 13%);
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: var(--radius-md);
+  padding: 8px;
+}
+
+.worksheets-page > .studio-page__header .studio-page__actions button {
+  box-shadow: 0 4px 14px rgb(0 0 0 / 14%);
 }

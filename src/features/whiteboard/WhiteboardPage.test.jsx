@@ -42,6 +42,18 @@ function renderPage(options = {}) {
   );
 }
 
+function renderParticipantPage(options = {}) {
+  return renderWithRouter(
+    <WhiteboardPage
+      collaborationFactory={() => ({ close() {}, publish: vi.fn() })}
+      createId={() => crypto.randomUUID()}
+      liveSession={{ role: "participant", sessionId: "participant-session" }}
+      mediaRepository={options.mediaRepository ?? mediaRepository()}
+      repository={options.repository ?? repository()}
+    />
+  );
+}
+
 describe("WhiteboardPage", () => {
   it("starts a fresh editable Feelings Thermometer in one click", async () => {
     const user = userEvent.setup();
@@ -69,6 +81,24 @@ describe("WhiteboardPage", () => {
     expect(screen.getByLabelText("Text object: Cats")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Undo" }));
     expect(screen.getAllByLabelText("Text object: Type an example…")).toHaveLength(5);
+  });
+
+  it("offers selected-object duplication and layer controls", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(
+      screen.getByRole("button", { name: "Use Now: Feelings Thermometer" })
+    );
+    await user.click(
+      screen.getAllByRole("button", { name: "Text object: Type an example…" })[0]
+    );
+
+    expect(screen.getByRole("button", { name: "Backward" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Forward" })).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "Duplicate" }));
+
+    expect(screen.getAllByLabelText("Text object: Type an example…")).toHaveLength(6);
+    expect(screen.getByRole("button", { name: "Forward" })).toBeDisabled();
   });
 
   it("offers the Shield and Blank Canvas through the same starter flow", async () => {
@@ -113,8 +143,8 @@ describe("WhiteboardPage", () => {
     renderPage();
     await user.click(screen.getByRole("button", { name: "Draw" }));
     const canvas = screen.getByRole("img", { name: "Whiteboard canvas" });
-    fireEvent.pointerDown(canvas, { clientX: 10, clientY: 10 });
-    fireEvent.pointerMove(canvas, { clientX: 30, clientY: 30 });
+    fireEvent.pointerDown(canvas, { clientX: 10, clientY: 100 });
+    fireEvent.pointerMove(canvas, { clientX: 250, clientY: 100 });
     fireEvent.pointerUp(canvas);
     expect(screen.getByLabelText("Drawing stroke")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Undo" }));
@@ -122,8 +152,84 @@ describe("WhiteboardPage", () => {
     await user.click(screen.getByRole("button", { name: "Redo" }));
     expect(screen.getByLabelText("Drawing stroke")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Eraser" }));
-    fireEvent.pointerDown(screen.getByLabelText("Drawing stroke"));
-    expect(screen.queryByLabelText("Drawing stroke")).toBeNull();
+    fireEvent.pointerDown(canvas, {
+      clientX: 130,
+      clientY: 100,
+      pointerId: 4,
+      isPrimary: true,
+      pointerType: "touch",
+    });
+    fireEvent.pointerMove(canvas, {
+      clientX: 132,
+      clientY: 100,
+      pointerId: 4,
+      isPrimary: true,
+      pointerType: "touch",
+    });
+    fireEvent.pointerUp(canvas, { isPrimary: true, pointerId: 4, pointerType: "touch" });
+    expect(screen.getAllByLabelText("Drawing stroke")).toHaveLength(2);
+  });
+
+  it("keeps a touch stroke owned by its first pointer and cancels it safely", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole("button", { name: "Draw" }));
+    const canvas = screen.getByRole("img", { name: "Whiteboard canvas" });
+
+    fireEvent.pointerDown(canvas, {
+      clientX: 10,
+      clientY: 10,
+      pointerId: 1,
+      isPrimary: true,
+      pointerType: "touch",
+    });
+    fireEvent.pointerMove(canvas, {
+      clientX: 20,
+      clientY: 20,
+      pointerId: 1,
+      isPrimary: true,
+      pointerType: "touch",
+    });
+    fireEvent.pointerDown(canvas, {
+      clientX: 700,
+      clientY: 600,
+      pointerId: 2,
+      isPrimary: false,
+      pointerType: "touch",
+    });
+    fireEvent.pointerMove(canvas, {
+      clientX: 800,
+      clientY: 600,
+      pointerId: 2,
+      isPrimary: false,
+      pointerType: "touch",
+    });
+    fireEvent.pointerUp(canvas, { isPrimary: false, pointerId: 2, pointerType: "touch" });
+    fireEvent.pointerMove(canvas, {
+      clientX: 30,
+      clientY: 30,
+      pointerId: 1,
+      isPrimary: true,
+      pointerType: "touch",
+    });
+    fireEvent.pointerUp(canvas, { isPrimary: true, pointerId: 1, pointerType: "touch" });
+
+    expect(screen.getByLabelText("Drawing stroke").getAttribute("points")).toBe(
+      "10,10 20,20 30,30"
+    );
+    fireEvent.pointerDown(canvas, {
+      clientX: 40,
+      clientY: 40,
+      pointerId: 3,
+      isPrimary: true,
+      pointerType: "touch",
+    });
+    fireEvent.pointerCancel(canvas, {
+      isPrimary: true,
+      pointerId: 3,
+      pointerType: "touch",
+    });
+    expect(screen.getAllByLabelText("Drawing stroke")).toHaveLength(1);
   });
 
   it("creates and edits text, then deletes the selected object", async () => {
@@ -215,7 +321,7 @@ describe("WhiteboardPage", () => {
     renderPage();
     await user.click(screen.getByRole("button", { name: "Text" }));
     fireEvent.pointerDown(screen.getByRole("img", { name: "Whiteboard canvas" }));
-    await user.click(screen.getByRole("button", { name: "Clear Board" }));
+    await user.click(screen.getByRole("button", { name: "Clear All" }));
     expect(screen.getByLabelText(/Text object/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "New" }));
     expect(screen.getByLabelText(/Text object/)).toBeInTheDocument();
@@ -262,9 +368,7 @@ describe("WhiteboardPage", () => {
     await user.click(screen.getByRole("button", { name: "Open" }));
     await user.click(screen.getByRole("button", { name: "Visual Board" }));
     await user.click(screen.getByRole("button", { name: "Select" }));
-    const visual = screen.getByRole("button", {
-      name: "Visual object: missing-whiteboard-icon",
-    });
+    const visual = screen.getByRole("button", { name: "Visual object" });
     fireEvent.pointerDown(visual, { clientX: 100, clientY: 100 });
     fireEvent.pointerMove(screen.getByRole("img", { name: "Whiteboard canvas" }), {
       clientX: 150,
@@ -277,9 +381,7 @@ describe("WhiteboardPage", () => {
     expect(visual).toHaveAttribute("width", "180");
     expect(document.querySelector(".whiteboard-visual .lucide-shapes")).not.toBeNull();
     await user.click(screen.getByRole("button", { name: "Delete Selected" }));
-    expect(
-      screen.queryByRole("button", { name: "Visual object: missing-whiteboard-icon" })
-    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Visual object" })).toBeNull();
   });
 
   it("places a curated SVG through the shared Icon Browser", async () => {
@@ -291,17 +393,27 @@ describe("WhiteboardPage", () => {
     );
     await user.type(screen.getByRole("searchbox", { name: "Search Icons" }), "watarun01");
     await user.dblClick(screen.getByRole("button", { name: /select watarun01/i }));
-    expect(
-      screen.getByRole("button", {
-        name: "Visual object: curated-culture-holidays-watarun01",
-      })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Visual object" })).toBeInTheDocument();
+  });
+
+  it("lets a participant add a semantic sticker as a normal movable visual", async () => {
+    const user = userEvent.setup();
+    renderParticipantPage();
+
+    await user.click(screen.getByRole("button", { name: "Stickers" }));
+    expect(screen.getByRole("dialog", { name: "Choose a sticker" })).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Animals" }));
+    await user.click(screen.getAllByRole("button", { name: /add .+ sticker/i })[0]);
+
+    expect(screen.queryByRole("dialog", { name: "Choose a sticker" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Visual object" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Resize selected object" })).toBeVisible();
   });
 
   it("does not render therapist-private Resource Memory in the canvas", () => {
     renderPage();
     expect(screen.queryByText(/private notes|resource memory/i)).toBeNull();
-    expect(screen.getByText(/Same-browser tab sharing is available/i)).toBeVisible();
+    expect(screen.getByText(/Safe for screen sharing/i)).toBeVisible();
   });
 
   it("opens an image as a locked activity and resets only added marks", async () => {

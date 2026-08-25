@@ -12,6 +12,7 @@ import PromptAuthoringPanel from "./PromptAuthoringPanel";
 import PromptColorPicker from "./PromptColorPicker";
 import PromptManageView from "./PromptManageView";
 import { promptAccentStyle, readablePromptForeground } from "./promptAppearance";
+import { filterPromptDecksForCompletedReset } from "./usePromptAuthoring";
 
 const deck = {
   id: "deck-1",
@@ -40,6 +41,18 @@ const deck = {
 };
 
 describe("Prompt authoring interactions", () => {
+  it("does not hide stored decks after a completed reset", () => {
+    const reset = { resetAt: "2026-08-17T12:00:00.000Z" };
+    const oldDeck = { createdAt: "2026-08-16T12:00:00.000Z", id: "old" };
+    const currentDeck = { createdAt: "2026-08-18T12:00:00.000Z", id: "current" };
+
+    expect(filterPromptDecksForCompletedReset([oldDeck, currentDeck], reset)).toEqual([
+      oldDeck,
+      currentDeck,
+    ]);
+    expect(filterPromptDecksForCompletedReset([oldDeck], null)).toEqual([oldDeck]);
+  });
+
   it("formats taxonomy labels for display without changing the source value", () => {
     const stored = "executive-function";
     expect(formatPromptDisplayLabel(stored)).toBe("Executive Function");
@@ -238,6 +251,50 @@ describe("Prompt authoring interactions", () => {
     expect(repository.reorderCategories).toHaveBeenCalledWith(["two", "one"]);
     await user.click(screen.getAllByRole("button", { name: /^archive$/i })[0]);
     expect(repository.archiveCategory).toHaveBeenCalledWith("one");
+  });
+
+  it("keeps retired categories out of normal management until archived content is requested", () => {
+    const repository = {
+      archiveCategory: vi.fn(),
+      reorderCategories: vi.fn(),
+      restoreCategory: vi.fn(),
+      updateCategory: vi.fn(),
+    };
+    const categories = [
+      {
+        id: "active",
+        name: "Active",
+        color: "#6C46C3",
+        iconId: "prompt-default",
+        archived: false,
+      },
+      {
+        id: "retired",
+        name: "Retired",
+        color: "#2D7D73",
+        iconId: "ideas",
+        archived: true,
+      },
+    ];
+    const { rerender } = render(
+      <CategoryManager
+        categories={categories}
+        repository={repository}
+        run={(operation) => operation()}
+      />
+    );
+    expect(screen.getByText("Active")).toBeVisible();
+    expect(screen.queryByText("Retired")).not.toBeInTheDocument();
+
+    rerender(
+      <CategoryManager
+        categories={categories}
+        repository={repository}
+        run={(operation) => operation()}
+        showArchived
+      />
+    );
+    expect(screen.getByText("Retired")).toBeVisible();
   });
 
   it("creates decks and exposes archived-content controls after explicit seeding", async () => {

@@ -57,7 +57,10 @@ export function createTriviaRepository({
 } = {}) {
   async function getAllTriviaSets() {
     const persisted = (await resources.getAllResources())
-      .filter(({ archived, type }) => !archived && type === "game")
+      .filter(
+        ({ archived, gameKind, type }) =>
+          !archived && type === "game" && gameKind === "trivia"
+      )
       .map((record) => {
         const { archived, ...resource } = record;
         void archived;

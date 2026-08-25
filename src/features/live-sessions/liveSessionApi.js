@@ -20,9 +20,9 @@ async function request(path, { body, token } = {}) {
   return response.json();
 }
 
-export async function createRemoteLiveSession({ state, token }) {
+export async function createRemoteLiveSession({ activityKind = "whiteboard", state, token }) {
   return request("/live-sessions", {
-    body: { activityKind: "whiteboard", state },
+    body: { activityKind, state },
     token,
   });
 }

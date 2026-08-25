@@ -2,7 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   captureCognitoHostToken,
+  consumePostLoginPath,
   consumePendingLiveSessionInvite,
+  rememberPostLoginPath,
   rememberPendingLiveSessionInvite,
 } from "./liveSessionHostAuth";
 
@@ -22,5 +24,12 @@ describe("Live Session host authentication", () => {
     expect(replaceState).toHaveBeenCalledWith(null, "", "/whiteboard");
     expect(consumePendingLiveSessionInvite()).toBe(true);
     expect(consumePendingLiveSessionInvite()).toBe(false);
+  });
+
+  it("keeps a requested route through host sign-in", () => {
+    rememberPostLoginPath("/prompts");
+
+    expect(consumePostLoginPath()).toBe("/prompts");
+    expect(consumePostLoginPath()).toBeNull();
   });
 });

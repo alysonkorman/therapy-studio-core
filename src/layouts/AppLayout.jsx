@@ -9,6 +9,21 @@ import {
   hasPendingLiveSessionInvite,
 } from "../features/live-sessions/liveSessionHostAuth";
 
+const backgroundArtwork = Object.values(
+  import.meta.glob("../assets/page-backgrounds/*", {
+    eager: true,
+    import: "default",
+    query: "?url",
+  })
+).sort();
+
+function artworkFor(pathname) {
+  if (!backgroundArtwork.length) return undefined;
+  const day = Math.floor(Date.now() / 86_400_000);
+  const index = [...`${pathname}-${day}`].reduce((total, character) => total + character.charCodeAt(0), 0);
+  return backgroundArtwork[index % backgroundArtwork.length];
+}
+
 export default function AppLayout({ enableWorkspaceLab = import.meta.env.DEV }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -19,6 +34,7 @@ export default function AppLayout({ enableWorkspaceLab = import.meta.env.DEV }) 
   const navigationItems = createNavigationItems({ enableWorkspaceLab });
   const currentPageLabel =
     getNavigationItemForPath(pathname, { enableWorkspaceLab })?.label ?? "Therapy Studio";
+  const pageArtwork = artworkFor(pathname);
 
   useEffect(() => {
     const token = captureCognitoHostToken();
@@ -54,7 +70,7 @@ export default function AppLayout({ enableWorkspaceLab = import.meta.env.DEV }) 
   }
 
   return (
-    <div className="app-shell" onKeyDown={handleShellKeyDown}>
+    <div className="app-shell" onKeyDown={handleShellKeyDown} style={{ "--workspace-art": `url("${pageArtwork}")` }}>
       <a className="skip-to-content" href="#main-content" onClick={focusMainContent}>
         Skip to Content
       </a>

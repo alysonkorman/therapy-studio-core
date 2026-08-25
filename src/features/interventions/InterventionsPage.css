@@ -316,3 +316,31 @@
     grid-column: 1 / -1;
   }
 }
+.interventions-page > .studio-page__header {
+  background-image:
+    linear-gradient(90deg, rgb(42 22 65 / 88%), rgb(74 34 90 / 30%)),
+    url("../../assets/prompt-category-backgrounds/category-plum.jpg");
+  background-position: center;
+  background-size: cover;
+  border-radius: calc(var(--radius-lg) + 4px);
+  box-shadow: 0 18px 42px rgb(56 28 72 / 16%);
+  color: #fff;
+  margin-bottom: var(--space-5);
+  overflow: hidden;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.interventions-page > .studio-page__header .studio-page__heading p {
+  color: rgb(255 255 255 / 84%);
+}
+
+.interventions-page > .studio-page__header .studio-page__actions {
+  background: rgb(255 255 255 / 13%);
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: var(--radius-md);
+  padding: 8px;
+}
+
+.interventions-page > .studio-page__header .studio-page__actions button {
+  box-shadow: 0 4px 14px rgb(0 0 0 / 16%);
+}

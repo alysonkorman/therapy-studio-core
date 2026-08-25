@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { pictureWordBingo } from "../../data/resources";
 import { createResource, createWorksheetResource } from "../../models";
 import {
   assembleSearchResources,
@@ -51,6 +52,20 @@ describe("assembleSearchResources", () => {
 
     expect(assembleSearchResources([staticWorksheet], [persistedWorksheet])).toEqual([
       { ...staticWorksheet, title: "Persisted Title" },
+    ]);
+  });
+
+  it("includes valid persisted Bingo Sets and rejects malformed Games", () => {
+    const bingo = {
+      ...pictureWordBingo,
+      id: "persisted-bingo",
+      title: "My Bingo",
+      archived: false,
+    };
+    const malformed = { ...bingo, id: "broken-bingo", items: [] };
+
+    expect(assembleSearchResources([], [], [], [bingo, malformed])).toEqual([
+      expect.objectContaining({ id: "persisted-bingo", gameKind: "bingo" }),
     ]);
   });
 });

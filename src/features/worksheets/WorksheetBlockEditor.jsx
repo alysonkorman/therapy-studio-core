@@ -74,43 +74,154 @@ function ResponseLineField({ draft, onChange }) {
 }
 
 function TableControls({ draft, onChange }) {
-  return (
-    <>
-      <label>
-        Column Headers (2–4, one per line)
-        <textarea
-          onChange={(event) =>
-            onChange("headers", event.target.value.split("\n").slice(0, 4))
-          }
-          rows="4"
-          value={draft.headers.join("\n")}
-        />
-      </label>
-      <label>
-        Rows (one row per line, separate cells with |)
-        <textarea
-          onChange={(event) =>
-            onChange(
-              "rows",
-              event.target.value
-                .split("\n")
-                .slice(0, 12)
-                .map((row) =>
-                  row
-                    .split("|")
-                    .slice(0, 4)
-                    .map((cell) => cell.trim())
-                )
+  const columnCount = draft.headers.length;
+  const setShape = (headers) => {
+    onChange("headers", headers);
+    onChange(
+      "rows",
+      Array.from({ length: 3 }, () => Array.from({ length: headers.length }, () => ""))
+    );
+  };
+  const updateHeader = (index, value) =>
+    onChange(
+      "headers",
+      draft.headers.map((header, headerIndex) =>
+        headerIndex === index ? value : header
+      )
+    );
+  const updateCell = (rowIndex, columnIndex, value) =>
+    onChange(
+      "rows",
+      draft.rows.map((row, currentRowIndex) =>
+        currentRowIndex === rowIndex
+          ? row.map((cell, currentColumnIndex) =>
+              currentColumnIndex === columnIndex ? value : cell
             )
+          : row
+      )
+    );
+  const addColumn = () => {
+    if (columnCount >= 4) return;
+    onChange("headers", [...draft.headers, `Column ${columnCount + 1}`]);
+    onChange(
+      "rows",
+      draft.rows.map((row) => [...row, ""])
+    );
+  };
+  const removeColumn = () => {
+    if (columnCount <= 2) return;
+    onChange("headers", draft.headers.slice(0, -1));
+    onChange(
+      "rows",
+      draft.rows.map((row) => row.slice(0, -1))
+    );
+  };
+  const addRow = () => {
+    if (draft.rows.length >= 12) return;
+    onChange("rows", [
+      ...draft.rows,
+      Array.from({ length: columnCount }, () => ""),
+    ]);
+  };
+  const removeRow = (rowIndex) => {
+    if (draft.rows.length <= 1) return;
+    onChange(
+      "rows",
+      draft.rows.filter((_, currentRowIndex) => currentRowIndex !== rowIndex)
+    );
+  };
+
+  return (
+    <div className="worksheet-table-composer">
+      <div className="worksheet-table-composer__presets" aria-label="Starting shapes">
+        <span>Start with</span>
+        <button onClick={() => setShape(["Side A", "Side B"])} type="button">
+          Two Sides
+        </button>
+        <button
+          onClick={() => setShape(["Column 1", "Column 2", "Column 3"])}
+          type="button"
+        >
+          3 Columns
+        </button>
+        <button
+          onClick={() =>
+            setShape(["Column 1", "Column 2", "Column 3", "Column 4"])
           }
-          rows="6"
-          value={draft.rows.map((row) => row.join(" | ")).join("\n")}
-        />
-      </label>
+          type="button"
+        >
+          4 Columns
+        </button>
+      </div>
+      <div className="worksheet-table-composer__controls">
+        <button disabled={columnCount >= 4} onClick={addColumn} type="button">
+          Add Column
+        </button>
+        <button disabled={columnCount <= 2} onClick={removeColumn} type="button">
+          Remove Column
+        </button>
+        <button disabled={draft.rows.length >= 12} onClick={addRow} type="button">
+          Add Row
+        </button>
+      </div>
+      <div className="worksheet-table-composer__grid-wrap">
+        <table className="worksheet-table-composer__grid">
+          <thead>
+            <tr>
+              {draft.headers.map((header, columnIndex) => (
+                <th key={columnIndex}>
+                  <label className="sr-only" htmlFor={`table-header-${columnIndex}`}>
+                    Column {columnIndex + 1} header
+                  </label>
+                  <input
+                    id={`table-header-${columnIndex}`}
+                    onChange={(event) => updateHeader(columnIndex, event.target.value)}
+                    value={header}
+                  />
+                </th>
+              ))}
+              <th aria-label="Row actions" />
+            </tr>
+          </thead>
+          <tbody>
+            {draft.rows.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, columnIndex) => (
+                  <td key={columnIndex}>
+                    <label
+                      className="sr-only"
+                      htmlFor={`table-cell-${rowIndex}-${columnIndex}`}
+                    >
+                      Row {rowIndex + 1}, column {columnIndex + 1}
+                    </label>
+                    <input
+                      id={`table-cell-${rowIndex}-${columnIndex}`}
+                      onChange={(event) =>
+                        updateCell(rowIndex, columnIndex, event.target.value)
+                      }
+                      value={cell}
+                    />
+                  </td>
+                ))}
+                <td className="worksheet-table-composer__row-action">
+                  <button
+                    aria-label={`Remove row ${rowIndex + 1}`}
+                    disabled={draft.rows.length <= 1}
+                    onClick={() => removeRow(rowIndex)}
+                    type="button"
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <p className="worksheet-field-help">
-        Each row must contain the same number of cells as the column headers.
+        Edit any header or cell directly. The first column can be used for row labels.
       </p>
-    </>
+    </div>
   );
 }
 
@@ -480,7 +591,7 @@ export default function WorksheetBlockEditor({
           Move Down
         </button>
         <button onClick={onDuplicate} type="button">
-          Duplicate
+          {block.type === "basic-table" ? "Duplicate Section" : "Duplicate"}
         </button>
         <button className="worksheet-delete" onClick={onDelete} type="button">
           Delete

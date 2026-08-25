@@ -1,33 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { promptDecks as importedPromptDecks } from "../../data/resources";
 import {
   categoryRepository,
   playlistRepository,
   promptDeckRepository,
 } from "../../lib/data";
-import { promptCategoryIdForName } from "../../models/promptAuthoring";
-import { PROMPT_AUTHORING_ACKNOWLEDGMENT_VERSION } from "../../lib/data/promptAccountDataAdapter";
-
-function importedCategories(decks) {
-  const seen = new Set();
-  return decks.flatMap((deck) => {
-    if (!deck.category || seen.has(deck.categoryId)) return [];
-    seen.add(deck.categoryId);
-    return [
-      {
-        id: deck.categoryId ?? promptCategoryIdForName(deck.category),
-        name: deck.category,
-        color: deck.color,
-        iconId: deck.iconId,
-        sortOrder: seen.size - 1,
-        archived: false,
-        createdAt: deck.createdAt,
-        updatedAt: deck.updatedAt,
-      },
-    ];
-  });
-}
 
 function authoringMessage(error) {
   if (error?.code === "duplicate-authoring-record") {
@@ -45,49 +22,62 @@ function authoringMessage(error) {
   return "Prompt Authoring is unavailable right now. Please try again.";
 }
 
+// A completed library reset is a display boundary, not permission for a
+// background reconciliation to destroy records that are absent from a cloud
+// response. The explicit reset operation remains the only destructive path.
+export function filterPromptDecksForCompletedReset(decks, reset) {
+  // A reset marker only coordinates account cleanup. It must never make stored
+  // therapist/imported decks disappear just because their original timestamp is older.
+  return decks;
+}
+
 export function usePromptAuthoring({ enabled = true, repositories = {} } = {}) {
   const deckRepository = repositories.decks ?? promptDeckRepository;
   const categoriesRepository = repositories.categories ?? categoryRepository;
   const playlistsRepository = repositories.playlists ?? playlistRepository;
   const [state, setState] = useState({
-    decks: importedPromptDecks,
+    decks: [],
     categories: [],
     playlists: [],
-    seeded: false,
+    seeded: true,
     loading: enabled,
     initializing: false,
     error: "",
     accountSyncStatus: "local-only",
+    deckSyncRecords: new Map(),
     promptAuthoringAcknowledgmentVersion: null,
+    promptLibraryReset: null,
   });
 
   const refresh = useCallback(async () => {
     if (!enabled) return;
     try {
       const syncResult = await deckRepository.reconcileAccountData?.();
-      const [decks, categories, playlists, acknowledgmentVersion] = await Promise.all([
-        deckRepository.getAllPromptDecks({ includeArchived: true }),
-        categoriesRepository.getAllCategories({ includeArchived: true }),
-        playlistsRepository.getAllPlaylists({ includeArchived: true }),
-        deckRepository.getPromptAuthoringAcknowledgment?.() ?? null,
-      ]);
-      const hasStoredAuthoringData =
-        decks.length > 0 || categories.length > 0 || playlists.length > 0;
-      setState((current) => {
-        const seeded = current.seeded || hasStoredAuthoringData;
-        return {
-          decks: seeded ? decks : importedPromptDecks,
-          categories,
-          playlists,
-          seeded,
-          loading: false,
-          initializing: false,
-          error: "",
-          accountSyncStatus: syncResult?.status ?? "local-only",
-          promptAuthoringAcknowledgmentVersion: acknowledgmentVersion,
-        };
+      const promptLibraryReset =
+        (await deckRepository.getPromptLibraryReset?.({ completedOnly: true })) ?? null;
+      const [decks, categories, playlists, acknowledgmentVersion, deckSyncRecords] =
+        await Promise.all([
+          deckRepository.getAllPromptDecks({ includeArchived: true }),
+          categoriesRepository.getAllCategories({ includeArchived: true }),
+          playlistsRepository.getAllPlaylists({ includeArchived: true }),
+          deckRepository.getPromptAuthoringAcknowledgment?.() ?? null,
+          deckRepository.getPromptDeckSyncRecords?.() ?? new Map(),
+        ]);
+      const visibleDecks = filterPromptDecksForCompletedReset(decks, promptLibraryReset);
+      setState({
+        decks: visibleDecks,
+        categories,
+        playlists,
+        seeded: true,
+        loading: false,
+        initializing: false,
+        error: "",
+        accountSyncStatus: syncResult?.status ?? "local-only",
+        deckSyncRecords,
+        promptAuthoringAcknowledgmentVersion: acknowledgmentVersion,
+        promptLibraryReset,
       });
-      return hasStoredAuthoringData;
+      return true;
     } catch (error) {
       setState((current) => ({
         ...current,
@@ -114,33 +104,9 @@ export function usePromptAuthoring({ enabled = true, repositories = {} } = {}) {
     }
   }
 
-  async function seed() {
-    setState((current) => ({ ...current, initializing: true, error: "" }));
-    try {
-      const deckResult =
-        await deckRepository.seedImportedPromptDecks(importedPromptDecks);
-      const categoryResult = await categoriesRepository.seedCategories(
-        importedCategories(importedPromptDecks)
-      );
-      await deckRepository.savePromptAuthoringAcknowledgment?.(
-        PROMPT_AUTHORING_ACKNOWLEDGMENT_VERSION
-      );
-      const ready = await refresh();
-      return ready ? { decks: deckResult, categories: categoryResult } : null;
-    } catch (error) {
-      setState((current) => ({
-        ...current,
-        initializing: false,
-        error: authoringMessage(error),
-      }));
-      return null;
-    }
-  }
-
   return {
     ...state,
     refresh,
-    seed,
     run,
     repositories: {
       decks: deckRepository,

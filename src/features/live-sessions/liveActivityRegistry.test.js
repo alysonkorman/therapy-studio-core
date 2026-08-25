@@ -9,11 +9,11 @@ describe("Live Activity registry", () => {
     expect(activity?.activityKind).toBe("whiteboard");
     expect(activity?.adapter.activityKind).toBe("whiteboard");
     expect(activity?.ParticipantView).toBeTypeOf("function");
-    expect(getSupportedLiveActivityKinds()).toEqual(["whiteboard"]);
+    expect(getSupportedLiveActivityKinds()).toEqual(["whiteboard", "bingo"]);
   });
 
   it("fails safely for an activity that has not been registered", () => {
-    expect(getLiveActivity("bingo")).toBeNull();
+    expect(getLiveActivity("bingo")?.adapter.activityKind).toBe("bingo");
     expect(getLiveActivity("scene-builder")).toBeNull();
   });
 });

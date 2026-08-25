@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { triviaGameSchema, triviaQuestionSchema } from "./game";
+import {
+  bingoGameSchema,
+  bingoItemSchema,
+  triviaGameSchema,
+  triviaQuestionSchema,
+} from "./game";
 
 const baseGame = {
   id: "game-1",
@@ -87,5 +92,34 @@ describe("Trivia models", () => {
         questions: [baseGame.questions[0], { ...baseGame.questions[1], id: "q-2" }],
       })
     ).toThrow(/Duplicate Trivia question ID/);
+  });
+});
+
+describe("Bingo schemas", () => {
+  it("validates strict nested Bingo items and supported board sizes", () => {
+    expect(bingoItemSchema.parse({ id: "one", text: "One", sortOrder: 0 })).toMatchObject(
+      { text: "One" }
+    );
+    expect(() =>
+      bingoItemSchema.parse({ id: "one", text: "One", sortOrder: 0, extra: true })
+    ).toThrow();
+  });
+
+  it("rejects duplicate Bingo item IDs", () => {
+    const base = {
+      id: "bingo",
+      type: "game",
+      gameKind: "bingo",
+      title: "Bingo",
+      createdAt: "2026-08-11T12:00:00.000Z",
+      updatedAt: "2026-08-11T12:00:00.000Z",
+      boardSize: 3,
+      contentVersion: 1,
+      items: [
+        { id: "same", text: "One", sortOrder: 0 },
+        { id: "same", text: "Two", sortOrder: 1 },
+      ],
+    };
+    expect(() => bingoGameSchema.parse(base)).toThrow(/Duplicate Bingo item ID/);
   });
 });

@@ -1,5 +1,11 @@
 import { Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+
+import categoryBlue from "../../assets/prompt-category-backgrounds/category-blue.jpg";
+import categoryEmber from "../../assets/prompt-category-backgrounds/category-ember.jpg";
+import categoryPlum from "../../assets/prompt-category-backgrounds/category-plum.jpg";
+import categorySlate from "../../assets/prompt-category-backgrounds/category-slate.jpg";
 
 import {
   getPromptDeckCategories,
@@ -8,12 +14,16 @@ import {
 import PromptDeckCard from "./PromptDeckCard";
 import PromptAuthoringPanel from "./PromptAuthoringPanel";
 import formatPromptDisplayLabel from "./formatPromptDisplayLabel";
+import { summarizePromptDeckPersistence } from "./promptDeckPersistenceStatus";
 import { usePromptAuthoring } from "./usePromptAuthoring";
 import "./PromptsPage.css";
 import { resourceMemoryRepository } from "../../lib/data";
-import { promptDecks } from "../../data/resources/promptDecks";
 
-const builtInPromptDeckIds = new Set(promptDecks.map(({ id }) => id));
+function isBuiltInDeck(deck) {
+  return deck?.legacyMetadata?.provenance?.bundled === true;
+}
+
+const categoryBackgrounds = [categoryBlue, categorySlate, categoryPlum, categoryEmber];
 
 export default function PromptsPage({
   decks: suppliedDecks,
@@ -21,15 +31,26 @@ export default function PromptsPage({
   repositories,
 }) {
   const authoring = usePromptAuthoring({ enabled: !suppliedDecks, repositories });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const routeCategory = searchParams.get("category") ?? "";
   const [showArchived, setShowArchived] = useState(false);
   const [reorderMode, setReorderMode] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedDeckIds, setSelectedDeckIds] = useState(() => new Set());
   const [toolsOpen, setToolsOpen] = useState(false);
-  const decks = suppliedDecks ?? authoring.decks;
-  const visibleDecks = decks.filter((deck) => showArchived || !deck.archived);
+  const decks = useMemo(
+    () => suppliedDecks ?? authoring.decks ?? [],
+    [authoring.decks, suppliedDecks]
+  );
+  const activeDecks = decks.filter((deck) => !deck.archived);
+  // A reset/import mismatch can leave a whole library marked archived. Keep it
+  // visible instead of presenting an empty library when saved decks still exist.
+  const showingSavedArchivedDecks = !showArchived && !activeDecks.length && decks.length > 0;
+  const visibleDecks = showArchived || showingSavedArchivedDecks ? decks : activeDecks;
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("");
+  const category = routeCategory;
+  const [showAllDecks, setShowAllDecks] = useState(Boolean(routeCategory));
+  const showingDecks = showAllDecks || Boolean(routeCategory);
   const [memoryFilter, setMemoryFilter] = useState("");
   const [memorySort, setMemorySort] = useState("");
   const [memoryMap, setMemoryMap] = useState(new Map());
@@ -40,9 +61,32 @@ export default function PromptsPage({
           ...getPromptDeckCategories(visibleDecks),
           ...(category ? [category] : []),
         ]),
-      ].sort((left, right) => left.localeCompare(right)),
+      ].sort((left, right) =>
+        formatPromptDisplayLabel(left).localeCompare(formatPromptDisplayLabel(right))
+      ),
     [category, visibleDecks]
   );
+  const categoryTiles = useMemo(() => {
+    const names = new Map();
+    for (const item of authoring.categories ?? []) {
+      if (!item.archived && item.name?.trim())
+        names.set(item.name.trim().toLowerCase(), item.name);
+    }
+    for (const deck of visibleDecks) {
+      if (deck.category?.trim())
+        names.set(deck.category.trim().toLowerCase(), deck.category);
+    }
+    return [...names.values()]
+      .sort((left, right) =>
+        formatPromptDisplayLabel(left).localeCompare(formatPromptDisplayLabel(right))
+      )
+      .map((name, index) => ({
+        name,
+        deckCount: visibleDecks.filter((deck) => deck.category === name).length,
+        background: categoryBackgrounds[index % categoryBackgrounds.length],
+      }));
+  }, [authoring.categories, visibleDecks]);
+
   useEffect(() => {
     void memoryRepository
       .getResourceMemoryMap(decks.map(({ id }) => id))
@@ -85,6 +129,15 @@ export default function PromptsPage({
     (total, deck) => total + deck.prompts.length,
     0
   );
+  const persistenceSummary = useMemo(
+    () =>
+      summarizePromptDeckPersistence(
+        decks,
+        authoring.deckSyncRecords ?? new Map(),
+        new Set()
+      ),
+    [authoring.deckSyncRecords, decks]
+  );
 
   async function moveDeck(index, offset) {
     const ordered = visibleDecks.map(({ id }) => id);
@@ -99,17 +152,12 @@ export default function PromptsPage({
     );
   }
 
-  const isBuiltInDeck = (deck) => builtInPromptDeckIds.has(deck.id);
-
   async function removeDecks(decksToRemove) {
     if (!decksToRemove.length) return;
-    const builtInCount = decksToRemove.filter(isBuiltInDeck).length;
     const message =
       decksToRemove.length === 1
-        ? isBuiltInDeck(decksToRemove[0])
-          ? `Hide “${decksToRemove[0].title}” from this library? You can restore it later.`
-          : `Delete “${decksToRemove[0].title}”? This permanently removes the deck and its prompts.`
-        : `Remove ${decksToRemove.length} selected decks? ${builtInCount ? `${builtInCount} built-in deck${builtInCount === 1 ? " will" : "s will"} be hidden and can be restored later. ` : ""}Therapist-created and imported decks are permanently deleted.`;
+        ? `Delete “${decksToRemove[0].title}”? This permanently removes the deck and its prompts.`
+        : `Delete ${decksToRemove.length} selected decks? This permanently removes their prompts.`;
     if (!window.confirm(message)) return;
     const ids = decksToRemove.map(({ id }) => id);
     try {
@@ -134,9 +182,25 @@ export default function PromptsPage({
 
   function clearResults() {
     setQuery("");
-    setCategory("");
+    setSearchParams({});
     setMemoryFilter("");
     setMemorySort("");
+  }
+
+  function openCategory(categoryName) {
+    setShowAllDecks(true);
+    setSearchParams({ category: categoryName });
+  }
+
+  function openAllDecks() {
+    setShowAllDecks(true);
+    setSearchParams({});
+  }
+
+  function returnToCategories() {
+    clearResults();
+    setShowAllDecks(false);
+    setSearchParams({});
   }
 
   function handleSearchSubmit(event) {
@@ -147,80 +211,147 @@ export default function PromptsPage({
     <div className="prompts-page">
       <header className="prompts-page__header">
         <p className="eyebrow">Prompt Library</p>
-        <h1>Find a question for right now.</h1>
+        <h1>{showingDecks ? "Prompt decks" : "Choose a prompt category."}</h1>
         <p>
-          Browse {decks.length} decks with {totalPromptCount.toLocaleString()} prompts.
+          {showingDecks
+            ? `Browse ${decks.length} decks with ${totalPromptCount.toLocaleString()} prompts.`
+            : "Start with the kind of conversation you need today."}
         </p>
+        <div className="prompt-library-home-actions">
+          {showingDecks ? (
+            <button onClick={returnToCategories} type="button">
+              Browse categories
+            </button>
+          ) : null}
+          {!showingDecks ? (
+            <button className="button-primary" onClick={openAllDecks} type="button">
+              Show all prompt decks
+            </button>
+          ) : null}
+        </div>
       </header>
 
-      <form
-        aria-label="Search prompt decks"
-        className="prompt-filters"
-        onSubmit={handleSearchSubmit}
-      >
-        <div className="prompt-filters__primary">
-          <label className="prompt-filters__search">
-            Search prompts
-            <span className="prompt-search-control">
-              <input
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search decks or prompt text"
-                type="search"
-                value={query}
-              />
-              <button type="submit">
-                <Search aria-hidden="true" size={18} />
-                Search
-              </button>
-            </span>
-          </label>
-          <label>
-            Resource Memory
-            <select
-              onChange={(event) => setMemoryFilter(event.target.value)}
-              value={memoryFilter}
-            >
-              <option value="">All decks</option>
-              <option value="favorites">Favorites</option>
-            </select>
-          </label>
-          <label>
-            Sort
-            <select
-              onChange={(event) => setMemorySort(event.target.value)}
-              value={memorySort}
-            >
-              <option value="">Library order</option>
-              <option value="rating">Highest rated</option>
-              <option value="recent">Recently used</option>
-              <option value="used">Most used</option>
-            </select>
-          </label>
-        </div>
-        <div className="prompt-filters__secondary">
-          <label>
-            Category
-            <select
-              onChange={(event) => setCategory(event.target.value)}
-              value={category}
-            >
-              <option value="">All categories</option>
-              {categoryOptions.map((categoryName) => (
-                <option key={categoryName} value={categoryName}>
-                  {formatPromptDisplayLabel(categoryName)}
-                </option>
+      {showingSavedArchivedDecks ? (
+        <p className="prompt-sync-summary" role="status">
+          Your saved decks were marked archived, so they are being shown here instead of hidden.
+        </p>
+      ) : null}
+
+      {!showingDecks ? (
+        <section
+          aria-labelledby="prompt-category-browser-title"
+          className="prompt-category-browser"
+        >
+          <div>
+            <p className="eyebrow">Browse by category</p>
+            <h2 id="prompt-category-browser-title">What would you like to explore?</h2>
+          </div>
+          {categoryTiles.length ? (
+            <div className="prompt-category-grid">
+              {categoryTiles.map((item) => (
+                <button
+                  className="prompt-category-tile"
+                  key={item.name}
+                  onClick={() => openCategory(item.name)}
+                  style={{ backgroundImage: `url(${item.background})` }}
+                  type="button"
+                >
+                  <span>{formatPromptDisplayLabel(item.name)}</span>
+                  <small>
+                    {item.deckCount} {item.deckCount === 1 ? "deck" : "decks"}
+                  </small>
+                </button>
               ))}
-            </select>
-          </label>
-          <p aria-live="polite" className="prompts-page__summary">
-            Showing {matchingDecks.length} of {visibleDecks.length} decks
-          </p>
-          <button disabled={!hasActiveFilters} onClick={clearResults} type="button">
-            <X aria-hidden="true" size={16} />
-            Clear results
-          </button>
-        </div>
-      </form>
+            </div>
+          ) : (
+            <p className="prompt-empty-state">
+              Create a category and your first deck from Library Tools.
+            </p>
+          )}
+        </section>
+      ) : (
+        <form
+          aria-label="Search prompt decks"
+          className="prompt-filters"
+          onSubmit={handleSearchSubmit}
+        >
+          <div className="prompt-filters__primary">
+            <label className="prompt-filters__search">
+              Search prompts
+              <span className="prompt-search-control">
+                <input
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search decks or prompt text"
+                  type="search"
+                  value={query}
+                />
+                <button type="submit">
+                  <Search aria-hidden="true" size={18} />
+                  Search
+                </button>
+              </span>
+            </label>
+            <label>
+              Resource Memory
+              <select
+                onChange={(event) => setMemoryFilter(event.target.value)}
+                value={memoryFilter}
+              >
+                <option value="">All decks</option>
+                <option value="favorites">Favorites</option>
+              </select>
+            </label>
+            <label>
+              Sort
+              <select
+                onChange={(event) => setMemorySort(event.target.value)}
+                value={memorySort}
+              >
+                <option value="">Library order</option>
+                <option value="rating">Highest rated</option>
+                <option value="recent">Recently used</option>
+                <option value="used">Most used</option>
+              </select>
+            </label>
+          </div>
+          <div className="prompt-filters__secondary">
+            <label>
+              Category
+              <select
+                onChange={(event) => {
+                  setSearchParams(
+                    event.target.value ? { category: event.target.value } : {}
+                  );
+                }}
+                value={category}
+              >
+                <option value="">All categories</option>
+                {categoryOptions.map((categoryName) => (
+                  <option key={categoryName} value={categoryName}>
+                    {formatPromptDisplayLabel(categoryName)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p aria-live="polite" className="prompts-page__summary">
+              Showing {matchingDecks.length} of {visibleDecks.length} decks
+            </p>
+            <button disabled={!hasActiveFilters} onClick={clearResults} type="button">
+              <X aria-hidden="true" size={16} />
+              Clear results
+            </button>
+          </div>
+        </form>
+      )}
+
+      {!suppliedDecks ? (
+        <p aria-live="polite" className="prompt-sync-summary">
+          <strong>Deck storage:</strong> {persistenceSummary.builtIn} built-in ·{" "}
+          {persistenceSummary.synced} account-owned synced ·{" "}
+          {persistenceSummary.localOnly} local-only · {persistenceSummary.conflicts}{" "}
+          conflicts
+        </p>
+      ) : null}
 
       {!suppliedDecks ? (
         <details
@@ -237,10 +368,7 @@ export default function PromptsPage({
             <PromptAuthoringPanel
               authoring={authoring}
               onDeckCreated={(deck) => {
-                setQuery(deck.title);
-                setCategory("");
-                setMemoryFilter("");
-                setMemorySort("");
+                openCategory(deck.category || "");
                 setToolsOpen(false);
               }}
               setShowArchived={setShowArchived}
@@ -301,7 +429,7 @@ export default function PromptsPage({
         </section>
       ) : null}
 
-      {matchingDecks.length ? (
+      {showingDecks && matchingDecks.length ? (
         <div className="prompt-deck-grid">
           {matchingDecks.map((deck) => (
             <PromptDeckCard
@@ -336,17 +464,19 @@ export default function PromptsPage({
               selectMode={selectMode}
               selected={selectedDeckIds.has(deck.id)}
               builtIn={isBuiltInDeck(deck)}
+              syncRecord={authoring.deckSyncRecords?.get(deck.id)}
+              returnTo={category}
               total={visibleDecks.length}
             />
           ))}
         </div>
-      ) : (
+      ) : showingDecks ? (
         <section className="prompt-empty-state">
           <Search aria-hidden="true" size={28} />
           <h2>No prompt decks match.</h2>
           <p>Try another search or clear the current results.</p>
         </section>
-      )}
+      ) : null}
     </div>
   );
 }

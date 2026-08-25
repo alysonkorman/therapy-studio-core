@@ -18,6 +18,37 @@ export function deleteWhiteboardObject(document, objectId) {
   };
 }
 
+export function duplicateWhiteboardObject(document, objectId, duplicateId) {
+  const source = document.objects.find(({ id }) => id === objectId);
+  if (!source) return document;
+  const position =
+    source.kind === "arrow"
+      ? {
+          x1: source.x1 + 20,
+          y1: source.y1 + 20,
+          x2: source.x2 + 20,
+          y2: source.y2 + 20,
+        }
+      : { x: source.x + 20, y: source.y + 20 };
+  const duplicate = {
+    ...structuredClone(source),
+    ...position,
+    id: duplicateId,
+    ...(source.kind === "image" ? { background: false } : {}),
+  };
+  return { ...document, objects: [...document.objects, duplicate] };
+}
+
+export function moveWhiteboardObjectLayer(document, objectId, direction) {
+  const index = document.objects.findIndex(({ id }) => id === objectId);
+  const nextIndex = index + direction;
+  if (index < 0 || nextIndex < 0 || nextIndex >= document.objects.length)
+    return document;
+  const objects = [...document.objects];
+  [objects[index], objects[nextIndex]] = [objects[nextIndex], objects[index]];
+  return { ...document, objects };
+}
+
 export function clearWhiteboard(document) {
   return { ...document, objects: [] };
 }

@@ -47,6 +47,19 @@ function promptDeck(id = "deck-1", title = "First deck") {
   };
 }
 
+function promptCategory(id = "category-1", name = "Connection") {
+  return {
+    archived: false,
+    color: "#6C46C3",
+    createdAt: timestamp,
+    iconId: "prompt-default",
+    id,
+    name,
+    sortOrder: 0,
+    updatedAt: timestamp,
+  };
+}
+
 describe("Account Data authority", () => {
   it("scopes records to the authenticated account", async () => {
     const authority = createAccountDataAuthority({ store: memoryStore() });
@@ -81,6 +94,22 @@ describe("Account Data authority", () => {
     expect(created).not.toHaveProperty("accountId");
     expect(created).not.toHaveProperty("pk");
     expect(created).not.toHaveProperty("sk");
+  });
+
+  it("accepts an account-owned Prompt category through the same protected authority", async () => {
+    const authority = createAccountDataAuthority({ store: memoryStore() });
+    const created = await authority.create({
+      accountId: "host-a",
+      content: promptCategory(),
+      entityType: "category",
+      id: "category-1",
+      idempotencyId: "category-create-1",
+    });
+
+    expect(created).toMatchObject({
+      content: { id: "category-1", name: "Connection" },
+      entityType: "category",
+    });
   });
 
   it("requires the current revision and preserves the cloud version on conflict", async () => {

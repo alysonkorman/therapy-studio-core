@@ -14,7 +14,10 @@ function genericResultDestination(resource) {
     };
   }
   if (resource.type === "game") {
-    return { label: "Play Trivia", path: `/games/${encodeURIComponent(resource.id)}` };
+    return {
+      label: resource.gameKind === "bingo" ? "Play Bingo" : "Play Trivia",
+      path: `/games/${encodeURIComponent(resource.id)}`,
+    };
   }
   return null;
 }

@@ -112,4 +112,33 @@ describe("SavedPage", () => {
       "/worksheets/worksheet-1"
     );
   });
+
+  it("labels a saved Bingo destination correctly", async () => {
+    const bingo = {
+      ...deck,
+      id: "bingo-1",
+      type: "game",
+      gameKind: "bingo",
+      title: "Picture Bingo",
+    };
+    const repository = {
+      getFavoriteResources: vi.fn(async () => [
+        { memory: { ...memory, resourceId: bingo.id }, resource: bingo },
+      ]),
+      getRecentlyUsedResources: vi.fn(async () => []),
+      getMostUsedResources: vi.fn(async () => []),
+      getHighestRatedResources: vi.fn(async () => []),
+      getResourceMemory: vi.fn(async () => ({ ...memory, resourceId: bingo.id })),
+    };
+    render(
+      <MemoryRouter>
+        <SavedPage repository={repository} />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByRole("link", { name: "Play Bingo" })).toHaveAttribute(
+      "href",
+      "/games/bingo-1"
+    );
+  });
 });

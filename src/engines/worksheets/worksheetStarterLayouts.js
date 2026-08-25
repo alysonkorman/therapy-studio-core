@@ -14,6 +14,11 @@ export const worksheetStarterLayouts = [
   { id: "decorate", label: "Decorate This" },
   { id: "map", label: "Map It Out" },
   { id: "reflection-visual", label: "Reflection + Visual" },
+  { id: "two-sides", label: "Two Sides" },
+  { id: "comparison-grid", label: "Comparison Grid" },
+  { id: "problem-scale", label: "Problem Scale" },
+  { id: "three-columns", label: "Three Columns" },
+  { id: "idea-bank", label: "Idea Bank" },
 ];
 
 function addFreeformBlock(document, pageId, type, layout, changes, createId) {
@@ -93,15 +98,144 @@ function startFreeform(document, starterId, createId) {
       createId
     );
   }
+  if (starterId === "two-sides") {
+    next = addFreeformBlock(
+      next,
+      pageId,
+      "heading",
+      { x: 20, y: 7, width: 60, height: 8, zIndex: 2, locked: false },
+      { text: "Two Sides", level: 1, alignment: "center" },
+      createId
+    );
+    [
+      [7, "First Side"],
+      [53, "Second Side"],
+    ].forEach(([x, title]) => {
+      next = addFreeformBlock(
+        next,
+        pageId,
+        "reflection",
+        { x, y: 23, width: 40, height: 60, zIndex: 3, locked: false },
+        { title, instruction: "", lineCount: 8 },
+        createId
+      );
+    });
+    return next;
+  }
+  if (starterId === "comparison-grid") {
+    next = addFreeformBlock(
+      next,
+      pageId,
+      "heading",
+      { x: 16, y: 7, width: 68, height: 8, zIndex: 2, locked: false },
+      { text: "Comparison Grid", level: 1, alignment: "center" },
+      createId
+    );
+    return addFreeformBlock(
+      next,
+      pageId,
+      "basic-table",
+      { x: 7, y: 23, width: 86, height: 58, zIndex: 3, locked: false },
+      {
+        headers: ["First", "Second", "What I Notice"],
+        rows: Array.from({ length: 4 }, () => ["", "", ""]),
+      },
+      createId
+    );
+  }
+  if (starterId === "problem-scale") {
+    next = addFreeformBlock(
+      next,
+      pageId,
+      "heading",
+      { x: 20, y: 7, width: 60, height: 8, zIndex: 2, locked: false },
+      { text: "Problem Scale", level: 1, alignment: "center" },
+      createId
+    );
+    ["Small", "Medium", "Big", "Very Big", "Emergency"].forEach((label, index) => {
+      next = addFreeformBlock(
+        next,
+        pageId,
+        "short-response",
+        {
+          x: 12 + index * 7,
+          y: 23 + (4 - index) * 12,
+          width: 62 + index * 5,
+          height: 8,
+          zIndex: 3,
+          locked: false,
+        },
+        { prompt: label, placeholder: "", lineCount: 1 },
+        createId
+      );
+    });
+    return next;
+  }
+  if (starterId === "three-columns") {
+    next = addFreeformBlock(
+      next,
+      pageId,
+      "heading",
+      { x: 16, y: 7, width: 68, height: 8, zIndex: 2, locked: false },
+      { text: "Three Columns", level: 1, alignment: "center" },
+      createId
+    );
+    return addFreeformBlock(
+      next,
+      pageId,
+      "basic-table",
+      { x: 7, y: 23, width: 86, height: 58, zIndex: 3, locked: false },
+      {
+        headers: ["First", "Next", "Then"],
+        rows: Array.from({ length: 4 }, () => ["", "", ""]),
+      },
+      createId
+    );
+  }
+  if (starterId === "idea-bank") {
+    next = addFreeformBlock(
+      next,
+      pageId,
+      "heading",
+      { x: 20, y: 7, width: 60, height: 8, zIndex: 2, locked: false },
+      { text: "Idea Bank", level: 1, alignment: "center" },
+      createId
+    );
+    [
+      [7, 24, "Idea 1"],
+      [53, 24, "Idea 2"],
+      [7, 57, "Idea 3"],
+      [53, 57, "Idea 4"],
+    ].forEach(([x, y, title]) => {
+      next = addFreeformBlock(
+        next,
+        pageId,
+        "reflection",
+        { x, y, width: 40, height: 23, zIndex: 3, locked: false },
+        { title, instruction: "", lineCount: 2 },
+        createId
+      );
+    });
+    return next;
+  }
   return next;
 }
 
 export function applyWorksheetStarter(document, starterId, createId) {
   const pageId = document.pages[0].id;
   if (
-    ["blank-freeform", "visual-labels", "decorate", "map", "reflection-visual"].includes(
-      starterId
-    )
+    [
+      "blank-freeform",
+      "visual-labels",
+      "decorate",
+      "map",
+      "reflection-visual",
+      "two-sides",
+      "comparison-grid",
+      "problem-scale",
+      "three-columns",
+      "idea-bank",
+    ].includes(starterId)
   )
     return startFreeform(document, starterId, createId);
   if (starterId === "reflection") {

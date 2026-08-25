@@ -20,6 +20,7 @@ export const promptCategorySchema = z
     name: z.string().trim().min(1),
     color: promptColorSchema,
     iconId: z.string().min(1),
+    taxonomyGeneration: z.string().datetime().optional(),
   })
   .strict();
 

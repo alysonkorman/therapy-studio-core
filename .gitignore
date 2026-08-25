@@ -13,8 +13,7 @@ dist-ssr
 *.local
 *.zip
 /Zip/
-/live-service/.aws-sam-room-handler/
-/live-service/.aws-sam-account-data-handler/
+/live-service/.aws-sam-*/
 /.aws-sam/
 /src/features/prompts/PromptsPage.css.backup
 
@@ -28,3 +27,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.vercel
+/live-service/samconfig.toml

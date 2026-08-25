@@ -10,18 +10,19 @@ export default function LiveSessionParticipantPage() {
   const { sessionId } = useParams();
   const localHarness = import.meta.env.DEV || import.meta.env.MODE === "test";
   const capability = new URLSearchParams(window.location.hash.slice(1)).get("p");
+  const localActivityKind = new URLSearchParams(window.location.hash.slice(1)).get("activity");
   const [credential, setCredential] = useState(null);
   const [state, setState] = useState(() =>
-    hasConfiguredLiveSessionBackend()
-      ? capability
-        ? "connecting"
-        : "invalid"
-      : localHarness
-        ? "local"
+    localHarness
+      ? "local"
+      : hasConfiguredLiveSessionBackend()
+        ? capability
+          ? "connecting"
+          : "invalid"
         : "unavailable"
   );
   const activity = getLiveActivity(
-    credential?.activityKind ?? (state === "local" ? "whiteboard" : null)
+    credential?.activityKind ?? (state === "local" ? localActivityKind ?? "whiteboard" : null)
   );
   const ParticipantView = activity?.ParticipantView;
 

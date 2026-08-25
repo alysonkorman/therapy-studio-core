@@ -1,20 +1,40 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const serviceDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryDirectory = dirname(serviceDirectory);
+const reviewedRoomHandler = process.argv.includes("--reviewed-room-handler");
+const reviewedRoomHandlerSources = [
+  "live-service/src/roomAuthority.js",
+  "live-service/src/aws.js",
+  "src/models/liveSession.js",
+  "src/features/whiteboard/whiteboardLiveSessionAdapter.js",
+  "src/engines/whiteboard/whiteboardErase.js",
+  "src/features/games/bingoLiveSessionAdapter.js",
+  "src/features/games/promptSpinnerLiveSessionAdapter.js",
+  "src/features/games/visualGameLiveSessionAdapter.js",
+  "src/features/games/spotItLiveSessionAdapter.js",
+];
 const artifacts = [
   {
     artifactDirectory: join(serviceDirectory, ".aws-sam-room-handler"),
     entry: "live-service/src/aws.js",
     handler: "aws.js",
     name: "therapy-studio-live-room-handler",
-    // RoomHandler must remain pinned to approved source until a Live Session change
-    // is deliberately reviewed. Account Data builds independently from the worktree.
-    source: "head",
+    // The default remains committed-only. A deliberate deployment review may opt in
+    // to a finite, audited overlay with --reviewed-room-handler.
+    source: reviewedRoomHandler ? "reviewed" : "head",
     externals:
       "@aws-sdk/client-dynamodb,@aws-sdk/lib-dynamodb,@aws-sdk/client-apigatewaymanagementapi",
   },
@@ -50,12 +70,29 @@ function committedSourceDirectory() {
   return directory;
 }
 
+function reviewedRoomHandlerSourceDirectory() {
+  const directory = committedSourceDirectory();
+  for (const source of reviewedRoomHandlerSources) {
+    const from = join(repositoryDirectory, source);
+    if (!existsSync(from))
+      throw new Error(`Missing reviewed RoomHandler source: ${source}`);
+    const to = join(directory, source);
+    mkdirSync(dirname(to), { recursive: true });
+    copyFileSync(from, to);
+  }
+  return directory;
+}
+
 function buildArtifact({ artifactDirectory, entry, externals, handler, name, source }) {
   rmSync(artifactDirectory, { force: true, recursive: true });
   mkdirSync(artifactDirectory, { recursive: true });
 
   const sourceDirectory =
-    source === "head" ? committedSourceDirectory() : repositoryDirectory;
+    source === "head"
+      ? committedSourceDirectory()
+      : source === "reviewed"
+        ? reviewedRoomHandlerSourceDirectory()
+        : repositoryDirectory;
   try {
     // Bundle only the handler's import closure. AWS SDK v3 clients remain external
     // because Node.js Lambda provides them; cloud-safe schemas are bundled.
@@ -77,7 +114,8 @@ function buildArtifact({ artifactDirectory, entry, externals, handler, name, sou
       { cwd: sourceDirectory, stdio: "inherit" }
     );
   } finally {
-    if (source === "head") rmSync(sourceDirectory, { force: true, recursive: true });
+    if (source === "head" || source === "reviewed")
+      rmSync(sourceDirectory, { force: true, recursive: true });
   }
 
   writeFileSync(

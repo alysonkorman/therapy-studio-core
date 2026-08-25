@@ -1,10 +1,13 @@
-import { Archive, ChevronDown, Database, ListMusic } from "lucide-react";
+import { Archive, ChevronDown, ListMusic } from "lucide-react";
 import { useRef, useState } from "react";
 
 import CategoryManager from "./CategoryManager";
 import CategoryCreationForm from "./CategoryCreationForm";
 import PlaylistManager from "./PlaylistManager";
 import PlaylistCreationForm from "./PlaylistCreationForm";
+import PromptLibraryResetPanel from "./PromptLibraryResetPanel";
+import PromptLibraryExportPanel from "./PromptLibraryExportPanel";
+import PromptLibraryRestorePreviewPanel from "./PromptLibraryRestorePreviewPanel";
 
 export default function PromptAuthoringPanel({
   authoring,
@@ -13,22 +16,15 @@ export default function PromptAuthoringPanel({
   setShowArchived,
 }) {
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [bulkPrompts, setBulkPrompts] = useState("");
   const [creating, setCreating] = useState("");
   const [creatingDeck, setCreatingDeck] = useState(false);
   const manageSummaryRef = useRef(null);
   const manageDetailsRef = useRef(null);
-  const {
-    categories,
-    decks,
-    error,
-    initializing,
-    playlists,
-    repositories,
-    run,
-    seed,
-    seeded,
-    accountSyncStatus,
-  } = authoring;
+  const { categories, decks, playlists, repositories, run, accountSyncStatus } =
+    authoring;
 
   async function createDeck(event) {
     event.preventDefault();
@@ -36,10 +32,26 @@ export default function PromptAuthoringPanel({
     if (!normalizedTitle || creatingDeck) return;
     setCreatingDeck(true);
     try {
+      const selectedCategory = categories.find((category) => category.id === categoryId);
       const deck = await run(() =>
-        repositories.decks.createPromptDeck({ title: normalizedTitle })
+        repositories.decks.createPromptDeck({
+          title: normalizedTitle,
+          description: description.trim(),
+          category: selectedCategory?.name ?? "",
+          categoryId: selectedCategory?.id ?? null,
+        })
       );
+      const promptTexts = bulkPrompts
+        .split(/\r?\n/)
+        .map((prompt) => prompt.trim())
+        .filter(Boolean);
+      if (promptTexts.length) {
+        await run(() => repositories.decks.bulkAddPrompts(deck.id, promptTexts));
+      }
       setTitle("");
+      setDescription("");
+      setCategoryId("");
+      setBulkPrompts("");
       setCreating("");
       onDeckCreated?.(deck);
     } catch {
@@ -47,54 +59,6 @@ export default function PromptAuthoringPanel({
     } finally {
       setCreatingDeck(false);
     }
-  }
-
-  async function setUpAuthoring() {
-    const result = await seed();
-    if (result) requestAnimationFrame(() => manageSummaryRef.current?.focus());
-  }
-
-  if (!seeded) {
-    return (
-      <section
-        aria-labelledby="prompt-authoring-setup-title"
-        className="prompt-authoring-setup"
-      >
-        <div>
-          <p className="eyebrow">Make this library your own</p>
-          <h2 id="prompt-authoring-setup-title">Set up Prompt Authoring</h2>
-          <p>
-            Keep browsing normally, or set up editing for all 137 decks and 8,679 prompts.
-          </p>
-          <ul>
-            <li>Edit decks and add prompts</li>
-            <li>Organize categories</li>
-            <li>Choose colors and icons</li>
-            <li>Build playlists</li>
-          </ul>
-        </div>
-        <div className="prompt-authoring-setup__action">
-          <button
-            aria-describedby="prompt-authoring-setup-status"
-            disabled={initializing}
-            onClick={() => void setUpAuthoring()}
-            type="button"
-          >
-            <Database aria-hidden="true" size={18} />
-            {initializing ? "Setting up Prompt Authoring…" : "Set Up Prompt Authoring"}
-          </button>
-          <p aria-live="polite" id="prompt-authoring-setup-status">
-            {initializing ? "Preparing your editable Prompt Library." : ""}
-          </p>
-          {error ? (
-            <p className="authoring-error" role="alert">
-              Setup could not be completed. Your Prompt Library is still available.{" "}
-              {error}
-            </p>
-          ) : null}
-        </div>
-      </section>
-    );
   }
 
   return (
@@ -134,6 +98,9 @@ export default function PromptAuthoringPanel({
           View Playlists
         </button>
       </div>
+      <PromptLibraryExportPanel decks={decks} repository={repositories.decks} />
+      <PromptLibraryRestorePreviewPanel />
+      <PromptLibraryResetPanel authoring={authoring} />
       {creating === "deck" ? (
         <form
           className="inline-creation-form"
@@ -148,6 +115,40 @@ export default function PromptAuthoringPanel({
               onChange={(event) => setTitle(event.target.value)}
               required
               value={title}
+            />
+          </label>
+          <label>
+            Description
+            <textarea
+              disabled={creatingDeck}
+              onChange={(event) => setDescription(event.target.value)}
+              value={description}
+            />
+          </label>
+          <label>
+            Category
+            <select
+              disabled={creatingDeck}
+              onChange={(event) => setCategoryId(event.target.value)}
+              value={categoryId}
+            >
+              <option value="">No category yet</option>
+              {categories
+                .filter((category) => !category.archived)
+                .map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+            </select>
+          </label>
+          <label>
+            Add prompts now (one per line)
+            <textarea
+              disabled={creatingDeck}
+              onChange={(event) => setBulkPrompts(event.target.value)}
+              placeholder="Paste one prompt on each line"
+              value={bulkPrompts}
             />
           </label>
           <div className="authoring-actions">
@@ -200,6 +201,7 @@ export default function PromptAuthoringPanel({
           categories={categories}
           repository={repositories.categories}
           run={run}
+          showArchived={showArchived}
         />
         <div className="authoring-divider">
           <ListMusic aria-hidden="true" size={18} />

@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import { resourceSchema } from "../../models";
 import { interventionGuidanceSchema } from "../../models";
-import { promptDecks } from "./promptDecks";
 
 describe("intervention seeds", () => {
   it("keeps Feelings Jenga identity and timestamps stable across module reads", async () => {
@@ -39,13 +38,4 @@ describe("intervention seeds", () => {
     });
   });
 
-  it("does not change imported Prompt Deck IDs or data", async () => {
-    const promptDeckSnapshot = structuredClone(promptDecks);
-    const promptDeckIds = promptDecks.map((deck) => deck.id);
-
-    await import("./interventions");
-
-    expect(promptDecks.map((deck) => deck.id)).toEqual(promptDeckIds);
-    expect(promptDecks).toEqual(promptDeckSnapshot);
-  });
 });

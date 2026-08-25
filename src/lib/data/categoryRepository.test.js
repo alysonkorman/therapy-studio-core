@@ -58,12 +58,65 @@ describe("categoryRepository", () => {
     expect((await repository.restoreCategory(created.id)).archived).toBe(false);
   });
 
-  it("rejects duplicate names without case sensitivity", async () => {
+  it("does not turn an existing category into a new account-owned category", async () => {
     const { repository } = setup();
     await repository.createCategory({ name: "Play" });
-    await expect(repository.createCategory({ name: " play " })).rejects.toMatchObject({
-      code: "duplicate-authoring-record",
+
+    await expect(
+      repository.createCategory({
+        name: " play ",
+        color: "#112233",
+        iconId: "rabbit",
+      })
+    ).rejects.toMatchObject({ code: "duplicate-authoring-record" });
+    await expect(repository.getAllCategories()).resolves.toHaveLength(1);
+  });
+
+  it("does not restore an archived historical category when its name is used again", async () => {
+    const { repository } = setup();
+    const archived = await repository.createCategory({ name: "Conversation" });
+    await repository.archiveCategory(archived.id);
+
+    await expect(
+      repository.createCategory({ name: " conversation " })
+    ).rejects.toMatchObject({ code: "duplicate-authoring-record" });
+    await expect(repository.getCategoryById(archived.id)).resolves.toMatchObject({
+      archived: true,
     });
+  });
+
+  it("allows a current-taxonomy name to replace a historical category", async () => {
+    const { database } = setup();
+    const resetAt = "2026-08-04T12:00:00.000Z";
+    const repository = createCategoryRepository({
+      accountData: {
+        getCurrentPromptTaxonomyGeneration: async () => resetAt,
+      },
+      database,
+      createId: () => "current-act",
+      now: () => "2026-08-05T12:00:00.000Z",
+    });
+    await database.table("categories").add({
+      archived: true,
+      color: "#6C46C3",
+      createdAt: "2026-08-03T12:00:00.000Z",
+      iconId: "prompt-default",
+      id: "historical-act",
+      name: "ACT",
+      sortOrder: 0,
+      updatedAt: "2026-08-03T12:00:00.000Z",
+    });
+
+    const category = await repository.createCategory({ name: "ACT" });
+
+    expect(category).toMatchObject({
+      id: "current-act",
+      name: "ACT",
+      taxonomyGeneration: resetAt,
+    });
+    await expect(repository.getAllCategories()).resolves.toMatchObject([
+      { id: "current-act" },
+    ]);
   });
 
   it("persists deterministic complete ordering", async () => {

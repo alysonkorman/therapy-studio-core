@@ -14,8 +14,15 @@ describe("Live Session participant route", () => {
       { initialEntries: ["/join/local-test"] }
     );
 
-    expect(screen.getByText("Live Activity")).toBeVisible();
-    expect(screen.getByRole("heading", { name: "Whiteboard Session" })).toBeVisible();
+    expect(screen.queryByText("Live Activity")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Whiteboard Session" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Draw" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Draw" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByRole("button", { name: "Colors" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Undo" })).toBeDisabled();
     expect(screen.queryByLabelText("Main navigation")).toBeNull();
     expect(screen.queryByText("Therapist Resource Memory")).toBeNull();
     expect(screen.queryByRole("button", { name: /^Save$/ })).toBeNull();

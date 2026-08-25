@@ -152,10 +152,20 @@ describe("WorksheetBlockEditor", () => {
   it("edits Basic Table rows and columns", async () => {
     const user = userEvent.setup();
     const table = renderEditor("basic-table");
-    await user.clear(screen.getByLabelText(/column headers/i));
-    await user.type(screen.getByLabelText(/column headers/i), "Before\nDuring\nAfter");
-    await user.clear(screen.getByLabelText(/rows \(one row/i));
-    await user.type(screen.getByLabelText(/rows \(one row/i), "A | B | C\nD | E | F");
+    await user.click(screen.getByRole("button", { name: "3 Columns" }));
+    await user.clear(screen.getByLabelText("Column 1 header"));
+    await user.type(screen.getByLabelText("Column 1 header"), "Before");
+    await user.clear(screen.getByLabelText("Column 2 header"));
+    await user.type(screen.getByLabelText("Column 2 header"), "During");
+    await user.clear(screen.getByLabelText("Column 3 header"));
+    await user.type(screen.getByLabelText("Column 3 header"), "After");
+    await user.type(screen.getByLabelText("Row 1, column 1"), "A");
+    await user.type(screen.getByLabelText("Row 1, column 2"), "B");
+    await user.type(screen.getByLabelText("Row 1, column 3"), "C");
+    await user.type(screen.getByLabelText("Row 2, column 1"), "D");
+    await user.type(screen.getByLabelText("Row 2, column 2"), "E");
+    await user.type(screen.getByLabelText("Row 2, column 3"), "F");
+    await user.click(screen.getByRole("button", { name: "Remove row 3" }));
     await apply(user);
     expect(table.onApply).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -163,6 +173,29 @@ describe("WorksheetBlockEditor", () => {
         rows: [
           ["A", "B", "C"],
           ["D", "E", "F"],
+        ],
+      })
+    );
+    expect(screen.getByRole("button", { name: "Duplicate Section" })).toBeVisible();
+  });
+
+  it("adds and removes Basic Table rows and columns within the supported limits", async () => {
+    const user = userEvent.setup();
+    const table = renderEditor("basic-table");
+
+    await user.click(screen.getByRole("button", { name: "Add Column" }));
+    await user.click(screen.getByRole("button", { name: "Add Row" }));
+    await user.type(screen.getByLabelText("Row 3, column 3"), "New cell");
+    await user.click(screen.getByRole("button", { name: "Remove Column" }));
+    await apply(user);
+
+    expect(table.onApply).toHaveBeenCalledWith(
+      expect.objectContaining({
+        headers: ["What happened?", "What I noticed"],
+        rows: [
+          ["", ""],
+          ["", ""],
+          ["", ""],
         ],
       })
     );

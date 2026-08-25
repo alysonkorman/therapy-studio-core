@@ -8,6 +8,8 @@ import {
   commitHistory,
   createHistory,
   deleteWhiteboardObject,
+  duplicateWhiteboardObject,
+  moveWhiteboardObjectLayer,
   redoHistory,
   resetWhiteboardMarks,
   setWhiteboardImageBackground,
@@ -16,6 +18,7 @@ import {
 } from "../../engines/whiteboard/whiteboardOperations";
 import { instantiateSessionCanvasTemplate } from "../../engines/whiteboard/sessionCanvasTemplates";
 import { fitActivity } from "../../engines/whiteboard/activityImport";
+import { eraseWhiteboardObjects } from "../../engines/whiteboard/whiteboardErase";
 import { sessionCanvasTemplates } from "../../data/sessionCanvasTemplates";
 import { localMediaRepository, whiteboardRepository } from "../../lib/data";
 import { createBlankWhiteboardDocument, whiteboardDocumentSchema } from "../../models";
@@ -39,6 +42,7 @@ import {
 } from "../live-sessions/liveSessionHostAuth";
 import WhiteboardCanvas from "./WhiteboardCanvas";
 import ActivityImportPanel from "./ActivityImportPanel";
+import ParticipantStickerPicker from "./ParticipantStickerPicker";
 import SessionCanvasStartPanel from "./SessionCanvasStartPanel";
 import { createWhiteboardCollaborationAdapter } from "./whiteboardCollaborationAdapter";
 import {
@@ -86,7 +90,9 @@ export default function WhiteboardPage({
   mediaRepository = localMediaRepository,
 }) {
   const [history, setHistory] = useState(() => createHistory(blank(createId)));
-  const [tool, setTool] = useState("select");
+  const [tool, setTool] = useState(() =>
+    suppliedLiveSession?.role === "participant" ? "draw" : "select"
+  );
   const [strokeColor, setStrokeColor] = useState(colors[0]);
   const [fillColor, setFillColor] = useState("transparent");
   const [strokeWidth, setStrokeWidth] = useState(4);
@@ -97,6 +103,8 @@ export default function WhiteboardPage({
   const [savedBoards, setSavedBoards] = useState([]);
   const [showOpen, setShowOpen] = useState(false);
   const [showIcons, setShowIcons] = useState(false);
+  const [showChildStickers, setShowChildStickers] = useState(false);
+  const [participantPicker, setParticipantPicker] = useState(null);
   const [showStarters, setShowStarters] = useState(true);
   const [showActivityImport, setShowActivityImport] = useState(false);
   const [message, setMessage] = useState("");
@@ -113,6 +121,8 @@ export default function WhiteboardPage({
   const participantId = useRef(createId());
   const temporaryAssetIds = useRef(new Set());
   const pendingInviteHandled = useRef(false);
+  const activePointerId = useRef(null);
+  const erasePoints = useRef([]);
   const document = history.present;
   const documentRef = useRef(document);
   const activeLiveSession = suppliedLiveSession ?? hostLiveSession;
@@ -121,6 +131,9 @@ export default function WhiteboardPage({
     () => document.objects.find(({ id }) => id === selectedId),
     [document.objects, selectedId]
   );
+  const selectedIndex = selected
+    ? document.objects.findIndex(({ id }) => id === selected.id)
+    : -1;
   const background = useMemo(
     () => document.objects.find(({ kind, background }) => kind === "image" && background),
     [document.objects]
@@ -198,7 +211,17 @@ export default function WhiteboardPage({
 
   function canvasPointerDown(event) {
     if (liveEnded) return;
+    if (event.pointerType === "touch" && event.isPrimary === false) return;
+    if (activePointerId.current !== null && activePointerId.current !== event.pointerId)
+      return;
+    activePointerId.current = event.pointerId;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
     const location = point(event);
+    if (tool === "erase") {
+      erasePoints.current = [location];
+      setGesture({ type: "erase" });
+      return;
+    }
     if (tool === "draw") {
       setDraftObject({
         id: createId(),
@@ -234,6 +257,7 @@ export default function WhiteboardPage({
 
   function pointerMove(event) {
     if (liveEnded) return;
+    if (activePointerId.current !== event.pointerId) return;
     const location = point(event);
     if (draftObject?.kind === "stroke") {
       setDraftObject((current) => ({
@@ -295,11 +319,19 @@ export default function WhiteboardPage({
         x: gesture.pan.x - (event.clientX - gesture.start.x) / zoom,
         y: gesture.pan.y - (event.clientY - gesture.start.y) / zoom,
       });
+    } else if (gesture?.type === "erase") {
+      const previous = erasePoints.current.at(-1);
+      if (!previous || Math.hypot(location.x - previous.x, location.y - previous.y) >= 3)
+        erasePoints.current.push(location);
     }
   }
 
-  function pointerUp() {
+  function pointerUp(event) {
     if (liveEnded) return;
+    if (activePointerId.current !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId))
+      event.currentTarget.releasePointerCapture?.(event.pointerId);
+    activePointerId.current = null;
     if (draftObject) {
       const valid = draftObject.kind !== "stroke" || draftObject.points.length > 1;
       if (valid) {
@@ -319,17 +351,32 @@ export default function WhiteboardPage({
         else adapterRef.current?.publish(next.present);
         return next;
       });
+    } else if (gesture?.type === "erase" && erasePoints.current.length) {
+      const points = erasePoints.current;
+      if (activeLiveSession)
+        live.requestAction({ type: "whiteboard/erase", points, radius: 18 });
+      else {
+        const erased = eraseWhiteboardObjects(document.objects, points, 18);
+        if (erased.before.length) commit({ ...document, objects: erased.objects });
+      }
     }
+    erasePoints.current = [];
+    setGesture(null);
+  }
+
+  function pointerCancel(event) {
+    if (activePointerId.current !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId))
+      event.currentTarget.releasePointerCapture?.(event.pointerId);
+    activePointerId.current = null;
+    erasePoints.current = [];
+    setDraftObject(null);
     setGesture(null);
   }
 
   function objectPointerDown(event, object) {
     if (liveEnded || object.locked) return;
-    if (tool === "erase") {
-      event.stopPropagation();
-      commit(deleteWhiteboardObject(document, object.id));
-      return;
-    }
+    if (tool === "erase") return;
     if (tool !== "select") return;
     event.stopPropagation();
     setSelectedId(object.id);
@@ -568,6 +615,13 @@ export default function WhiteboardPage({
 
   const selectedStyleKind = selected?.kind;
   const participantPreset = liveSettings.participantPreset;
+  const participantUndoAvailable =
+    participantMode && Boolean(liveSettings.participantUndoAvailable);
+  const hostUndoAvailable =
+    !participantMode &&
+    (activeLiveSession
+      ? Boolean(liveSettings.hostUndoAvailable)
+      : Boolean(history.past.length));
   const canEditSelected =
     !participantMode ||
     (!selected?.locked && liveSettings.participantPermission !== "draw-only");
@@ -578,8 +632,40 @@ export default function WhiteboardPage({
     setLiveSettings(next);
     live.publishState(projectWhiteboardForLiveSession(document, next));
   }
+  const participantSettings = (
+    <>
+      <label>
+        Child interface
+        <select
+          aria-label="Child interface"
+          onChange={(event) =>
+            updateLiveSettings({ participantPreset: event.target.value })
+          }
+          value={participantPreset}
+        >
+          <option value="young">Young Child</option>
+          <option value="older">Older Kid</option>
+        </select>
+      </label>
+      <label>
+        Child editing
+        <select
+          aria-label="Child editing permission"
+          onChange={(event) =>
+            updateLiveSettings({ participantPermission: event.target.value })
+          }
+          value={liveSettings.participantPermission}
+        >
+          <option value="everything">Everything</option>
+          <option value="unlocked-items-only">Unlocked Items Only</option>
+          <option value="draw-only">Draw Only</option>
+        </select>
+      </label>
+    </>
+  );
   const styleVisible =
-    ["draw", "rectangle", "ellipse", "arrow", "text"].includes(tool) || selected;
+    !participantMode &&
+    (["draw", "rectangle", "ellipse", "arrow", "text"].includes(tool) || selected);
 
   useEffect(() => {
     function deleteSelected(event) {
@@ -601,25 +687,38 @@ export default function WhiteboardPage({
     return () => window.removeEventListener("keydown", deleteSelected);
   });
 
+  if (participantMode && live.status === "ended") {
+    return (
+      <main className="whiteboard-participant-ended">
+        <h1>Session finished</h1>
+        <p>This activity has ended.</p>
+      </main>
+    );
+  }
+
   return (
     <main
       className={`whiteboard-page ${sessionView || participantMode ? "whiteboard-page--session-view" : ""}`}
     >
       <header className="whiteboard-header">
-        <div>
-          <p className="eyebrow">
-            {participantMode ? "Live Activity" : "Creative Workspace"}
-          </p>
-          <h1>{participantMode ? "Whiteboard Session" : "Whiteboard"}</h1>
-        </div>
+        {!participantMode ? (
+          <div>
+            <p className="eyebrow">Creative Workspace</p>
+            <h1>Whiteboard</h1>
+          </div>
+        ) : null}
         {participantMode ? (
-          <p aria-live="polite" className="whiteboard-live-status">
-            {live.status === "ended"
-              ? "Session ended"
-              : live.status === "connected"
-                ? "Connected"
-                : "Connecting to session…"}
-          </p>
+          live.status === "connected" ? (
+            <span
+              aria-label="Connected"
+              className="whiteboard-live-status whiteboard-live-status--quiet"
+              title="Connected"
+            />
+          ) : (
+            <p aria-live="polite" className="whiteboard-live-status">
+              {live.status === "ended" ? "Session ended" : "Reconnecting…"}
+            </p>
+          )
         ) : sessionView ? (
           <div className="whiteboard-session-controls">
             <span aria-live="polite">
@@ -627,6 +726,10 @@ export default function WhiteboardPage({
                 ? "Child connected"
                 : "Waiting for child"}
             </span>
+            <details className="whiteboard-session-settings whiteboard-session-settings--compact">
+              <summary>Child controls</summary>
+              <div>{participantSettings}</div>
+            </details>
             <button onClick={() => setSessionView(false)} type="button">
               Exit Session View
             </button>
@@ -720,31 +823,21 @@ export default function WhiteboardPage({
 
       <section className="whiteboard-workspace">
         <WhiteboardToolbar
-          canRedo={Boolean(history.future.length)}
-          canUndo={Boolean(history.past.length)}
+          canUndo={participantUndoAvailable}
+          color={strokeColor}
+          colors={colors}
           disabled={liveEnded}
+          onColorChange={setStrokeColor}
+          onPickerChange={setParticipantPicker}
+          onShowStickers={() => setShowChildStickers(true)}
           onShowActivity={() => setShowActivityImport(true)}
           onShowIcons={() => setShowIcons(true)}
           onToolChange={setTool}
-          onUndo={() => {
-            const next = undoHistory(history);
-            setHistory(next);
-            if (activeLiveSession)
-              live.publishState(
-                projectWhiteboardForLiveSession(next.present, liveSettings)
-              );
-          }}
-          onRedo={() => {
-            const next = redoHistory(history);
-            setHistory(next);
-            if (activeLiveSession)
-              live.publishState(
-                projectWhiteboardForLiveSession(next.present, liveSettings)
-              );
-          }}
+          onUndo={() => live.requestAction({ type: "whiteboard/undo-participant" })}
           participantMode={participantMode}
           participantPermission={liveSettings.participantPermission}
           participantPreset={participantPreset}
+          picker={participantPicker}
           tool={tool}
         />
         {activeLiveSession && !participantMode && !sessionView ? (
@@ -752,33 +845,7 @@ export default function WhiteboardPage({
             aria-label="Participant session controls"
             className="whiteboard-session-settings"
           >
-            <label>
-              Child interface
-              <select
-                aria-label="Child interface"
-                onChange={(event) =>
-                  updateLiveSettings({ participantPreset: event.target.value })
-                }
-                value={participantPreset}
-              >
-                <option value="young">Young Child</option>
-                <option value="older">Older Kid</option>
-              </select>
-            </label>
-            <label>
-              Child editing
-              <select
-                aria-label="Child editing permission"
-                onChange={(event) =>
-                  updateLiveSettings({ participantPermission: event.target.value })
-                }
-                value={liveSettings.participantPermission}
-              >
-                <option value="everything">Everything</option>
-                <option value="unlocked-items-only">Unlocked Items Only</option>
-                <option value="draw-only">Draw Only</option>
-              </select>
-            </label>
+            {participantSettings}
           </aside>
         ) : null}
         {styleVisible ? (
@@ -927,6 +994,43 @@ export default function WhiteboardPage({
             {selected ? (
               <button
                 disabled={!canEditSelected}
+                onClick={() => {
+                  const duplicateId = createId();
+                  commit(duplicateWhiteboardObject(document, selected.id, duplicateId));
+                  setSelectedId(duplicateId);
+                }}
+                type="button"
+              >
+                Duplicate
+              </button>
+            ) : null}
+            {selected ? (
+              <button
+                disabled={!canEditSelected || selectedIndex <= 0}
+                onClick={() =>
+                  commit(moveWhiteboardObjectLayer(document, selected.id, -1))
+                }
+                type="button"
+              >
+                Backward
+              </button>
+            ) : null}
+            {selected ? (
+              <button
+                disabled={
+                  !canEditSelected || selectedIndex === document.objects.length - 1
+                }
+                onClick={() =>
+                  commit(moveWhiteboardObjectLayer(document, selected.id, 1))
+                }
+                type="button"
+              >
+                Forward
+              </button>
+            ) : null}
+            {selected ? (
+              <button
+                disabled={!canEditSelected}
                 onClick={() => updateSelected({ locked: !selected.locked })}
                 type="button"
               >
@@ -1003,6 +1107,27 @@ export default function WhiteboardPage({
         ) : null}
         {message ? <p role="status">{message}</p> : null}
 
+        {participantMode && showChildStickers ? (
+          <ParticipantStickerPicker
+            onChoose={(iconId) => {
+              const visual = {
+                id: createId(),
+                kind: "visual",
+                iconId,
+                x: 430,
+                y: 280,
+                width: 140,
+                height: 140,
+              };
+              commit(addWhiteboardObject(document, visual));
+              setSelectedId(visual.id);
+              setTool("select");
+              setShowChildStickers(false);
+            }}
+            onClose={() => setShowChildStickers(false)}
+          />
+        ) : null}
+
         <div className="whiteboard-canvas-frame">
           <WhiteboardCanvas
             document={document}
@@ -1019,12 +1144,11 @@ export default function WhiteboardPage({
             }}
             onStrokeErase={(event, object) => {
               if (tool !== "erase" || object.locked) return;
-              event.stopPropagation();
-              commit(deleteWhiteboardObject(document, object.id));
             }}
             pan={pan}
             selectedId={selectedId}
             tool={tool}
+            onPointerCancel={pointerCancel}
             zoom={zoom}
             mediaRepository={mediaRepository}
           />
@@ -1035,8 +1159,12 @@ export default function WhiteboardPage({
             >
               <button
                 aria-label="Undo"
-                disabled={!history.past.length}
+                disabled={!hostUndoAvailable}
                 onClick={() => {
+                  if (activeLiveSession) {
+                    live.requestAction({ type: "whiteboard/undo-host" });
+                    return;
+                  }
                   const next = undoHistory(history);
                   setHistory(next);
                   if (activeLiveSession)
@@ -1086,12 +1214,13 @@ export default function WhiteboardPage({
             <button
               className="whiteboard-clear"
               onClick={() => {
-                if (window.confirm("Clear the entire Whiteboard?"))
-                  commit(clearWhiteboard(document));
+                if (!window.confirm("Clear the entire Whiteboard?")) return;
+                if (activeLiveSession) live.requestAction({ type: "whiteboard/clear" });
+                else commit(clearWhiteboard(document));
               }}
               type="button"
             >
-              <Trash2 aria-hidden="true" size={17} /> Clear Board
+              <Trash2 aria-hidden="true" size={17} /> Clear All
             </button>
           ) : null}
         </div>

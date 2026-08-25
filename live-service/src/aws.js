@@ -15,6 +15,10 @@ import {
 import { createRoomAuthority } from "./roomAuthority.js";
 import { issueRoomCredential, verifyRoomCredential } from "./tokens.js";
 import { whiteboardLiveSessionAdapter } from "../../src/features/whiteboard/whiteboardLiveSessionAdapter.js";
+import { bingoLiveSessionAdapter } from "../../src/features/games/bingoLiveSessionAdapter.js";
+import { promptSpinnerLiveSessionAdapter } from "../../src/features/games/promptSpinnerLiveSessionAdapter.js";
+import { visualGameLiveSessionAdapter } from "../../src/features/games/visualGameLiveSessionAdapter.js";
+import { spotItLiveSessionAdapter } from "../../src/features/games/spotItLiveSessionAdapter.js";
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const table = process.env.ROOMS_TABLE;
@@ -65,7 +69,13 @@ export async function handler(event) {
   const route = event.requestContext?.routeKey ?? event.routeKey;
   const hostSubject = event.requestContext?.authorizer?.jwt?.claims?.sub;
   const authority = createRoomAuthority({
-    adapter: whiteboardLiveSessionAdapter,
+    adapters: {
+      whiteboard: whiteboardLiveSessionAdapter,
+      bingo: bingoLiveSessionAdapter,
+      "prompt-spinner": promptSpinnerLiveSessionAdapter,
+      "visual-game": visualGameLiveSessionAdapter,
+      "spot-it": spotItLiveSessionAdapter,
+    },
     store,
     tokenIssuer: ({ expiresAt, role, sessionId }) => ({
       token: issueRoomCredential({ expiresAt, role, secret, sessionId }),

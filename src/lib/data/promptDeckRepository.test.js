@@ -156,6 +156,213 @@ describe("promptDeckRepository", () => {
     expect(accountData.tombstoneTracked).toHaveBeenCalledWith(accountDeck.id);
   });
 
+  it("resets only Prompt decks while recording account retirement", async () => {
+    const database = createTherapyStudioDatabase({
+      name: `prompt-library-reset-${crypto.randomUUID()}`,
+      indexedDB,
+      IDBKeyRange,
+    });
+    databases.push(database);
+    const accountData = {
+      getDeckSyncRecords: vi.fn(
+        async () =>
+          new Map([
+            ["account-deck", { id: "account-deck", deletedAt: null, status: "saved" }],
+          ])
+      ),
+      getPromptLibraryReset: vi.fn(async () => null),
+      isAvailable: vi.fn(() => true),
+      reconcile: vi.fn(async () => ({ status: "saved" })),
+      savePromptLibraryReset: vi.fn(async () => ({ status: "saved", tracked: true })),
+      tombstoneDecks: vi.fn(async () => ({ status: "saved", tracked: true })),
+      trackCreated: vi.fn(async () => ({ tracked: true })),
+    };
+    const repository = createPromptDeckRepository({
+      accountData,
+      createId: () => "account-deck",
+      database,
+      now: () => "2026-08-03T12:00:00.000Z",
+    });
+    await repository.seedImportedPromptDecks([promptDecks[0]]);
+    await database.table("categories").add({
+      archived: false,
+      color: "#6C46C3",
+      createdAt: "2026-08-03T11:00:00.000Z",
+      iconId: "prompt-default",
+      id: "starter-category",
+      name: "Starter Category",
+      sortOrder: 0,
+      updatedAt: "2026-08-03T11:00:00.000Z",
+    });
+    const accountDeck = await repository.createPromptDeck({ title: "Account deck" });
+    const playlists = createPlaylistRepository({ database, now: () => times[0] });
+    const playlist = await playlists.createPlaylist({ title: "Prompt links" });
+    await playlists.addPlaylistItem(playlist.id, {
+      deckId: accountDeck.id,
+      type: "prompt-deck",
+    });
+
+    await expect(repository.previewPromptLibraryReset()).resolves.toMatchObject({
+      activeDeckCount: 2,
+      activeCategoryCount: 1,
+      builtInDeckCount: 1,
+      therapistDeckCount: 1,
+    });
+    await repository.resetPromptLibrary();
+
+    expect(await repository.getAllPromptDecks({ includeArchived: true })).toEqual([]);
+    expect(await database.table("categories").get("starter-category")).toMatchObject({
+      archived: false,
+    });
+    expect((await playlists.getPlaylistById(playlist.id)).items).toEqual([]);
+    expect(accountData.savePromptLibraryReset).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        phase: "complete",
+        retiredStarterIds: expect.arrayContaining([promptDecks[0].id]),
+      })
+    );
+    expect(accountData.tombstoneDecks).toHaveBeenCalledWith(["account-deck"]);
+  });
+
+  it("leaves categories unchanged when another signed-in browser observes a deck reset", async () => {
+    const { database } = setup();
+    await database.table("categories").bulkAdd([
+      {
+        archived: false,
+        color: "#6C46C3",
+        createdAt: "2026-08-03T11:00:00.000Z",
+        iconId: "prompt-default",
+        id: "old-category",
+        name: "Old",
+        sortOrder: 0,
+        updatedAt: "2026-08-03T11:00:00.000Z",
+      },
+      {
+        archived: false,
+        color: "#2D7D73",
+        createdAt: "2026-08-03T13:00:00.000Z",
+        iconId: "ideas",
+        id: "new-category",
+        name: "New",
+        sortOrder: 1,
+        updatedAt: "2026-08-03T13:00:00.000Z",
+      },
+    ]);
+    const accountData = {
+      getPromptLibraryReset: vi.fn(async () => ({
+        phase: "complete",
+        resetAt: "2026-08-03T12:00:00.000Z",
+      })),
+    };
+    const repository = createPromptDeckRepository({ accountData, database });
+
+    await repository.getPromptLibraryReset({ completedOnly: true });
+
+    expect(await database.table("categories").get("old-category")).toMatchObject({
+      archived: false,
+    });
+    expect(await database.table("categories").get("new-category")).toMatchObject({
+      archived: false,
+    });
+  });
+
+  it("does not remove local decks when the reset marker cannot be confirmed", async () => {
+    const { database } = setup();
+    const accountData = {
+      getDeckSyncRecords: vi.fn(async () => new Map()),
+      getPromptLibraryReset: vi.fn(async () => null),
+      isAvailable: vi.fn(() => true),
+      reconcile: vi.fn(async () => ({ status: "saved" })),
+      savePromptLibraryReset: vi.fn(async () => ({ status: "offline-saved-locally" })),
+      tombstoneDecks: vi.fn(async () => ({ status: "saved" })),
+    };
+    const repository = createPromptDeckRepository({ accountData, database });
+    await repository.seedImportedPromptDecks([promptDecks[0]]);
+
+    await expect(repository.resetPromptLibrary()).rejects.toMatchObject({
+      code: "authoring-transaction-failed",
+    });
+    await expect(repository.getPromptDeckById(promptDecks[0].id)).resolves.toMatchObject({
+      title: promptDecks[0].title,
+    });
+  });
+
+  it("requires configured authenticated Account Data before any reset work", async () => {
+    const { repository } = setup();
+    await repository.seedImportedPromptDecks([promptDecks[0]]);
+
+    await expect(repository.resetPromptLibrary()).rejects.toMatchObject({
+      code: "authoring-transaction-failed",
+    });
+    await expect(repository.getPromptDeckById(promptDecks[0].id)).resolves.toMatchObject({
+      title: promptDecks[0].title,
+    });
+  });
+
+  it("does not remove local decks when account deck tombstones cannot be confirmed", async () => {
+    const { database } = setup();
+    const accountData = {
+      getDeckSyncRecords: vi.fn(
+        async () =>
+          new Map([
+            ["cloud-deck", { deletedAt: null, id: "cloud-deck", status: "saved" }],
+          ])
+      ),
+      getPromptLibraryReset: vi.fn(async () => null),
+      isAvailable: vi.fn(() => true),
+      reconcile: vi.fn(async () => ({ status: "saved" })),
+      savePromptLibraryReset: vi.fn(async () => ({ status: "saved" })),
+      tombstoneDecks: vi.fn(async () => ({ status: "offline-saved-locally" })),
+      trackCreated: vi.fn(async () => ({ status: "saved", tracked: true })),
+    };
+    const repository = createPromptDeckRepository({
+      accountData,
+      createId: () => "cloud-deck",
+      database,
+    });
+    const deck = await repository.createPromptDeck({ title: "Still local" });
+
+    await expect(repository.resetPromptLibrary()).rejects.toMatchObject({
+      code: "authoring-transaction-failed",
+    });
+    await expect(repository.getPromptDeckById(deck.id)).resolves.toMatchObject({
+      title: "Still local",
+    });
+  });
+
+  it("retries a pending reset idempotently before removing local decks", async () => {
+    const { database } = setup();
+    let pending = null;
+    let tombstoneAttempt = 0;
+    const accountData = {
+      getDeckSyncRecords: vi.fn(async () => new Map()),
+      getPromptLibraryReset: vi.fn(async () => pending),
+      isAvailable: vi.fn(() => true),
+      reconcile: vi.fn(async () => ({ status: "saved" })),
+      savePromptLibraryReset: vi.fn(async (content) => {
+        pending = content;
+        return { status: "saved" };
+      }),
+      tombstoneDecks: vi.fn(async () => ({
+        status: ++tombstoneAttempt === 1 ? "offline-saved-locally" : "saved",
+      })),
+    };
+    const repository = createPromptDeckRepository({ accountData, database });
+    await repository.seedImportedPromptDecks([promptDecks[0]]);
+
+    await expect(repository.resetPromptLibrary()).rejects.toMatchObject({
+      code: "authoring-transaction-failed",
+    });
+    await expect(repository.getPromptDeckById(promptDecks[0].id)).resolves.toBeTruthy();
+
+    await repository.resetPromptLibrary();
+
+    expect(await repository.getAllPromptDecks({ includeArchived: true })).toEqual([]);
+    expect(accountData.savePromptLibraryReset).toHaveBeenLastCalledWith(
+      expect.objectContaining({ phase: "complete" })
+    );
+  });
+
   it("creates a minimum valid deck without changing existing decks and reopens it", async () => {
     const { database, repository } = setup();
     const existing = promptDecks[0];
