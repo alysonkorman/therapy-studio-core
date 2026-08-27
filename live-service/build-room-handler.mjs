@@ -25,6 +25,10 @@ const reviewedRoomHandlerSources = [
   "src/features/games/promptSpinnerLiveSessionAdapter.js",
   "src/features/games/visualGameLiveSessionAdapter.js",
   "src/features/games/spotItLiveSessionAdapter.js",
+  "src/features/games/spotItGame.js",
+  "src/features/games/memoryLiveSessionAdapter.js",
+  "src/features/games/memoryGame.js",
+  "src/features/live-sessions/sharedRoomAdapter.js",
 ];
 const artifacts = [
   {

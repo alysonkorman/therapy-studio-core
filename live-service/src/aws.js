@@ -19,6 +19,8 @@ import { bingoLiveSessionAdapter } from "../../src/features/games/bingoLiveSessi
 import { promptSpinnerLiveSessionAdapter } from "../../src/features/games/promptSpinnerLiveSessionAdapter.js";
 import { visualGameLiveSessionAdapter } from "../../src/features/games/visualGameLiveSessionAdapter.js";
 import { spotItLiveSessionAdapter } from "../../src/features/games/spotItLiveSessionAdapter.js";
+import { memoryLiveSessionAdapter } from "../../src/features/games/memoryLiveSessionAdapter.js";
+import { sharedRoomAdapter } from "../../src/features/live-sessions/sharedRoomAdapter.js";
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const table = process.env.ROOMS_TABLE;
@@ -75,6 +77,8 @@ export async function handler(event) {
       "prompt-spinner": promptSpinnerLiveSessionAdapter,
       "visual-game": visualGameLiveSessionAdapter,
       "spot-it": spotItLiveSessionAdapter,
+      memory: memoryLiveSessionAdapter,
+      "shared-room": sharedRoomAdapter,
     },
     store,
     tokenIssuer: ({ expiresAt, role, sessionId }) => ({

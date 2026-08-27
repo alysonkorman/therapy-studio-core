@@ -4,8 +4,10 @@ import {
   captureCognitoHostToken,
   consumePostLoginPath,
   consumePendingLiveSessionInvite,
+  consumePendingSharedSessionStart,
   rememberPostLoginPath,
   rememberPendingLiveSessionInvite,
+  rememberPendingSharedSessionStart,
 } from "./liveSessionHostAuth";
 
 afterEach(() => sessionStorage.clear());
@@ -31,5 +33,12 @@ describe("Live Session host authentication", () => {
 
     expect(consumePostLoginPath()).toBe("/prompts");
     expect(consumePostLoginPath()).toBeNull();
+  });
+
+  it("retains a pending shared-session start through host sign-in", () => {
+    rememberPendingSharedSessionStart();
+
+    expect(consumePendingSharedSessionStart()).toBe(true);
+    expect(consumePendingSharedSessionStart()).toBe(false);
   });
 });

@@ -5,8 +5,15 @@ Description: Therapy Studio Live Sessions NON-PHI development stack. No clinical
 Parameters:
   FrontendOrigin:
     Type: String
+    Description: Exact production frontend origin, without a trailing slash.
+  LocalDevelopmentOrigin:
+    Type: String
+    Default: http://localhost:5173
+    Description: Exact local frontend origin used for development, without a trailing slash.
+  LegacyLocalDevelopmentOrigin:
+    Type: String
     Default: http://127.0.0.1:5173
-    Description: Exact development frontend origin, without a trailing slash.
+    Description: Existing local Cognito callback retained for compatibility; not added to API CORS.
   CognitoDomainPrefix:
     Type: String
     Description: Globally unique lowercase Cognito Hosted UI domain prefix.
@@ -40,8 +47,18 @@ Resources:
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows: [implicit]
       AllowedOAuthScopes: [openid, email]
-      CallbackURLs: [!Ref FrontendOrigin]
-      LogoutURLs: [!Ref FrontendOrigin]
+      CallbackURLs:
+        [
+          !Ref FrontendOrigin,
+          !Ref LocalDevelopmentOrigin,
+          !Ref LegacyLocalDevelopmentOrigin,
+        ]
+      LogoutURLs:
+        [
+          !Ref FrontendOrigin,
+          !Ref LocalDevelopmentOrigin,
+          !Ref LegacyLocalDevelopmentOrigin,
+        ]
       SupportedIdentityProviders: [COGNITO]
   HostPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
@@ -76,7 +93,7 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       CorsConfiguration:
-        AllowOrigins: [!Ref FrontendOrigin]
+        AllowOrigins: [!Ref FrontendOrigin, !Ref LocalDevelopmentOrigin]
         AllowHeaders: [authorization, content-type]
         AllowMethods: [GET, POST, PUT, DELETE]
       Auth:

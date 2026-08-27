@@ -2,6 +2,9 @@ import {
   ArrowDown,
   ArrowUp,
   Copy,
+  FlipHorizontal,
+  Lock,
+  LockOpen,
   Minus,
   Plus,
   RotateCcw,
@@ -96,6 +99,17 @@ export default function ObjectControls({
                 type="button"
               >
                 <Copy aria-hidden="true" size={18} /> Make a Copy
+              </button>
+              <button onClick={() => runAction("flip")} role="menuitem" type="button">
+                <FlipHorizontal aria-hidden="true" size={18} /> Flip
+              </button>
+              <button onClick={() => runAction("lock")} role="menuitem" type="button">
+                {object.locked ? (
+                  <LockOpen aria-hidden="true" size={18} />
+                ) : (
+                  <Lock aria-hidden="true" size={18} />
+                )}
+                {object.locked ? "Unlock" : "Lock"}
               </button>
               <button
                 disabled={!canMoveForward}

@@ -1,5 +1,6 @@
 const hostTokenKey = "therapy-studio-live-session-host-token";
 const pendingInviteKey = "therapy-studio-live-session-pending-invite";
+const pendingSharedSessionStartKey = "therapy-studio-pending-shared-session-start";
 const postLoginPathKey = "therapy-studio-post-login-path";
 
 // Cognito Hosted UI returns this short-lived token in the fragment. It is held only
@@ -28,6 +29,14 @@ export function hasPendingLiveSessionInvite() {
 export function consumePendingLiveSessionInvite() {
   const pending = hasPendingLiveSessionInvite();
   sessionStorage.removeItem(pendingInviteKey);
+  return pending;
+}
+export function rememberPendingSharedSessionStart() {
+  sessionStorage.setItem(pendingSharedSessionStartKey, "true");
+}
+export function consumePendingSharedSessionStart() {
+  const pending = sessionStorage.getItem(pendingSharedSessionStartKey) === "true";
+  sessionStorage.removeItem(pendingSharedSessionStartKey);
   return pending;
 }
 export function rememberPostLoginPath(pathname) {

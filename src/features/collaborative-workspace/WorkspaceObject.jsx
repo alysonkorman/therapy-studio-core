@@ -21,6 +21,10 @@ export default function WorkspaceObject({
   const [gestureMode, setGestureMode] = useState(null);
 
   function beginGesture(event, mode) {
+    if (object.locked) {
+      onSelect(object.id);
+      return;
+    }
     if (!event.isPrimary || event.button !== 0) return;
     event.stopPropagation();
     event.preventDefault();
@@ -125,14 +129,47 @@ export default function WorkspaceObject({
       style={{
         background: object.color,
         height: object.height,
-        transform: `rotate(${object.rotation}deg)`,
+        transform: `rotate(${object.rotation}deg) scale(${object.flipX ? -1 : 1}, ${object.flipY ? -1 : 1})`,
         width: object.width,
         left: object.x,
         top: object.y,
       }}
       tabIndex="0"
     >
-      {object.assetKind === "icon" ? (
+      {object.assetKind === "text" ? (
+        <textarea
+          aria-label={`Edit text ${object.label}`}
+          className="workspace-object__text"
+          onChange={(event) =>
+            onChange({ text: event.target.value, label: event.target.value || "Text" })
+          }
+          onPointerDown={(event) => event.stopPropagation()}
+          value={object.text ?? ""}
+        />
+      ) : object.assetKind === "shape" ? (
+        <span
+          aria-hidden="true"
+          className={`workspace-object__shape workspace-object__shape--${object.shape ?? "rectangle"}`}
+          style={{ color: object.color }}
+        />
+      ) : object.assetKind === "drawing" ? (
+        <svg
+          aria-label={object.label}
+          className="workspace-object__drawing"
+          viewBox={`0 0 ${object.width} ${object.height}`}
+        >
+          <polyline
+            fill="none"
+            points={(object.points ?? [])
+              .map(([x, y]) => `${x - object.x},${y - object.y}`)
+              .join(" ")}
+            stroke={object.color ?? "#312b42"}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="7"
+          />
+        </svg>
+      ) : object.assetKind === "icon" ? (
         <WorkspaceAssetImage
           assetId={object.assetId}
           className="workspace-object__image"

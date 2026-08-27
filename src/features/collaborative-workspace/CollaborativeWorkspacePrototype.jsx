@@ -1,3 +1,4 @@
+import { Download, Pencil, Redo2, Square, Type, Undo2 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { nanoid } from "nanoid";
 
@@ -11,6 +12,7 @@ import {
   SCENE_ASSET_PAGE_SIZE,
 } from "./sceneAssetLibrary";
 import { sampleWorkspaceBackgrounds } from "./sampleBackgrounds";
+import { exportWorkspacePng } from "./scenePngExport";
 import useCollaborativeWorkspaceDocument from "./useCollaborativeWorkspaceDocument";
 import {
   calculateInitialWorkspaceObjectSize,
@@ -21,13 +23,14 @@ import {
 import "./CollaborativeWorkspacePrototype.css";
 
 export default function CollaborativeWorkspacePrototype() {
-  const { changeDocument, connection, document, replaceDocument } =
+  const { changeDocument, connection, document, history, redo, replaceDocument, undo } =
     useCollaborativeWorkspaceDocument();
   // Search and selection are participant-local and never enter the collaboration adapter.
   const [assetQuery, setAssetQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [assetLimit, setAssetLimit] = useState(SCENE_ASSET_PAGE_SIZE);
   const [selectedId, setSelectedId] = useState(null);
+  const [tool, setTool] = useState("select");
   const assetRatiosRef = useRef(new Map());
   const categories = useMemo(() => getSceneAssetCategories(), []);
   const assetResults = useMemo(
@@ -76,6 +79,18 @@ export default function CollaborativeWorkspacePrototype() {
         type: "object/update",
         objectId: selectedId,
         changes: { rotation: normalizeWorkspaceRotation(selectedObject.rotation + 15) },
+      });
+    } else if (action === "lock") {
+      changeDocument({
+        type: "object/update",
+        objectId: selectedId,
+        changes: { locked: !selectedObject.locked },
+      });
+    } else if (action === "flip") {
+      changeDocument({
+        type: "object/update",
+        objectId: selectedId,
+        changes: { flipX: !selectedObject.flipX },
       });
     } else if (action === "bigger" || action === "smaller") {
       const amount = action === "bigger" ? 24 : -24;
@@ -147,6 +162,52 @@ export default function CollaborativeWorkspacePrototype() {
               replaceDocument(structuredClone(initialWorkspaceDocument));
             }}
           />
+          <div className="workspace-editor-toolbar" aria-label="Scene editing tools">
+            <button disabled={!history.canUndo} onClick={undo} type="button">
+              <Undo2 aria-hidden="true" size={17} /> Undo
+            </button>
+            <button disabled={!history.canRedo} onClick={redo} type="button">
+              <Redo2 aria-hidden="true" size={17} /> Redo
+            </button>
+            <button
+              onClick={() =>
+                changeDocument({
+                  type: "text/add",
+                  overrides: { id: nanoid(), x: 250, y: 230 },
+                })
+              }
+              type="button"
+            >
+              <Type aria-hidden="true" size={17} /> Text
+            </button>
+            <button
+              onClick={() =>
+                changeDocument({
+                  type: "shape/add",
+                  shape: "rectangle",
+                  overrides: { id: nanoid(), x: 280, y: 260 },
+                })
+              }
+              type="button"
+            >
+              <Square aria-hidden="true" size={17} /> Shape
+            </button>
+            <button
+              aria-pressed={tool === "draw"}
+              onClick={() =>
+                setTool((current) => (current === "draw" ? "select" : "draw"))
+              }
+              type="button"
+            >
+              <Pencil aria-hidden="true" size={17} /> Draw
+            </button>
+            <button
+              onClick={() => void exportWorkspacePng(document, "scene-builder")}
+              type="button"
+            >
+              <Download aria-hidden="true" size={17} /> PNG
+            </button>
+          </div>
           <div className="workspace-stage__topline">
             <BackgroundChooser
               backgrounds={sampleWorkspaceBackgrounds}
@@ -167,9 +228,13 @@ export default function CollaborativeWorkspacePrototype() {
             onChangeObject={(objectId, changes) =>
               changeDocument({ type: "object/update", objectId, changes })
             }
+            onDraw={(points) =>
+              changeDocument({ type: "drawing/add", points, overrides: { id: nanoid() } })
+            }
             onSelect={setSelectedId}
             onSelectedAction={handleSelectedAction}
             selectedId={selectedId}
+            tool={tool}
           />
         </section>
       </div>

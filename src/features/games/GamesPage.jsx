@@ -1,4 +1,4 @@
-import { Brush, Copy, Download, Pencil, Play, Plus, Sparkles, Trash2, Upload } from "lucide-react";
+import { Brain, Brush, Copy, Download, Pencil, Play, Plus, Sparkles, Trash2, Upload } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -279,6 +279,7 @@ export default function GamesPage({
           </div>
         </article>
         <article className="game-set-card game-set-card--spot-it"><Sparkles aria-hidden="true" size={36} /><div><span className="resource-type-badge">Matching game</span><h3>Spot It</h3><p>Find the one symbol both cards share.</p></div><div className="game-set-card__actions"><Link className="studio-button studio-button--primary" to="/games/spot-it">Play Spot It</Link></div></article>
+        <article className="game-set-card game-set-card--memory"><Brain aria-hidden="true" size={36} /><div><span className="resource-type-badge">Live matching game</span><h3>Memory Match</h3><p>Find pairs together, in the same room or from two computers.</p></div><div className="game-set-card__actions"><Link className="studio-button studio-button--primary" to="/games/memory">Play Memory</Link></div></article>
         <article className="game-set-card game-set-card--visual-games">
           <Play aria-hidden="true" size={36} />
           <div>

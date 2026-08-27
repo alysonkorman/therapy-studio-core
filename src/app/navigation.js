@@ -1,25 +1,21 @@
 import {
   Brain,
+  Compass,
   FileText,
-  Gamepad2,
   Heart,
   Home,
   MessageCircle,
-  Shapes,
   Settings,
   Users,
 } from "lucide-react";
 
-export function createNavigationItems({ enableWorkspaceLab = import.meta.env.DEV } = {}) {
+export function createNavigationItems() {
   return Object.freeze([
     { label: "Home", path: "/", icon: Home },
     { label: "Prompts", path: "/prompts", icon: MessageCircle },
     { label: "Interventions", path: "/interventions", icon: Brain },
-    { label: "Games", path: "/games", icon: Gamepad2 },
+    { label: "Activities", path: "/activities", icon: Compass },
     { label: "Worksheets", path: "/worksheets", icon: FileText },
-    ...(enableWorkspaceLab
-      ? [{ label: "Scene Builder", path: "/workspace-lab", icon: Shapes, badge: "Beta" }]
-      : []),
     { label: "Session Profiles", path: "/clients", icon: Users },
     { label: "Saved", path: "/saved", icon: Heart },
     { label: "Settings", path: "/settings", icon: Settings, utility: true },
@@ -28,11 +24,8 @@ export function createNavigationItems({ enableWorkspaceLab = import.meta.env.DEV
 
 export const navigationItems = createNavigationItems();
 
-export function getNavigationItemForPath(
-  pathname,
-  { enableWorkspaceLab = import.meta.env.DEV } = {}
-) {
-  return createNavigationItems({ enableWorkspaceLab }).find(({ path }) =>
+export function getNavigationItemForPath(pathname) {
+  return createNavigationItems().find(({ path }) =>
     path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(`${path}/`)
   );
 }

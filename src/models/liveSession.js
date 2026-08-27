@@ -2,7 +2,15 @@ import { z } from "zod";
 
 const isoTimestamp = z.string().datetime({ offset: true });
 
-export const liveSessionActivityKindSchema = z.enum(["whiteboard", "bingo", "prompt-spinner", "visual-game", "spot-it"]);
+export const liveSessionActivityKindSchema = z.enum([
+  "whiteboard",
+  "bingo",
+  "prompt-spinner",
+  "visual-game",
+  "spot-it",
+  "memory",
+  "shared-room",
+]);
 export const liveSessionRoleSchema = z.enum(["host", "participant"]);
 export const liveSessionStatusSchema = z.enum(["waiting", "active", "ended", "expired"]);
 

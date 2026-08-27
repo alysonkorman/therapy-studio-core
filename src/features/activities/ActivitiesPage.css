@@ -1,0 +1,174 @@
+.activities-page {
+  display: grid;
+  gap: var(--space-4);
+}
+.activities-search {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+}
+.activities-search input {
+  border: 0;
+  font: inherit;
+  min-width: 0;
+  outline: 0;
+  width: 100%;
+}
+.activities-tabs,
+.activities-filters,
+.activity-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.activities-tabs button,
+.activities-filters button {
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  font: inherit;
+  padding: 0.45rem 0.75rem;
+}
+.activities-tabs button[aria-pressed="true"],
+.activities-filters button[aria-pressed="true"] {
+  background: #7154c7;
+  border-color: #7154c7;
+  color: #fff;
+}
+.activities-filters label {
+  align-items: center;
+  display: flex;
+  font-weight: 700;
+  gap: 0.3rem;
+}
+.activities-filters select {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  padding: 0.38rem;
+}
+.activities-row,
+.activities-all {
+  display: grid;
+  gap: var(--space-3);
+}
+.activities-row h2,
+.activities-all h2 {
+  margin: 0;
+}
+.activities-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+}
+.activity-card {
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  color: inherit;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: auto 1fr auto;
+  min-height: 9rem;
+  padding: 0.8rem;
+  position: relative;
+  text-decoration: none;
+}
+.activity-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.activity-card--game .activity-card__visual {
+  background: #f0eaff;
+  color: #7154c7;
+}
+.activity-card--activity .activity-card__visual {
+  background: #e5f5ed;
+  color: #19724c;
+}
+.activity-card--builder .activity-card__visual {
+  background: #fff2d7;
+  color: #a65b00;
+}
+.activity-card__visual,
+.activity-detail__visual {
+  align-items: center;
+  border-radius: var(--radius-md);
+  display: flex;
+  height: 3.3rem;
+  justify-content: center;
+  width: 3.3rem;
+}
+.activity-card h3,
+.activity-card p {
+  margin: 0;
+}
+.activity-card p,
+.activity-card small {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.activity-card__favorite {
+  align-self: start;
+  background: transparent;
+  border: 0;
+  color: #7c5bc1;
+  padding: 0.25rem;
+}
+.activity-card__favorite.is-favorite {
+  color: #d34f83;
+}
+.activities-all header,
+.activities-all summary {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+.activities-all details {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
+.activities-all summary {
+  cursor: pointer;
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: var(--space-3);
+}
+.activities-all summary span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.activity-detail {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+  margin: auto;
+  max-width: 38rem;
+  padding: var(--space-5);
+  text-align: center;
+}
+.activity-detail__visual {
+  background: #f0eaff;
+  color: #7154c7;
+  height: 6rem;
+  width: 6rem;
+}
+.activity-detail p {
+  margin: 0;
+}
+.activity-detail__status {
+  color: var(--muted);
+  font-weight: 700;
+}
+.activity-detail__how {
+  color: var(--muted);
+  font-size: 0.92rem;
+}

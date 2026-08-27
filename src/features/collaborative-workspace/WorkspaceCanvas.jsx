@@ -1,3 +1,5 @@
+import { useRef, useState } from "react";
+
 import WorkspaceObject from "./WorkspaceObject";
 
 export default function WorkspaceCanvas({
@@ -5,18 +7,40 @@ export default function WorkspaceCanvas({
   canMoveForward,
   document,
   onChangeObject,
+  onDraw,
   onSelect,
   onSelectedAction,
   selectedId,
+  tool = "select",
 }) {
   const background = document.background === "meadow" ? "outdoors" : document.background;
+  const canvasRef = useRef(null);
+  const [draft, setDraft] = useState([]);
+
+  function point(event) {
+    const bounds = canvasRef.current.getBoundingClientRect();
+    return [event.clientX - bounds.left, event.clientY - bounds.top];
+  }
 
   return (
     <div
       aria-label="Scene canvas"
       className={`workspace-canvas workspace-canvas--${background}`}
+      ref={canvasRef}
       onPointerDown={(event) => {
-        if (event.target === event.currentTarget) onSelect(null);
+        if (event.target.closest(".workspace-object")) return;
+        if (tool === "draw") {
+          event.currentTarget.setPointerCapture(event.pointerId);
+          setDraft([point(event)]);
+        } else onSelect(null);
+      }}
+      onPointerMove={(event) => {
+        if (tool === "draw" && draft.length)
+          setDraft((points) => [...points, point(event)]);
+      }}
+      onPointerUp={(event) => {
+        if (tool === "draw" && draft.length > 1) onDraw(draft);
+        setDraft([]);
       }}
     >
       <div aria-hidden="true" className="workspace-scene">
@@ -53,6 +77,11 @@ export default function WorkspaceCanvas({
           selected={selectedId === object.id}
         />
       ))}
+      {draft.length > 1 ? (
+        <svg aria-hidden="true" className="workspace-drawing-preview">
+          <polyline points={draft.map((point) => point.join(",")).join(" ")} />
+        </svg>
+      ) : null}
     </div>
   );
 }

@@ -36,32 +36,6 @@ export default function PromptLibraryRestorePreviewPanel() {
     }
   }
 
-  async function restoreIncludedBackup() {
-    setError("");
-    setPreview(null);
-    setBackup(null);
-    setSuccess("");
-    setSelectedFilename("Therapy Studio prompt library backup");
-    setRestoring(true);
-    try {
-      const response = await fetch("/prompt-library-backup.json");
-      if (!response.ok) throw new Error("The included prompt backup is unavailable.");
-      const text = await response.text();
-      const parsed = JSON.parse(text);
-      previewPromptLibraryBackupJson(text);
-      const restored = await restorePromptLibraryRecovery({
-        backup: parsed,
-        database: getTherapyStudioDatabase(),
-      });
-      setSuccess(`Restore complete: ${restored.decks} decks · ${restored.prompts} prompts. Reloading your library…`);
-      window.setTimeout(() => window.location.reload(), 700);
-    } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : "The included prompt backup could not be read.");
-    } finally {
-      setRestoring(false);
-    }
-  }
-
   async function restoreBackup() {
     if (!backup || !preview?.restoreEligible || restoring) return;
     const { categories, decks, playlists, prompts } = preview.summary;
@@ -102,14 +76,11 @@ export default function PromptLibraryRestorePreviewPanel() {
           Restore Prompt Library from Backup
         </h3>
         <p>
-          Preview only. Choosing a JSON backup does not change this browser, your account,
-          or the Prompt Library.
+          Choose the backup JSON saved on your computer. It is previewed first and nothing
+          changes until you confirm the restore.
         </p>
       </div>
       <div className="authoring-actions">
-        <button className="button-primary" disabled={restoring} onClick={() => void restoreIncludedBackup()} type="button">
-          {restoring ? "Restoring saved library…" : "Restore saved library now"}
-        </button>
         <button onClick={() => inputRef.current?.click()} type="button">
           Choose backup JSON
         </button>

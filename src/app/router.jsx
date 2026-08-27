@@ -4,6 +4,12 @@ import ClientsPage from "../features/clients/ClientsPage";
 import LiveSessionParticipantPage from "../features/live-sessions/LiveSessionParticipantPage";
 import DashboardPage from "../features/dashboard/DashboardPage";
 import GamesPage from "../features/games/GamesPage";
+import ActivitiesPage from "../features/activities/ActivitiesPage";
+import ActivityDetailPage from "../features/activities/ActivityDetailPage";
+import { MadLibLibrary, MadLibPlayPage } from "../features/mad-libs/MadLibsPage";
+import MadLibBuilderPage from "../features/mad-libs/MadLibBuilderPage";
+import ISpyLibraryPage from "../features/ispy/ISpyLibraryPage";
+import ISpyPage from "../features/ispy/ISpyPage";
 import GamePage from "../features/games/GamePage";
 import TriviaEditorPage from "../features/games/TriviaEditorPage";
 import BingoEditorPage from "../features/games/BingoEditorPage";
@@ -11,6 +17,7 @@ import PromptSpinnerPage from "../features/games/PromptSpinnerPage";
 import VisualGamesPage from "../features/games/VisualGamesPage";
 import VisualGameCanvasPage from "../features/games/VisualGameCanvasPage";
 import SpotItPage from "../features/games/SpotItPage";
+import MemoryGamePage from "../features/games/MemoryGamePage";
 import InterventionsPage from "../features/interventions/InterventionsPage";
 import InterventionDetailPage from "../features/interventions/InterventionDetailPage";
 import InterventionEditorPage from "../features/interventions/InterventionEditorPage";
@@ -81,6 +88,14 @@ export function createAppRoutes({ enableWorkspaceLab = import.meta.env.DEV } = {
           path: "games",
           element: <GamesPage />,
         },
+        { path: "activities", element: <ActivitiesPage /> },
+        { path: "activities/mad-libs", element: <MadLibLibrary /> },
+        { path: "activities/mad-libs/new", element: <MadLibBuilderPage /> },
+        { path: "activities/mad-libs/:templateId/edit", element: <MadLibBuilderPage /> },
+        { path: "activities/i-spy", element: <ISpyLibraryPage /> },
+        { path: "activities/i-spy/:boardId", element: <ISpyPage /> },
+        { path: "activities/mad-libs/:templateId", element: <MadLibPlayPage /> },
+        { path: "activities/:activityId", element: <ActivityDetailPage /> },
         {
           path: "games/prompt-spinner",
           element: <PromptSpinnerPage />,
@@ -94,6 +109,7 @@ export function createAppRoutes({ enableWorkspaceLab = import.meta.env.DEV } = {
           element: <VisualGameCanvasPage />,
         },
         { path: "games/spot-it", element: <SpotItPage /> },
+        { path: "games/memory", element: <MemoryGamePage /> },
         {
           path: "games/:gameId",
           element: <GamePage />,

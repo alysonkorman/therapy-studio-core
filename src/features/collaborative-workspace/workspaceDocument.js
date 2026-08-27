@@ -64,10 +64,50 @@ export function addWorkspaceObject(document, asset, overrides = {}) {
     label: asset.label,
     symbol: asset.symbol,
     color: asset.color,
+    locked: false,
+    flipX: false,
+    flipY: false,
     ...defaultPlacement,
     ...overrides,
   };
   return { ...document, objects: [...document.objects, nextObject] };
+}
+
+export function addWorkspaceText(document, text = "New text", overrides = {}) {
+  return addWorkspaceObject(
+    document,
+    { id: "workspace-text", assetKind: "text", label: "Text", text, color: "#312b42" },
+    { width: 220, height: 70, ...overrides }
+  );
+}
+
+export function addWorkspaceShape(document, shape = "rectangle", overrides = {}) {
+  return addWorkspaceObject(
+    document,
+    {
+      id: `workspace-shape-${shape}`,
+      assetKind: "shape",
+      label: shape,
+      shape,
+      color: "#8b6bd6",
+    },
+    { width: 150, height: 110, ...overrides }
+  );
+}
+
+export function addWorkspaceDrawing(document, points, overrides = {}) {
+  if (points.length < 2) return document;
+  const xs = points.map(([x]) => x);
+  const ys = points.map(([, y]) => y);
+  const x = Math.min(...xs);
+  const y = Math.min(...ys);
+  const width = Math.max(24, Math.max(...xs) - x);
+  const height = Math.max(24, Math.max(...ys) - y);
+  return addWorkspaceObject(
+    document,
+    { id: "workspace-drawing", assetKind: "drawing", label: "Drawing", color: "#312b42" },
+    { x, y, width, height, points, ...overrides }
+  );
 }
 
 export function updateWorkspaceObject(document, objectId, changes) {
@@ -122,6 +162,12 @@ export function workspaceDocumentReducer(document, action) {
       return updateWorkspaceBackground(document, action.background);
     case "object/add":
       return addWorkspaceObject(document, action.asset, action.overrides);
+    case "text/add":
+      return addWorkspaceText(document, action.text, action.overrides);
+    case "shape/add":
+      return addWorkspaceShape(document, action.shape, action.overrides);
+    case "drawing/add":
+      return addWorkspaceDrawing(document, action.points, action.overrides);
     case "object/update":
       return updateWorkspaceObject(document, action.objectId, action.changes);
     case "object/delete":

@@ -783,3 +783,37 @@ button {
 .navigation-button {
   text-decoration: none;
 }
+
+.shared-session-bar {
+  align-items: center;
+  background: #f4efff;
+  border-bottom: 1px solid #d8ccef;
+  color: #403260;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 8px;
+  padding: 7px 22px;
+}
+.shared-session-bar button {
+  align-items: center;
+  background: white;
+  border: 1px solid #cfc3e4;
+  border-radius: 8px;
+  color: inherit;
+  display: inline-flex;
+  font: inherit;
+  gap: 4px;
+  padding: 5px 8px;
+}
+.shared-session-bar--start {
+  margin: 8px 22px;
+}
+.shared-session-bar__end {
+  color: #842c3b !important;
+}
+.shared-session-bar__message {
+  color: #514076;
+  font-weight: 700;
+}

@@ -1,8 +1,5 @@
+import CollaborativeWorkspacePrototype from "../collaborative-workspace/CollaborativeWorkspacePrototype";
+
 export default function SceneBuilderPage() {
-  return (
-    <div>
-      <h1>Scene Builder</h1>
-      <p>Coming soon.</p>
-    </div>
-  );
+  return <CollaborativeWorkspacePrototype />;
 }

@@ -105,6 +105,32 @@
   opacity: 0.45;
 }
 
+.workspace-editor-toolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 var(--space-2);
+}
+
+.workspace-editor-toolbar button {
+  align-items: center;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 750;
+  gap: 5px;
+  min-height: 36px;
+  padding: 5px 9px;
+}
+
+.workspace-editor-toolbar button:disabled {
+  opacity: 0.45;
+}
+
 .workspace-file-controls__confirm {
   background: #fff7eb !important;
   border-color: #d9a95f !important;
@@ -644,6 +670,49 @@
   object-fit: contain;
   pointer-events: none;
   width: 100%;
+}
+
+.workspace-object__text {
+  background: transparent;
+  border: 0;
+  color: #312b42;
+  font:
+    700 clamp(1.1rem, 2.4vw, 2rem) / 1.15 system-ui,
+    sans-serif;
+  height: 100%;
+  padding: 8px;
+  resize: none;
+  text-align: center;
+  width: 100%;
+}
+
+.workspace-object__shape {
+  background: currentColor;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.workspace-object__shape--circle {
+  border-radius: 50%;
+}
+
+.workspace-object__drawing,
+.workspace-drawing-preview {
+  height: 100%;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+}
+
+.workspace-drawing-preview polyline {
+  fill: none;
+  stroke: #312b42;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 7;
 }
 
 .workspace-object__handle {

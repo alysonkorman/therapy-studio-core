@@ -1,0 +1,82 @@
+.mad-libs,
+.mad-lib-play {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 70rem;
+  margin: auto;
+}
+.mad-libs__controls {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  padding: 0.75rem;
+  border-radius: var(--radius-lg);
+}
+.mad-libs__controls input {
+  border: 0;
+  font: inherit;
+  flex: 1;
+  outline: 0;
+}
+.mad-libs__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--space-3);
+}
+.mad-lib-card {
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+}
+.mad-lib-card h2,
+.mad-lib-card p {
+  margin: 0;
+}
+.mad-lib-card > button:first-child {
+  justify-self: end;
+  background: none;
+  border: 0;
+  color: #c34b78;
+}
+.mad-lib-card small {
+  color: var(--muted);
+}
+.mad-lib-prompt,
+.mad-lib-story {
+  background: #fffdf7;
+  border: 1px solid #eadcb7;
+  border-radius: var(--radius-xl);
+  display: grid;
+  gap: var(--space-3);
+  margin: auto;
+  max-width: 42rem;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  width: 100%;
+}
+.mad-lib-prompt input {
+  border: 2px solid #7154c7;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 1.25rem;
+  padding: 0.7rem;
+}
+.mad-lib-prompt div,
+.mad-lib-story div {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.mad-lib-story {
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  line-height: 1.8;
+}
+.mad-lib-story mark {
+  background: #ffeb98;
+  border-radius: 0.2rem;
+  padding: 0 0.14rem;
+}

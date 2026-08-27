@@ -47,6 +47,10 @@ export const THERAPY_STUDIO_VERSION_10_SCHEMA = Object.freeze({
     "entityKey, accountId, entityType, [accountId+entityType], cloudRevision, updatedAt, deletedAt",
   accountDataSyncQueue: "id, entityKey, accountId, status, createdAt",
 });
+export const THERAPY_STUDIO_VERSION_11_SCHEMA = Object.freeze({
+  ...THERAPY_STUDIO_VERSION_10_SCHEMA,
+  iSpyBoards: "id, archived, updatedAt, createdAt",
+});
 
 export function createTherapyStudioDatabase({
   name = THERAPY_STUDIO_DATABASE_NAME,
@@ -70,6 +74,7 @@ export function createTherapyStudioDatabase({
   database.version(8).stores(THERAPY_STUDIO_VERSION_8_SCHEMA);
   database.version(9).stores(THERAPY_STUDIO_VERSION_9_SCHEMA);
   database.version(10).stores(THERAPY_STUDIO_VERSION_10_SCHEMA);
+  database.version(11).stores(THERAPY_STUDIO_VERSION_11_SCHEMA);
 
   return database;
 }

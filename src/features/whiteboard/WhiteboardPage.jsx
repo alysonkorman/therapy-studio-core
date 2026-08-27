@@ -24,6 +24,7 @@ import { localMediaRepository, whiteboardRepository } from "../../lib/data";
 import { createBlankWhiteboardDocument, whiteboardDocumentSchema } from "../../models";
 import { IconBrowserField } from "../icons";
 import LiveSessionPanel from "../live-sessions/LiveSessionPanel";
+import { useSharedSession } from "../live-sessions/SharedSessionProvider";
 import { useLiveSession } from "../live-sessions/useLiveSession";
 import { createLiveSession } from "../../models/liveSession";
 import { createProductionWebSocketTransport } from "../live-sessions/productionWebSocketTransport";
@@ -88,7 +89,16 @@ export default function WhiteboardPage({
   liveSession: suppliedLiveSession = null,
   repository = whiteboardRepository,
   mediaRepository = localMediaRepository,
+  sharedRoom = null,
+  sharedRole = null,
+  onSharedRoomAction = null,
 }) {
+  const appSharedSession = useSharedSession();
+  const roomBridge = sharedRoom
+    ? { room: sharedRoom, role: sharedRole, send: onSharedRoomAction }
+    : appSharedSession?.session && appSharedSession.room.activityKind === "whiteboard"
+      ? { room: appSharedSession.room, role: "host", send: appSharedSession.update }
+      : null;
   const [history, setHistory] = useState(() => createHistory(blank(createId)));
   const [tool, setTool] = useState(() =>
     suppliedLiveSession?.role === "participant" ? "draw" : "select"
@@ -126,7 +136,9 @@ export default function WhiteboardPage({
   const document = history.present;
   const documentRef = useRef(document);
   const activeLiveSession = suppliedLiveSession ?? hostLiveSession;
-  const participantMode = activeLiveSession?.role === "participant";
+  const participantMode =
+    roomBridge?.role === "participant" || activeLiveSession?.role === "participant";
+  const roomWatchMode = roomBridge?.room.permission === "watch";
   const selected = useMemo(
     () => document.objects.find(({ id }) => id === selectedId),
     [document.objects, selectedId]
@@ -153,6 +165,10 @@ export default function WhiteboardPage({
     );
     setLiveSettings(sharedState.session);
   }, []);
+  useEffect(() => {
+    if (roomBridge?.room.activityStates.whiteboard)
+      applyRemoteSharedState(roomBridge.room.activityStates.whiteboard);
+  }, [applyRemoteSharedState, roomBridge?.room.activityStates.whiteboard]);
 
   // A transport factory is an effect dependency inside useLiveSession. Keep it
   // stable across Whiteboard document updates so completing a stroke does not
@@ -193,9 +209,16 @@ export default function WhiteboardPage({
   }, [activeLiveSession, collaborationFactory, document.id]);
 
   function commit(next) {
-    if (liveEnded) return;
+    if (liveEnded || roomWatchMode) return;
     setHistory((current) => commitHistory(current, next));
-    if (activeLiveSession)
+    if (roomBridge) {
+      const before = projectWhiteboardForLiveSession(document, liveSettings);
+      const action = whiteboardLiveSessionAdapter.createAction(
+        before,
+        projectWhiteboardForLiveSession(next, liveSettings)
+      );
+      roomBridge.send({ type: "room/whiteboard-action", action });
+    } else if (activeLiveSession)
       live.publishState(projectWhiteboardForLiveSession(next, liveSettings));
     else adapterRef.current?.publish(next);
   }
@@ -210,7 +233,7 @@ export default function WhiteboardPage({
   }
 
   function canvasPointerDown(event) {
-    if (liveEnded) return;
+    if (liveEnded || roomWatchMode) return;
     if (event.pointerType === "touch" && event.isPrimary === false) return;
     if (activePointerId.current !== null && activePointerId.current !== event.pointerId)
       return;
@@ -256,7 +279,7 @@ export default function WhiteboardPage({
   }
 
   function pointerMove(event) {
-    if (liveEnded) return;
+    if (liveEnded || roomWatchMode) return;
     if (activePointerId.current !== event.pointerId) return;
     const location = point(event);
     if (draftObject?.kind === "stroke") {
@@ -346,14 +369,26 @@ export default function WhiteboardPage({
           present: current.present,
           future: [],
         };
-        if (activeLiveSession)
+        if (roomBridge) {
+          const before = projectWhiteboardForLiveSession(gesture.document, liveSettings);
+          const action = whiteboardLiveSessionAdapter.createAction(
+            before,
+            projectWhiteboardForLiveSession(next.present, liveSettings)
+          );
+          roomBridge.send({ type: "room/whiteboard-action", action });
+        } else if (activeLiveSession)
           live.publishState(projectWhiteboardForLiveSession(next.present, liveSettings));
         else adapterRef.current?.publish(next.present);
         return next;
       });
     } else if (gesture?.type === "erase" && erasePoints.current.length) {
       const points = erasePoints.current;
-      if (activeLiveSession)
+      if (roomBridge) {
+        roomBridge.send({
+          type: "room/whiteboard-action",
+          action: { type: "whiteboard/erase", points, radius: 18 },
+        });
+      } else if (activeLiveSession)
         live.requestAction({ type: "whiteboard/erase", points, radius: 18 });
       else {
         const erased = eraseWhiteboardObjects(document.objects, points, 18);
@@ -375,7 +410,7 @@ export default function WhiteboardPage({
   }
 
   function objectPointerDown(event, object) {
-    if (liveEnded || object.locked) return;
+    if (liveEnded || roomWatchMode || object.locked) return;
     if (tool === "erase") return;
     if (tool !== "select") return;
     event.stopPropagation();
@@ -410,7 +445,9 @@ export default function WhiteboardPage({
         temporaryAssetIds.current.delete(assetId);
         void mediaRepository.deleteAsset(assetId);
       });
-    setHistory(createHistory(blank(createId)));
+    const next = blank(createId);
+    if (roomBridge) commit(next);
+    else setHistory(createHistory(next));
     setSelectedId(null);
     setPan({ x: 0, y: 0 });
     setZoom(1);
@@ -623,8 +660,9 @@ export default function WhiteboardPage({
       ? Boolean(liveSettings.hostUndoAvailable)
       : Boolean(history.past.length));
   const canEditSelected =
-    !participantMode ||
-    (!selected?.locked && liveSettings.participantPermission !== "draw-only");
+    roomBridge?.room.permission !== "watch" &&
+    (!participantMode ||
+      (!selected?.locked && liveSettings.participantPermission !== "draw-only"));
 
   function updateLiveSettings(changes) {
     if (participantMode || !activeLiveSession) return;
@@ -794,14 +832,31 @@ export default function WhiteboardPage({
       </header>
 
       {!participantMode ? (
-        <LiveSessionPanel
-          onCopy={() => void copyParticipantLink()}
-          onCreate={createLocalLiveSession}
-          onEnd={endLocalLiveSession}
-          onEnterSessionView={() => setSessionView(true)}
-          participantState={live.participantState}
-          session={hostLiveSession}
-        />
+        <>
+          {appSharedSession?.session && !roomBridge ? (
+            <button
+              className="studio-button studio-button--primary"
+              onClick={() =>
+                appSharedSession.update({
+                  type: "room/select-activity",
+                  activityKind: "whiteboard",
+                  state: projectWhiteboardForLiveSession(document, liveSettings),
+                })
+              }
+              type="button"
+            >
+              Start with Child
+            </button>
+          ) : null}
+          <LiveSessionPanel
+            onCopy={() => void copyParticipantLink()}
+            onCreate={createLocalLiveSession}
+            onEnd={endLocalLiveSession}
+            onEnterSessionView={() => setSessionView(true)}
+            participantState={live.participantState}
+            session={hostLiveSession}
+          />
+        </>
       ) : null}
 
       {activeLiveSession && document.objects.some(({ kind }) => kind === "image") ? (
@@ -810,11 +865,11 @@ export default function WhiteboardPage({
         </p>
       ) : null}
 
-      {showStarters && !activeLiveSession ? (
+      {showStarters && !activeLiveSession && !roomBridge ? (
         <SessionCanvasStartPanel onUse={useTemplate} templates={sessionCanvasTemplates} />
       ) : null}
 
-      {showActivityImport && !activeLiveSession ? (
+      {showActivityImport && !activeLiveSession && !roomBridge ? (
         <ActivityImportPanel
           onCancel={() => setShowActivityImport(false)}
           onImport={importActivity}
@@ -1137,7 +1192,12 @@ export default function WhiteboardPage({
             onPointerMove={pointerMove}
             onPointerUp={pointerUp}
             onResizePointerDown={(event, object) => {
-              if (liveEnded || object.locked || (participantMode && !canEditSelected))
+              if (
+                liveEnded ||
+                roomWatchMode ||
+                object.locked ||
+                (participantMode && !canEditSelected)
+              )
                 return;
               event.stopPropagation();
               setGesture({ type: "resize", document, object, start: point(event) });
@@ -1161,13 +1221,33 @@ export default function WhiteboardPage({
                 aria-label="Undo"
                 disabled={!hostUndoAvailable}
                 onClick={() => {
+                  if (roomBridge) {
+                    const next = undoHistory(history);
+                    setHistory(next);
+                    roomBridge.send({
+                      type: "room/whiteboard-action",
+                      action: whiteboardLiveSessionAdapter.createAction(
+                        projectWhiteboardForLiveSession(document, liveSettings),
+                        projectWhiteboardForLiveSession(next.present, liveSettings)
+                      ),
+                    });
+                    return;
+                  }
                   if (activeLiveSession) {
                     live.requestAction({ type: "whiteboard/undo-host" });
                     return;
                   }
                   const next = undoHistory(history);
                   setHistory(next);
-                  if (activeLiveSession)
+                  if (roomBridge) {
+                    roomBridge.send({
+                      type: "room/whiteboard-action",
+                      action: whiteboardLiveSessionAdapter.createAction(
+                        projectWhiteboardForLiveSession(document, liveSettings),
+                        projectWhiteboardForLiveSession(next.present, liveSettings)
+                      ),
+                    });
+                  } else if (activeLiveSession)
                     live.publishState(
                       projectWhiteboardForLiveSession(next.present, liveSettings)
                     );
@@ -1183,7 +1263,15 @@ export default function WhiteboardPage({
                 onClick={() => {
                   const next = redoHistory(history);
                   setHistory(next);
-                  if (activeLiveSession)
+                  if (roomBridge) {
+                    roomBridge.send({
+                      type: "room/whiteboard-action",
+                      action: whiteboardLiveSessionAdapter.createAction(
+                        projectWhiteboardForLiveSession(document, liveSettings),
+                        projectWhiteboardForLiveSession(next.present, liveSettings)
+                      ),
+                    });
+                  } else if (activeLiveSession)
                     live.publishState(
                       projectWhiteboardForLiveSession(next.present, liveSettings)
                     );
@@ -1215,7 +1303,13 @@ export default function WhiteboardPage({
               className="whiteboard-clear"
               onClick={() => {
                 if (!window.confirm("Clear the entire Whiteboard?")) return;
-                if (activeLiveSession) live.requestAction({ type: "whiteboard/clear" });
+                if (roomBridge)
+                  roomBridge.send({
+                    type: "room/whiteboard-action",
+                    action: { type: "whiteboard/clear" },
+                  });
+                else if (activeLiveSession)
+                  live.requestAction({ type: "whiteboard/clear" });
                 else commit(clearWhiteboard(document));
               }}
               type="button"

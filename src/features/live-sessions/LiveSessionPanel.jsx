@@ -26,6 +26,9 @@ export default function LiveSessionPanel({
       <button onClick={onCopy} type="button">
         <Copy aria-hidden="true" size={16} /> Copy Link
       </button>
+      <a href={session.participantUrl} rel="noreferrer" target="_blank">
+        <Link2 aria-hidden="true" size={16} /> Open Child Link
+      </a>
       {onEnterSessionView ? (
         <button onClick={onEnterSessionView} type="button">
           Enter Session View

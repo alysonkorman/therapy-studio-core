@@ -14,6 +14,7 @@ dist-ssr
 *.zip
 /Zip/
 /live-service/.aws-sam-*/
+/live-service/.aws-sam/
 /.aws-sam/
 /src/features/prompts/PromptsPage.css.backup
 
@@ -29,3 +30,4 @@ dist-ssr
 *.sw?
 .vercel
 /live-service/samconfig.toml
+.env*

@@ -1,4 +1,4 @@
-import { FolderOpen, Plus, Save } from "lucide-react";
+import { Copy, FolderOpen, Plus, Save, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { savedSceneRepository } from "./savedSceneRepository";
@@ -20,6 +20,7 @@ export default function SceneFileControls({
   const [activeSceneId, setActiveSceneId] = useState(null);
   const [selectedSceneId, setSelectedSceneId] = useState("");
   const [savedScenes, setSavedScenes] = useState([]);
+  const [templates, setTemplates] = useState([]);
   const [savedFingerprint, setSavedFingerprint] = useState(() =>
     fingerprint(UNTITLED_SCENE, emptyDocument)
   );
@@ -32,29 +33,61 @@ export default function SceneFileControls({
 
   useEffect(() => {
     repository
-      .listScenes()
-      .then(setSavedScenes)
+      .listScenes("scene")
+      .then(async (scenes) => {
+        setSavedScenes(scenes);
+        setTemplates(
+          (await repository.listScenes("template")).filter(
+            (scene) => scene.kind === "template"
+          )
+        );
+      })
       .catch(() => setStatus("Saved scenes unavailable"));
   }, [repository]);
 
-  async function saveScene() {
+  async function refresh() {
+    setSavedScenes(await repository.listScenes("scene"));
+    setTemplates(
+      (await repository.listScenes("template")).filter(
+        (scene) => scene.kind === "template"
+      )
+    );
+  }
+
+  async function saveScene({ copy = false, kind = "scene" } = {}) {
     setStatus("Saving…");
     try {
-      const saved = await repository.saveScene({
-        id: activeSceneId,
+      const payload = {
+        id: copy || kind === "template" ? null : activeSceneId,
         title,
         workspaceDocument: document,
-      });
-      setActiveSceneId(saved.id);
-      setSelectedSceneId(saved.id);
+      };
+      if (kind === "template") payload.kind = kind;
+      const saved = await repository.saveScene(payload);
+      if (kind === "scene") {
+        setActiveSceneId(saved.id);
+        setSelectedSceneId(saved.id);
+      }
       setTitle(saved.title);
       setSavedFingerprint(fingerprint(saved.title, saved.workspaceDocument));
-      setSavedScenes(await repository.listScenes());
-      setStatus("Saved locally");
+      await refresh();
+      setStatus(
+        kind === "template"
+          ? "Template saved"
+          : copy
+            ? "Scene duplicated"
+            : "Saved locally"
+      );
     } catch {
       setStatus("Save failed");
     }
   }
+
+  useEffect(() => {
+    if (!activeSceneId || !hasUnsavedChanges) return undefined;
+    const timer = window.setTimeout(() => void saveScene(), 900);
+    return () => window.clearTimeout(timer);
+  }, [activeSceneId, document, hasUnsavedChanges, title]);
 
   async function loadScene() {
     if (!selectedSceneId) return;
@@ -105,6 +138,20 @@ export default function SceneFileControls({
         <Save aria-hidden="true" size={17} /> Save
       </button>
       <button
+        disabled={!title.trim()}
+        onClick={() => void saveScene({ copy: true })}
+        type="button"
+      >
+        <Copy aria-hidden="true" size={17} /> Duplicate
+      </button>
+      <button
+        disabled={!title.trim()}
+        onClick={() => void saveScene({ kind: "template" })}
+        type="button"
+      >
+        <Sparkles aria-hidden="true" size={17} /> Template
+      </button>
+      <button
         className={confirmingNew ? "workspace-file-controls__confirm" : ""}
         onClick={startNewScene}
         type="button"
@@ -130,6 +177,34 @@ export default function SceneFileControls({
       <button disabled={!selectedSceneId} onClick={loadScene} type="button">
         <FolderOpen aria-hidden="true" size={17} /> Open
       </button>
+      {templates.length ? (
+        <label className="workspace-file-controls__saved">
+          <select
+            aria-label="Scene templates"
+            onChange={async (event) => {
+              if (!event.target.value) return;
+              const saved = await repository.getScene(event.target.value);
+              onLoad(saved.workspaceDocument);
+              setActiveSceneId(null);
+              setSelectedSceneId("");
+              setTitle(`${saved.title} copy`);
+              setSavedFingerprint(
+                fingerprint(`${saved.title} copy`, saved.workspaceDocument)
+              );
+              setStatus("Template opened");
+              event.target.value = "";
+            }}
+            defaultValue=""
+          >
+            <option value="">Templates…</option>
+            {templates.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <span aria-live="polite" className="workspace-file-controls__status">
         {hasUnsavedChanges ? "Unsaved" : status}
       </span>

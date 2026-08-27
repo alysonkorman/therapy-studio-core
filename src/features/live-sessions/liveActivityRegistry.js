@@ -8,6 +8,8 @@ import VisualGameCanvasPage from "../games/VisualGameCanvasPage";
 import { visualGameLiveSessionAdapter } from "../games/visualGameLiveSessionAdapter";
 import SpotItPage from "../games/SpotItPage";
 import { spotItLiveSessionAdapter } from "../games/spotItLiveSessionAdapter";
+import MemoryGamePage from "../games/MemoryGamePage";
+import { memoryLiveSessionAdapter } from "../games/memoryLiveSessionAdapter";
 
 // A participant never chooses the activity. This registry resolves only the
 // activity kind returned by the room authority after capability exchange.
@@ -32,6 +34,7 @@ const activities = Object.freeze({
   }),
   "visual-game": Object.freeze({ adapter: visualGameLiveSessionAdapter, activityKind: "visual-game", ParticipantView: VisualGameCanvasPage, participantLabel: "Visual Game" }),
   "spot-it": Object.freeze({ adapter: spotItLiveSessionAdapter, activityKind: "spot-it", ParticipantView: SpotItPage, participantLabel: "Spot It" }),
+  memory: Object.freeze({ adapter: memoryLiveSessionAdapter, activityKind: "memory", ParticipantView: MemoryGamePage, participantLabel: "Memory Match" }),
 });
 
 export function getLiveActivity(activityKind) {

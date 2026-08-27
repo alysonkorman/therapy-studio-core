@@ -8,6 +8,8 @@ import {
   captureCognitoHostToken,
   hasPendingLiveSessionInvite,
 } from "../features/live-sessions/liveSessionHostAuth";
+import { SharedSessionProvider } from "../features/live-sessions/SharedSessionProvider";
+import SharedSessionBar from "../features/live-sessions/SharedSessionBar";
 
 const backgroundArtwork = Object.values(
   import.meta.glob("../assets/page-backgrounds/*", {
@@ -20,7 +22,10 @@ const backgroundArtwork = Object.values(
 function artworkFor(pathname) {
   if (!backgroundArtwork.length) return undefined;
   const day = Math.floor(Date.now() / 86_400_000);
-  const index = [...`${pathname}-${day}`].reduce((total, character) => total + character.charCodeAt(0), 0);
+  const index = [...`${pathname}-${day}`].reduce(
+    (total, character) => total + character.charCodeAt(0),
+    0
+  );
   return backgroundArtwork[index % backgroundArtwork.length];
 }
 
@@ -70,101 +75,108 @@ export default function AppLayout({ enableWorkspaceLab = import.meta.env.DEV }) 
   }
 
   return (
-    <div className="app-shell" onKeyDown={handleShellKeyDown} style={{ "--workspace-art": `url("${pageArtwork}")` }}>
-      <a className="skip-to-content" href="#main-content" onClick={focusMainContent}>
-        Skip to Content
-      </a>
-
-      <aside
-        className={`sidebar ${mobileMenuOpen ? "sidebar--open" : ""}`}
-        id="app-navigation"
-        ref={navigationRef}
+    <SharedSessionProvider>
+      <div
+        className="app-shell"
+        onKeyDown={handleShellKeyDown}
+        style={{ "--workspace-art": `url("${pageArtwork}")` }}
       >
-        <NavLink className="brand" onClick={closeMobileMenu} to="/">
-          <div className="brand-icon">
-            <Sparkles aria-hidden="true" size={22} />
-          </div>
+        <a className="skip-to-content" href="#main-content" onClick={focusMainContent}>
+          Skip to Content
+        </a>
 
-          <div>
-            <strong>Therapy Studio</strong>
-            <span>Clinical workspace</span>
-          </div>
-        </NavLink>
+        <aside
+          className={`sidebar ${mobileMenuOpen ? "sidebar--open" : ""}`}
+          id="app-navigation"
+          ref={navigationRef}
+        >
+          <NavLink className="brand" onClick={closeMobileMenu} to="/">
+            <div className="brand-icon">
+              <Sparkles aria-hidden="true" size={22} />
+            </div>
 
-        <nav className="sidebar-navigation" aria-label="Main navigation">
-          {navigationItems.map(({ badge, label, path, icon: Icon, utility }) => (
-            <NavLink
-              className={({ isActive }) =>
-                [
-                  "navigation-button",
-                  utility ? "navigation-button--utility" : "",
-                  isActive ? "active" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")
-              }
-              end={path === "/"}
-              key={path}
-              onClick={closeMobileMenu}
-              to={path}
-            >
-              <Icon aria-hidden="true" size={20} />
-              <span>{label}</span>
-              {badge ? (
-                <span aria-hidden="true" className="navigation-badge">
-                  {badge}
-                </span>
-              ) : null}
-            </NavLink>
-          ))}
-        </nav>
-      </aside>
+            <div>
+              <strong>Therapy Studio</strong>
+              <span>Clinical workspace</span>
+            </div>
+          </NavLink>
 
-      {mobileMenuOpen ? (
-        <button
-          aria-label="Dismiss Navigation Menu"
-          className="navigation-backdrop"
-          onClick={() => {
-            closeMobileMenu();
-            navigationToggleRef.current?.focus();
-          }}
-          type="button"
-        />
-      ) : null}
+          <nav className="sidebar-navigation" aria-label="Main navigation">
+            {navigationItems.map(({ badge, label, path, icon: Icon, utility }) => (
+              <NavLink
+                className={({ isActive }) =>
+                  [
+                    "navigation-button",
+                    utility ? "navigation-button--utility" : "",
+                    isActive ? "active" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")
+                }
+                end={path === "/"}
+                key={path}
+                onClick={closeMobileMenu}
+                to={path}
+              >
+                <Icon aria-hidden="true" size={20} />
+                <span>{label}</span>
+                {badge ? (
+                  <span aria-hidden="true" className="navigation-badge">
+                    {badge}
+                  </span>
+                ) : null}
+              </NavLink>
+            ))}
+          </nav>
+        </aside>
 
-      <div className="shell-workspace">
-        <header className="shell-toolbar">
+        {mobileMenuOpen ? (
           <button
-            aria-controls="app-navigation"
-            aria-expanded={mobileMenuOpen}
-            aria-label={mobileMenuOpen ? "Close Navigation" : "Open Navigation"}
-            className="mobile-navigation-toggle"
-            onClick={toggleMobileMenu}
-            ref={navigationToggleRef}
+            aria-label="Dismiss Navigation Menu"
+            className="navigation-backdrop"
+            onClick={() => {
+              closeMobileMenu();
+              navigationToggleRef.current?.focus();
+            }}
             type="button"
-          >
-            {mobileMenuOpen ? (
-              <X aria-hidden="true" size={21} />
-            ) : (
-              <Menu aria-hidden="true" size={21} />
-            )}
-          </button>
+          />
+        ) : null}
 
-          <p aria-live="polite" className="shell-current-page">
-            <span>Current Page</span>
-            <strong>{currentPageLabel}</strong>
-          </p>
+        <div className="shell-workspace">
+          <header className="shell-toolbar">
+            <button
+              aria-controls="app-navigation"
+              aria-expanded={mobileMenuOpen}
+              aria-label={mobileMenuOpen ? "Close Navigation" : "Open Navigation"}
+              className="mobile-navigation-toggle"
+              onClick={toggleMobileMenu}
+              ref={navigationToggleRef}
+              type="button"
+            >
+              {mobileMenuOpen ? (
+                <X aria-hidden="true" size={21} />
+              ) : (
+                <Menu aria-hidden="true" size={21} />
+              )}
+            </button>
 
-          <Link className="shell-search-link" to="/#universal-search">
-            <Search aria-hidden="true" size={18} />
-            Search Resources
-          </Link>
-        </header>
+            <p aria-live="polite" className="shell-current-page">
+              <span>Current Page</span>
+              <strong>{currentPageLabel}</strong>
+            </p>
 
-        <main className="main-content" id="main-content" tabIndex="-1">
-          <Outlet />
-        </main>
+            <Link className="shell-search-link" to="/#universal-search">
+              <Search aria-hidden="true" size={18} />
+              Search Resources
+            </Link>
+          </header>
+          <SharedSessionBar />
+
+          <main className="main-content" id="main-content" tabIndex="-1">
+            <Outlet />
+          </main>
+        </div>
       </div>
-    </div>
+    </SharedSessionProvider>
   );
 }
