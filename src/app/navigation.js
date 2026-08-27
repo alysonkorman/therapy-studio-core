@@ -5,6 +5,7 @@ import {
   Heart,
   Home,
   MessageCircle,
+  PenTool,
   Settings,
   Users,
 } from "lucide-react";
@@ -16,6 +17,7 @@ export function createNavigationItems() {
     { label: "Interventions", path: "/interventions", icon: Brain },
     { label: "Activities", path: "/activities", icon: Compass },
     { label: "Worksheets", path: "/worksheets", icon: FileText },
+    { label: "Whiteboard", path: "/whiteboard", icon: PenTool },
     { label: "Session Profiles", path: "/clients", icon: Users },
     { label: "Saved", path: "/saved", icon: Heart },
     { label: "Settings", path: "/settings", icon: Settings, utility: true },
